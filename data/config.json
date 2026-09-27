@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "churchName": "Ministerio Plenitud de Gracia",
   "tagline": "Yo no he venido a ser servido, sino a servir.",
   "taglineEn": "I did not come to be served, but to serve.",
@@ -11,6 +11,8 @@
   "website": "https://mpdgi.org",
   "memberPortal": "https://mpdgi.chmeetings.com",
   "prayer": "https://mpdgi.org/oracion",
+  "connect": "https://mpdgi.org",
+  "ministries": "https://mpdgi.org/ministerios",
   "youtube": "https://www.youtube.com/@ministerioplenituddegracia",
   "facebook": "https://www.facebook.com/mpdginc",
   "instagram": "https://www.instagram.com/mpdginc/",
@@ -22,8 +24,7 @@
   "hubUrl": "https://kl4ne.github.io/mpdgi-hub/",
   "futureCustomDomain": "https://connect.mpdgi.org",
   "verifiedRoutes": {
-    "events": false,
-    "resources": false,
-    "ministries": false
+    "connect": false,
+    "ministries": true
   }
 }

@@ -1,138 +1,62 @@
-# MPDGI Hub — v1.0.0
+# MPDGI Hub — v1.1.0
 
-Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**. The project is a lightweight, mobile-first Progressive Web App designed to give members and visitors fast access to official church resources from one permanent entry point.
+Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
 
-## v1.0.0 — NFC Launch
+## v1.1.0 — Reference UI Refresh
 
-MPDGI Hub is optimized for physical NFC cards. A visitor can tap an iPhone or Android phone and immediately use the Hub as a normal website; installation is optional and never required.
+This release aligns the live PWA much more closely with the approved mobile mockup while preserving the official circular MPdG logo supplied by the church.
 
-Current temporary deployment target:
+Live deployment target:
 
 `https://kl4ne.github.io/mpdgi-hub/`
 
-Future permanent NFC target, **not configured yet**:
+Future NFC custom domain, **not configured yet**:
 
 `https://connect.mpdgi.org`
 
-The main `mpdgi.org` website is intentionally left unchanged.
+The existing `https://mpdgi.org` site and DNS are intentionally untouched.
 
-## Design
+## Visual system
 
-The approved interface uses a premium church visual direction:
-
-- Navy: `#071A36`
+- Primary navy: `#071A36`
 - Secondary navy: `#0B2A52`
 - Gold: `#D4AF37`
 - Light gold: `#F2C94C`
 - White: `#FFFFFF`
+- UI fonts: SF Pro / Segoe UI / Roboto / Helvetica / Arial
+- Institutional heading fallback: Georgia / Times New Roman
 
-The interface uses the official MPdG logo, two-column touch cards on normal phone widths, a one-column fallback on very narrow screens, bilingual ES/EN controls, accessible dialogs, visible keyboard focus and reduced-motion support.
+The mobile interface now uses a larger official logo, stronger two-column gradient cards, a gold/navy wave separator, compact address/service information, a single language pill, and a four-item bottom navigation.
 
-## Official access cards
+## Current cards
 
-1. Servicio en Vivo / Watch Live — official YouTube channel.
-2. Portal de Miembros / Member Portal — ChMeetings.
-3. Ofrendar / Give — modal with Tithe.ly and Zelle.
-4. Petición de Oración / Prayer Request — `https://mpdgi.org/oracion`.
-5. Eventos / Events.
-6. Recursos / Resources.
-7. Ministerios / Ministries.
-8. Redes Sociales / Social Media — Facebook and Instagram modal.
-9. Sitio Web / Website — `https://mpdgi.org`.
+1. Portal de Miembros / Member Portal — ChMeetings.
+2. Ofrendar / Give — Tithe.ly and centered Zelle information.
+3. Petición de Oración / Prayer Request — `https://mpdgi.org/oracion`.
+4. Conéctate / Connect — visitor/newcomer entry point using the official-site fallback `https://mpdgi.org` until a dedicated route is confirmed.
+5. Ministerios / Ministries — `https://mpdgi.org/ministerios`.
+6. Redes Sociales / Social Media — Facebook, Instagram and YouTube in one modal.
+7. Sitio Web / Website — `https://mpdgi.org`.
 
-The removed **Conéctate** card is intentionally not part of v1.0.0.
+The standalone **Servicio en Vivo / YouTube**, **Eventos**, and **Recursos** cards were removed in v1.1.0. YouTube remains available inside Redes Sociales.
 
-### Route verification note
+## PWA
 
-A dedicated route for **Eventos**, **Recursos** or **Ministerios** could not be independently verified during the v1.0.0 build. Per project rules, those three cards currently use the official fallback `https://mpdgi.org` instead of inventing paths. Update them only after a real route is confirmed.
+The app includes relative manifest paths, a root Service Worker, offline shell caching, old-cache cleanup, silent updates, ES/EN language support, keyboard/focus accessibility and reduced-motion support.
 
-## Repository structure
-
-```text
-mpdgi-hub/
-├── index.html
-├── sw.js
-├── manifest.json
-├── README.md
-├── .nojekyll
-├── css/
-│   └── style.css
-├── js/
-│   └── app.js
-├── data/
-│   ├── config.json
-│   ├── links.json
-│   └── changelog.json
-├── assets/
-│   ├── profile/
-│   │   └── logo-mpdg.png
-│   ├── icons/
-│   │   ├── apple-touch-icon.png
-│   │   ├── icon-192.png
-│   │   └── icon-512.png
-│   ├── logos/
-│   └── qr/
-│       └── README.md
-└── .github/
-    └── workflows/
-        └── validate.yml
-```
-
-`sw.js` intentionally stays at the repository root so its scope covers the full Hub.
-
-## Configuration
-
-Primary project settings live in `data/config.json`, including version, official URLs, default language, church information and the future custom domain.
-
-Card definitions live in `data/links.json`. Every card has:
-
-- unique `id` and numeric `order`;
-- bilingual `title` and `subtitle`;
-- `direct` or `modal` action;
-- HTTPS destination for direct links;
-- visual `theme` and icon key.
-
-To update a card, modify `data/links.json`, keep both languages synchronized and let the validation workflow confirm the data model.
-
-## PWA and offline behavior
-
-The PWA includes:
-
-- `manifest.json` with relative `start_url` and `scope` for portability between GitHub Pages and the future custom domain;
-- official logo-derived 192 px, 512 px and Apple touch icons;
-- root Service Worker;
-- critical-shell precache;
-- network-first navigation and JSON configuration;
-- stale-while-revalidate local static assets;
-- old-cache cleanup;
-- silent Service Worker activation;
-- offline status messaging after the first successful visit.
-
-External services are not intercepted by the Service Worker.
+The supplied official circular logo is used for the hero and PWA icon assets.
 
 ## Security
 
-The repository is public. Never commit passwords, API keys, tokens, administrative credentials, banking secrets or private service credentials.
+This public repository must never contain passwords, API keys, tokens, banking credentials or private service credentials. The Hub stores no passwords or payment data. External services are governed by their own terms and privacy policies.
 
-The Hub uses a restrictive Content Security Policy, validates launch URLs as HTTPS, avoids external JavaScript dependencies, uses `noopener noreferrer` for new-window links and does not use untrusted `innerHTML`.
+A restrictive same-origin Content Security Policy is applied and external navigation is HTTPS-only with `noopener noreferrer`.
 
-The Hub does not store passwords, payment information or sensitive personal information. External services are governed by their respective terms and privacy policies.
+## Validation
 
-## Validation and deployment
-
-`.github/workflows/validate.yml` checks JavaScript syntax, JSON validity, version synchronization, required files, PWA metadata, official URLs, HTTPS, Service Worker paths, CSP, card integrity, icon/logo presence, removal of legacy loose files, and confirms that a `CNAME` is not introduced before the custom-domain phase.
-
-GitHub Pages should publish directly from `main`. Do not call a release production-ready until both validation and GitHub Pages deployment succeed.
-
-## Future custom domain
-
-Only after v1.0.0 is fully tested should GitHub Pages be configured for:
-
-`https://connect.mpdgi.org`
-
-At that time, verify GitHub's current custom-domain documentation before making DNS changes. Do not replace or redirect the existing `https://mpdgi.org` website.
+`.github/workflows/validate.yml` checks JavaScript syntax, JSON, semantic version synchronization, required assets, official routes, card integrity, removal of the deprecated cards, YouTube placement inside the social modal, logo presence, PWA metadata, Service Worker paths, CSP and the absence of a premature `CNAME`.
 
 ## Copyright
 

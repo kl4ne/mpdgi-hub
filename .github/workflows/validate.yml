@@ -15,82 +15,41 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate v1.0.0
+      - name: Validate v1.1.0
         run: |
           node --check js/app.js
           node --check sw.js
           node <<'NODE'
-          const fs = require('fs');
-          const read = p => fs.readFileSync(p, 'utf8');
-          const json = p => JSON.parse(read(p));
-          const must = [
-            'index.html','sw.js','manifest.json','README.md','.nojekyll',
-            'css/style.css','js/app.js','data/config.json','data/links.json',
-            'data/changelog.json','assets/profile/logo-mpdg.png',
-            'assets/icons/icon-192.png','assets/icons/icon-512.png',
-            'assets/icons/apple-touch-icon.png','assets/qr/README.md'
-          ];
-          for (const p of must) if (!fs.existsSync(p)) throw Error('Missing: ' + p);
-
-          const index = read('index.html');
-          const app = read('js/app.js');
-          const sw = read('sw.js');
-          const manifest = json('manifest.json');
-          const config = json('data/config.json');
-          const links = json('data/links.json');
-          const changelog = json('data/changelog.json');
-
-          if (config.version !== '1.0.0') throw Error('Config version mismatch');
-          if (!app.includes("HUB_VERSION = '1.0.0'")) throw Error('App version mismatch');
-          if (!sw.includes("VERSION = '1.0.0'")) throw Error('SW version mismatch');
-          if (!index.includes('v1.0.0')) throw Error('Footer version mismatch');
-          if (changelog[0]?.version !== '1.0.0' || changelog[0]?.title !== 'NFC Launch') throw Error('Changelog mismatch');
-
-          for (const token of ["default-src 'self'","script-src 'self'","style-src 'self'","connect-src 'self'","worker-src 'self'","object-src 'none'","base-uri 'self'"]) {
-            if (!index.includes(token)) throw Error('Missing CSP: ' + token);
-          }
-
-          if (manifest.start_url !== './' || manifest.scope !== './' || manifest.id !== './' || manifest.display !== 'standalone') throw Error('Manifest portability/display mismatch');
-          for (const icon of manifest.icons || []) if (!fs.existsSync(icon.src)) throw Error('Missing icon: ' + icon.src);
-
-          const urlKeys = ['website','memberPortal','prayer','youtube','facebook','instagram','tithely','hubUrl','futureCustomDomain'];
-          for (const key of urlKeys) if (new URL(config[key]).protocol !== 'https:') throw Error('Non-HTTPS config URL: ' + key);
-
-          if (config.website !== 'https://mpdgi.org') throw Error('Website mismatch');
-          if (config.memberPortal !== 'https://mpdgi.chmeetings.com') throw Error('Member portal mismatch');
-          if (config.prayer !== 'https://mpdgi.org/oracion') throw Error('Prayer mismatch');
-          if (config.youtube !== 'https://www.youtube.com/@ministerioplenituddegracia') throw Error('YouTube mismatch');
-          if (config.facebook !== 'https://www.facebook.com/mpdginc') throw Error('Facebook mismatch');
-          if (config.instagram !== 'https://www.instagram.com/mpdginc/') throw Error('Instagram mismatch');
-          if (config.tithely !== 'https://tithe.ly/give_new/www/#/tithely/give-one-time/6513581') throw Error('Tithe.ly mismatch');
-          if (config.zelle !== 'mpdginc@gmail.com') throw Error('Zelle mismatch');
-          if (config.defaultLanguage !== 'es') throw Error('Spanish must be default');
-          if (config.developer !== 'Roberto S. Macfie') throw Error('Developer credit mismatch');
-
-          if (!Array.isArray(links) || links.length !== 9) throw Error('Expected exactly 9 cards');
-          const ids = new Set();
-          const orders = new Set();
-          for (const item of links) {
-            if (!item.id || ids.has(item.id)) throw Error('Duplicate/missing card id');
-            ids.add(item.id);
-            if (!Number.isInteger(item.order) || orders.has(item.order)) throw Error('Duplicate/invalid order');
-            orders.add(item.order);
-            if (!item.title?.es || !item.title?.en || !item.subtitle?.es || !item.subtitle?.en) throw Error('Card not bilingual: ' + item.id);
-            if (item.action === 'direct' && new URL(item.url).protocol !== 'https:') throw Error('Non-HTTPS card: ' + item.id);
-          }
-          if (ids.has('connect') || /Conéctate|Connect with us/i.test(JSON.stringify(links))) throw Error('Removed Connect card/wording returned');
-
-          const byId = Object.fromEntries(links.map(x => [x.id, x]));
-          if (byId.live.url !== config.youtube || byId.members.url !== config.memberPortal || byId.prayer.url !== config.prayer || byId.website.url !== config.website) throw Error('Card URL sync mismatch');
-          for (const id of ['events','resources','ministries']) {
-            if (config.verifiedRoutes[id] === false && byId[id].url !== config.website) throw Error(id + ' must use official fallback');
-          }
-
-          const swMust = ['./index.html','./css/style.css','./js/app.js','./manifest.json','./data/config.json','./data/links.json','./assets/profile/logo-mpdg.png','./assets/icons/icon-192.png'];
-          for (const p of swMust) if (!sw.includes("'" + p + "'")) throw Error('SW missing: ' + p);
-
-          if (fs.existsSync('CNAME')) throw Error('CNAME must not exist yet');
-          for (const name of fs.readdirSync('.')) if (name === '.env' || name.startsWith('.env.')) throw Error('Secret env file detected');
-
-          console.log('MPDGI Hub v1.0.0 release integrity validated');
+          const fs=require('fs');
+          const read=p=>fs.readFileSync(p,'utf8');
+          const json=p=>JSON.parse(read(p));
+          const must=['index.html','sw.js','manifest.json','README.md','.nojekyll','css/style.css','js/app.js','data/config.json','data/links.json','data/changelog.json','assets/profile/logo-mpdg.png','assets/icons/icon-192.png','assets/icons/icon-512.svg','assets/qr/README.md'];
+          for(const p of must)if(!fs.existsSync(p))throw Error('Missing: '+p);
+          const index=read('index.html'),app=read('js/app.js'),sw=read('sw.js'),manifest=json('manifest.json'),config=json('data/config.json'),links=json('data/links.json'),changelog=json('data/changelog.json');
+          if(config.version!=='1.1.0'||!app.includes("HUB_VERSION='1.1.0'")||!sw.includes("VERSION='1.1.0'"))throw Error('Version mismatch');
+          if(changelog[0]?.version!=='1.1.0'||changelog[0]?.title!=='Reference UI Refresh')throw Error('Changelog mismatch');
+          for(const t of ["default-src 'self'","script-src 'self'","style-src 'self'","connect-src 'self'","worker-src 'self'","object-src 'none'","base-uri 'self'"])if(!index.includes(t))throw Error('Missing CSP: '+t);
+          if(manifest.start_url!=='./'||manifest.scope!=='./'||manifest.id!=='./'||manifest.display!=='standalone')throw Error('Manifest mismatch');
+          for(const icon of manifest.icons||[])if(!fs.existsSync(icon.src))throw Error('Missing icon: '+icon.src);
+          if(fs.statSync('assets/profile/logo-mpdg.png').size<5000||fs.statSync('assets/icons/icon-192.png').size<5000)throw Error('Official logo/icon asset too small or missing');
+          const urlKeys=['website','memberPortal','prayer','connect','ministries','youtube','facebook','instagram','tithely','hubUrl','futureCustomDomain'];
+          for(const key of urlKeys)if(new URL(config[key]).protocol!=='https:')throw Error('Non-HTTPS: '+key);
+          if(config.ministries!=='https://mpdgi.org/ministerios')throw Error('Ministries route mismatch');
+          if(config.youtube!=='https://www.youtube.com/@ministerioplenituddegracia')throw Error('YouTube mismatch');
+          if(config.defaultLanguage!=='es'||config.developer!=='Roberto S. Macfie')throw Error('Config identity/default mismatch');
+          if(!Array.isArray(links)||links.length!==7)throw Error('Expected exactly 7 cards');
+          const ids=new Set(links.map(x=>x.id));
+          for(const removed of ['live','events','resources'])if(ids.has(removed))throw Error('Removed card returned: '+removed);
+          for(const required of ['members','give','prayer','connect','ministries','social','website'])if(!ids.has(required))throw Error('Missing card: '+required);
+          const byId=Object.fromEntries(links.map(x=>[x.id,x]));
+          if(byId.ministries.url!==config.ministries)throw Error('Ministries card mismatch');
+          if(byId.connect.url!==config.website)throw Error('Connect fallback mismatch');
+          if(byId.social.action!=='modal'||byId.social.modal!=='social')throw Error('Social must be modal');
+          if(JSON.stringify(links).includes(config.youtube))throw Error('YouTube must not be a standalone card URL');
+          if(!app.includes('externalLink(s.youtube,config.youtube'))throw Error('YouTube missing from social modal');
+          if(!read('css/style.css').includes('.zelle-box{text-align:center'))throw Error('Zelle must be centered');
+          for(const p of ['./index.html','./css/style.css','./js/app.js','./manifest.json','./data/config.json','./data/links.json','./assets/profile/logo-mpdg.png','./assets/icons/icon-192.png','./assets/icons/icon-512.svg'])if(!sw.includes("'"+p+"'"))throw Error('SW missing: '+p);
+          if(fs.existsSync('CNAME'))throw Error('CNAME must not exist yet');
+          for(const name of fs.readdirSync('.'))if(name==='.env'||name.startsWith('.env.'))throw Error('Secret env file detected');
+          console.log('MPDGI Hub v1.1.0 validated');
           NODE
