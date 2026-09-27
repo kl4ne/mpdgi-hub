@@ -1,12 +1,12 @@
-# MPDGI Hub — v1.3.0
+# MPDGI Hub — v1.3.1
 
 Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
 
-## v1.3.0 — About Card & Ultra Compact Grid
+## v1.3.1 — Balanced Vertical Spacing
 
-This release restructures the final row so Website and About are equal-size cards, moves the existing About information into the new About card, removes the footer version/About controls, and reduces card height again for a tighter single-screen mobile layout.
+This patch keeps the compact v1.3.0 card sizing but restores a little vertical breathing room between menu rows so the grid feels less cramped while remaining optimized for a single-screen mobile view.
 
 Live deployment target:
 
@@ -48,3 +48,7 @@ The Hub stores no passwords or payment information. A restrictive same-origin Co
 ## Copyright
 
 © 2026 Ministerio Plenitud de Gracia. All Rights Reserved.
+
+## v1.3.1 spacing refinement
+
+Menu rows now have a slightly larger vertical gap than the horizontal gap. Button height and the rest of the compact layout remain unchanged.

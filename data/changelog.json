@@ -1,5 +1,15 @@
 [
   {
+    "version": "1.3.1",
+    "title": "Balanced Vertical Spacing",
+    "date": "2026-09-26",
+    "changes": [
+      "Added a little more vertical breathing room between menu rows while keeping the compact button height.",
+      "Kept the horizontal gap tight so the two-column layout remains efficient.",
+      "Preserved the single-screen mobile target and all v1.3.0 functionality."
+    ]
+  },
+  {
     "version": "1.3.0",
     "title": "About Card & Ultra Compact Grid",
     "date": "2026-09-26",
