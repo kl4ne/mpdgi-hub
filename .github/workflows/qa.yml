@@ -1,0 +1,54 @@
+name: QA MPDGI Hub
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  browser-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install QA dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Start local Hub
+        run: |
+          nohup python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/mpdgi-hub-http.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/mpdgi-hub-http.log
+          exit 1
+
+      - name: Playwright mobile and functional QA
+        env:
+          BASE_URL: http://127.0.0.1:4173
+        run: npm run test:ui
+
+      - name: Lighthouse
+        run: |
+          npx --yes lighthouse@12 http://127.0.0.1:4173/             --chrome-flags="--headless --no-sandbox --disable-gpu"             --only-categories=performance,accessibility,best-practices             --output=json --output-path=lighthouse.json --quiet
+          node <<'NODE'
+          const r=require('./lighthouse.json');
+          const scores=Object.fromEntries(Object.entries(r.categories).map(([k,v])=>[k,v.score]));
+          console.log(scores);
+          if(scores.performance < .80) throw Error('Lighthouse performance below 0.80');
+          if(scores.accessibility < .90) throw Error('Lighthouse accessibility below 0.90');
+          if(scores['best-practices'] < .90) throw Error('Lighthouse best-practices below 0.90');
+          NODE
