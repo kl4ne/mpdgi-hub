@@ -1,4 +1,4 @@
-const VERSION='1.1.0';
+const VERSION='1.2.0';
 const CACHE_PREFIX='mpdgi-hub';
 const SHELL_CACHE=`${CACHE_PREFIX}-shell-${VERSION}`;
 const RUNTIME_CACHE=`${CACHE_PREFIX}-runtime-${VERSION}`;
@@ -31,26 +31,33 @@ function isDataRequest(url){return url.pathname.endsWith('/data/config.json')||u
 function offlineResponse(){return new Response('Offline',{status:503,headers:{'Content-Type':'text/plain; charset=utf-8'}});}
 async function putIfCacheable(cacheName,request,response){if(!response||!response.ok||response.type==='opaque')return;try{const cache=await caches.open(cacheName);await cache.put(request,response.clone());}catch(e){console.warn('[MPDGI Hub] Cache write failed:',e);}}
 async function networkFirst(request,cacheName,fallbackUrl=null){
-  try{const response=await fetch(request);if(response?.ok){await putIfCacheable(cacheName,request,response);return response;}
+  try{
+    const response=await fetch(request);
+    if(response?.ok){await putIfCacheable(cacheName,request,response);return response;}
     const cached=await caches.match(request,{ignoreSearch:true});if(cached)return cached;
     if(fallbackUrl){const fallback=await caches.match(fallbackUrl,{ignoreSearch:true});if(fallback)return fallback;}
     return response||offlineResponse();
-  }catch{const cached=await caches.match(request,{ignoreSearch:true});if(cached)return cached;
+  }catch{
+    const cached=await caches.match(request,{ignoreSearch:true});if(cached)return cached;
     if(fallbackUrl){const fallback=await caches.match(fallbackUrl,{ignoreSearch:true});if(fallback)return fallback;}
-    return offlineResponse();}
+    return offlineResponse();
+  }
 }
 async function dataNetworkFirst(request){
   const requestUrl=new URL(request.url),scopeUrl=new URL(self.registration.scope);
   const relative=requestUrl.pathname.startsWith(scopeUrl.pathname)?requestUrl.pathname.slice(scopeUrl.pathname.length):requestUrl.pathname.split('/').pop();
   const canonical=new URL(relative,self.registration.scope).href;
-  try{const response=await fetch(request);if(response?.ok){const cache=await caches.open(SHELL_CACHE);await cache.put(canonical,response.clone());return response;}
+  try{
+    const response=await fetch(request);
+    if(response?.ok){const cache=await caches.open(SHELL_CACHE);await cache.put(canonical,response.clone());return response;}
     return(await caches.match(canonical,{ignoreSearch:true}))||response||offlineResponse();
   }catch{return(await caches.match(canonical,{ignoreSearch:true}))||offlineResponse();}
 }
 async function staleWhileRevalidate(request){
   const cached=await caches.match(request,{ignoreSearch:true});
   const network=fetch(request).then(async response=>{if(response?.ok)await putIfCacheable(RUNTIME_CACHE,request,response);return response;}).catch(()=>null);
-  if(cached){network.catch(()=>{});return cached;}return(await network)||offlineResponse();
+  if(cached){network.catch(()=>{});return cached;}
+  return(await network)||offlineResponse();
 }
 self.addEventListener('fetch',event=>{
   const request=event.request;if(request.method!=='GET')return;

@@ -1,12 +1,12 @@
-# MPDGI Hub — v1.1.0
+# MPDGI Hub — v1.2.0
 
 Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
 
-## v1.1.0 — Reference UI Refresh
+## v1.2.0 — Bible & Footer Refresh
 
-This release aligns the live PWA much more closely with the approved mobile mockup while preserving the official circular MPdG logo supplied by the church.
+This release keeps the official circular MPdG logo and the approved navy/gold visual direction while simplifying navigation and refining the card icon system.
 
 Live deployment target:
 
@@ -16,7 +16,35 @@ Future NFC custom domain, **not configured yet**:
 
 `https://connect.mpdgi.org`
 
-The existing `https://mpdgi.org` site and DNS are intentionally untouched.
+The existing `https://mpdgi.org` site and DNS remain untouched.
+
+## Current cards
+
+1. Portal de Miembros / Member Portal — ChMeetings.
+2. Ofrendar / Give — Tithe.ly and centered Zelle information.
+3. Petición de Oración / Prayer Request — `https://mpdgi.org/oracion`.
+4. Biblia / Bible — modal with:
+   - Reina-Valera 1960 (RVR1960): `https://www.biblegateway.com/versions/Reina-Valera-1960-RVR1960-Biblia/`
+   - King James Version (KJV): `https://www.biblegateway.com/versions/King-James-Version-KJV-Bible/`
+5. Ministerios / Ministries — `https://mpdgi.org/ministerios`.
+6. Redes Sociales / Social Media — Facebook, Instagram and YouTube, each shown with its recognizable platform mark.
+7. Sitio Web / Website — `https://mpdgi.org`.
+
+The standalone **Servicio en Vivo / YouTube**, **Eventos**, **Recursos**, and **Conéctate** cards are not part of v1.2.0. YouTube remains inside Redes Sociales.
+
+## Footer
+
+The four-item bottom navigation introduced in v1.1.0 was removed. The visible footer once again contains:
+
+- current version;
+- optional PWA install button when the browser supports installation;
+- Acerca de / About;
+- developer credit;
+- copyright.
+
+## Icon direction
+
+The card icons use a custom monoline system designed for MPDGI Hub rather than attempting to imitate the reference mockup. Social-media buttons intentionally use recognizable brand marks because those buttons identify external platforms.
 
 ## Visual system
 
@@ -28,35 +56,19 @@ The existing `https://mpdgi.org` site and DNS are intentionally untouched.
 - UI fonts: SF Pro / Segoe UI / Roboto / Helvetica / Arial
 - Institutional heading fallback: Georgia / Times New Roman
 
-The mobile interface now uses a larger official logo, stronger two-column gradient cards, a gold/navy wave separator, compact address/service information, a single language pill, and a four-item bottom navigation.
+## PWA and accessibility
 
-## Current cards
-
-1. Portal de Miembros / Member Portal — ChMeetings.
-2. Ofrendar / Give — Tithe.ly and centered Zelle information.
-3. Petición de Oración / Prayer Request — `https://mpdgi.org/oracion`.
-4. Conéctate / Connect — visitor/newcomer entry point using the official-site fallback `https://mpdgi.org` until a dedicated route is confirmed.
-5. Ministerios / Ministries — `https://mpdgi.org/ministerios`.
-6. Redes Sociales / Social Media — Facebook, Instagram and YouTube in one modal.
-7. Sitio Web / Website — `https://mpdgi.org`.
-
-The standalone **Servicio en Vivo / YouTube**, **Eventos**, and **Recursos** cards were removed in v1.1.0. YouTube remains available inside Redes Sociales.
-
-## PWA
-
-The app includes relative manifest paths, a root Service Worker, offline shell caching, old-cache cleanup, silent updates, ES/EN language support, keyboard/focus accessibility and reduced-motion support.
-
-The supplied official circular logo is used for the hero and PWA icon assets.
+The app retains relative manifest paths, a root Service Worker, offline shell caching, old-cache cleanup, silent updates, ES/EN language support, keyboard focus management, Escape-to-close dialogs, focus trapping and reduced-motion support.
 
 ## Security
 
-This public repository must never contain passwords, API keys, tokens, banking credentials or private service credentials. The Hub stores no passwords or payment data. External services are governed by their own terms and privacy policies.
+This public repository must never contain passwords, API keys, tokens, banking credentials or private service credentials. The Hub stores no passwords or payment data.
 
-A restrictive same-origin Content Security Policy is applied and external navigation is HTTPS-only with `noopener noreferrer`.
+A restrictive same-origin Content Security Policy is applied. External navigation is HTTPS-only and uses `noopener noreferrer`.
 
 ## Validation
 
-`.github/workflows/validate.yml` checks JavaScript syntax, JSON, semantic version synchronization, required assets, official routes, card integrity, removal of the deprecated cards, YouTube placement inside the social modal, logo presence, PWA metadata, Service Worker paths, CSP and the absence of a premature `CNAME`.
+`.github/workflows/validate.yml` verifies JavaScript syntax, JSON, version synchronization, required assets, official routes, BibleGateway version links, the seven-card model, removal of deprecated cards/navigation, social-platform presentation, centered Zelle styling, PWA metadata, Service Worker paths, CSP and the absence of a premature `CNAME`.
 
 ## Copyright
 

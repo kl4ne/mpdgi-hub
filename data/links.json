@@ -14,7 +14,7 @@
     "action": "direct",
     "open": "new",
     "theme": "blue",
-    "icon": "users"
+    "icon": "member"
   },
   {
     "id": "give",
@@ -30,7 +30,7 @@
     "action": "modal",
     "modal": "give",
     "theme": "green",
-    "icon": "give"
+    "icon": "offering"
   },
   {
     "id": "prayer",
@@ -50,22 +50,20 @@
     "icon": "prayer"
   },
   {
-    "id": "connect",
+    "id": "bible",
     "order": 4,
     "title": {
-      "es": "Conéctate",
-      "en": "Connect"
+      "es": "Biblia",
+      "en": "Bible"
     },
     "subtitle": {
-      "es": "Visitantes y Nuevos",
-      "en": "Visitors & Newcomers"
+      "es": "Español • English",
+      "en": "Español • English"
     },
-    "url": "https://mpdgi.org",
-    "action": "direct",
-    "open": "new",
+    "action": "modal",
+    "modal": "bible",
     "theme": "gold",
-    "icon": "users",
-    "routeVerified": false
+    "icon": "bible"
   },
   {
     "id": "ministries",
@@ -82,7 +80,7 @@
     "action": "direct",
     "open": "new",
     "theme": "teal",
-    "icon": "church",
+    "icon": "ministry",
     "routeVerified": true
   },
   {
@@ -99,7 +97,7 @@
     "action": "modal",
     "modal": "social",
     "theme": "social",
-    "icon": "social"
+    "icon": "share"
   },
   {
     "id": "website",
@@ -116,7 +114,7 @@
     "action": "direct",
     "open": "new",
     "theme": "website",
-    "icon": "globe",
+    "icon": "website",
     "wide": true
   }
 ]

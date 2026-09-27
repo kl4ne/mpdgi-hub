@@ -1,18 +1,24 @@
 [
   {
+    "version": "1.2.0",
+    "title": "Bible & Footer Refresh",
+    "date": "2026-09-26",
+    "changes": [
+      "Removed the four-item bottom navigation and restored the compact v1.0.0-style footer with version, install, About, developer credit and copyright.",
+      "Replaced Conéctate with a bilingual Biblia / Bible card.",
+      "Added a Bible modal with Reina-Valera 1960 (RVR1960) in Spanish and King James Version (KJV) in English through BibleGateway.",
+      "Redes Sociales now uses recognizable Facebook, Instagram and YouTube brand marks with platform names and no Abrir/Open wording.",
+      "Replaced the previous mockup-like card icons with a cleaner custom monoline icon system.",
+      "Kept Zelle centered, Ministerios linked to https://mpdgi.org/ministerios, and YouTube inside Redes Sociales.",
+      "Kept Servicio en Vivo, Eventos and Recursos removed."
+    ]
+  },
+  {
     "version": "1.1.0",
     "title": "Reference UI Refresh",
     "date": "2026-09-26",
     "changes": [
-      "Restored the supplied official MPdG circular logo and replaced the corrupted logo asset.",
-      "Refined the interface to more closely match the approved mobile reference: larger logo, stronger card gradients, gold/navy wave separator, compact church information strip, single language pill, and four-item bottom navigation.",
-      "Removed the standalone Servicio en Vivo / YouTube card.",
-      "Moved YouTube into Redes Sociales with Facebook and Instagram.",
-      "Removed Eventos and Recursos from the Hub.",
-      "Restored Conéctate as a visitor/newcomer entry point using the official website fallback.",
-      "Updated Ministerios to https://mpdgi.org/ministerios.",
-      "Centered the Zelle section and copy controls in Ofrendar.",
-      "Moved version, privacy, copyright and developer attribution into Más / Acerca de."
+      "Restored the official MPdG logo and refreshed the interface toward the approved mobile reference."
     ]
   },
   {

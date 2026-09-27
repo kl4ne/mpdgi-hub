@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
   <title>MPDGI Hub • Ministerio Plenitud de Gracia</title>
-  <meta name="description" content="Hub digital oficial de Ministerio Plenitud de Gracia: miembros, ofrendas, oración, ministerios, redes sociales y recursos oficiales.">
+  <meta name="description" content="Hub digital oficial de Ministerio Plenitud de Gracia: miembros, ofrendas, oración, Biblia, ministerios, redes sociales y recursos oficiales.">
   <meta name="application-name" content="MPDGI Hub">
   <meta name="theme-color" content="#071A36">
   <meta name="color-scheme" content="dark">
@@ -86,22 +86,15 @@
       </div>
     </section>
 
-    <button type="button" id="install-button" class="install-chip" hidden>Instalar app</button>
-
-    <nav class="bottom-nav" aria-label="Navegación principal">
-      <button type="button" class="nav-item is-active" data-nav-action="home">
-        <span class="nav-icon" data-nav-icon="home" aria-hidden="true"></span><span id="nav-home">Inicio</span>
-      </button>
-      <button type="button" class="nav-item" data-nav-card="connect">
-        <span class="nav-icon" data-nav-icon="users" aria-hidden="true"></span><span id="nav-connect">Conéctate</span>
-      </button>
-      <a class="nav-item" id="nav-ministries-link" href="https://mpdgi.org/ministerios" target="_blank" rel="noopener noreferrer">
-        <span class="nav-icon" data-nav-icon="church" aria-hidden="true"></span><span id="nav-ministries">Ministerios</span>
-      </a>
-      <button type="button" class="nav-item" data-nav-action="about">
-        <span class="nav-icon" data-nav-icon="menu" aria-hidden="true"></span><span id="nav-more">Más</span>
-      </button>
-    </nav>
+    <footer class="hub-footer">
+      <div class="footer-actions">
+        <span id="version-label" class="version-label">v1.2.0</span>
+        <button type="button" id="install-button" class="footer-button" hidden>Instalar</button>
+        <button type="button" id="about-button" class="footer-button">Acerca de</button>
+      </div>
+      <p id="developer-credit" class="developer-credit">Designed &amp; Developed by Roberto S. Macfie for MPDGI</p>
+      <p id="copyright-text">© 2026 Ministerio Plenitud de Gracia. Todos los derechos reservados.</p>
+    </footer>
   </main>
 
   <div id="modal-overlay" class="modal-overlay" hidden>
