@@ -30,7 +30,7 @@ jobs:
           const manifest=json('manifest.json'),config=json('data/config.json'),links=json('data/links.json'),changelog=json('data/changelog.json');
 
           if(config.version!=='1.2.1'||!app.includes("HUB_VERSION='1.2.1'")||!sw.includes("VERSION='1.2.1'")||!index.includes('v1.2.1'))throw Error('Version mismatch');
-          if(changelog[0]?.version!=='1.2.0'||changelog[0]?.title!=='Single-Screen Compact Layout')throw Error('Changelog mismatch');
+          if(changelog[0]?.version!=='1.2.1'||changelog[0]?.title!=='Single-Screen Compact Layout')throw Error('Changelog mismatch');
 
           for(const t of ["default-src 'self'","script-src 'self'","style-src 'self'","connect-src 'self'","worker-src 'self'","object-src 'none'","base-uri 'self'"])if(!index.includes(t))throw Error('Missing CSP: '+t);
           if(manifest.start_url!=='./'||manifest.scope!=='./'||manifest.id!=='./'||manifest.display!=='standalone')throw Error('Manifest mismatch');
