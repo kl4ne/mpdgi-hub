@@ -1,6 +1,6 @@
 'use strict';
 
-const HUB_VERSION='1.3.3';
+const HUB_VERSION='1.4.0';
 const STORAGE_LANGUAGE_KEY='mpdgiHubLanguage';
 const VALID_THEMES=new Set(['blue','green','purple','gold','teal','social','website','about']);
 const VALID_MODAL_TYPES=new Set(['give','social','bible','about']);
@@ -46,7 +46,7 @@ const UI={
     privacy:'Privacy',privacyText:'This Hub does not store passwords, payment information, or sensitive personal information.',
     developerCredit:'Designed & Developed by Roberto S. Macfie for MPDGI',
     copyright:'© 2026 Ministerio Plenitud de Gracia. All Rights Reserved.',
-    officialWebsite:'Open mpdgi.org',languageLabel:'Cambiar idioma a español'
+    officialWebsite:'Open mpdgi.org',languageLabel:'Change language to Spanish'
   }
 };
 
@@ -72,7 +72,7 @@ const FALLBACK_LINKS=[
   {id:'ministries',order:5,title:{es:'Ministerios',en:'Ministries'},subtitle:{es:'Sirve con nosotros',en:'Serve with us'},url:'https://mpdgi.org/ministerios',action:'direct',open:'new',theme:'teal',icon:'ministry'},
   {id:'social',order:6,title:{es:'Redes Sociales',en:'Social Media'},subtitle:{es:'Facebook • Instagram • YouTube',en:'Facebook • Instagram • YouTube'},action:'modal',modal:'social',theme:'social',icon:'share'},
   {id:'website',order:7,title:{es:'Sitio Web',en:'Website'},subtitle:{es:'mpdgi.org',en:'mpdgi.org'},url:'https://mpdgi.org',action:'direct',open:'new',theme:'website',icon:'website'},
-  {id:'about',order:8,title:{es:'About',en:'About'},subtitle:{es:'Información del Hub',en:'Hub information'},action:'modal',modal:'about',theme:'about',icon:'about'}
+  {id:'about',order:8,title:{es:'Acerca de',en:'About'},subtitle:{es:'Información del Hub',en:'Hub information'},action:'modal',modal:'about',theme:'about',icon:'about'}
 ];
 
 const ICONS={
@@ -151,7 +151,7 @@ function safeHttpsUrl(value){try{const u=new URL(value,location.href);return u.p
 async function fetchJson(path,fallback){try{const r=await fetch(path,{cache:'no-store'});if(!r.ok)throw Error(String(r.status));return await r.json();}catch(e){console.warn('[MPDGI Hub]',path,e);return fallback;}}
 function translated(v){return v&&typeof v==='object'?(v[currentLanguage]||v.es||v.en||''):(typeof v==='string'?v:'');}
 
-let config={...DEFAULT_CONFIG},links=[...FALLBACK_LINKS],currentLanguage='es',installPrompt=null,lastModalTrigger=null;
+let config={...DEFAULT_CONFIG},links=[...FALLBACK_LINKS],currentLanguage='es',installPrompt=null,lastModalTrigger=null,pendingUpdateReload=false;
 
 function setLanguage(language,persist=true){
   currentLanguage=language==='en'?'en':'es';document.documentElement.lang=currentLanguage;
@@ -191,8 +191,11 @@ function updateStaticInfo(){
   document.getElementById('sunday-time').textContent=config.sundayService;document.getElementById('wednesday-time').textContent=config.wednesdayBibleStudy;
 }
 function focusableElements(){return[...document.getElementById('hub-modal').querySelectorAll('a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(e=>!e.hidden&&e.offsetParent!==null);}
-function openModal(title,trigger){const o=document.getElementById('modal-overlay'),b=document.getElementById('modal-body');lastModalTrigger=trigger||document.activeElement;document.getElementById('modal-title').textContent=title;b.replaceChildren();o.hidden=false;document.body.classList.add('modal-open');document.getElementById('modal-close').focus();return b;}
-function closeModal(){const o=document.getElementById('modal-overlay');if(o.hidden)return;o.hidden=true;document.body.classList.remove('modal-open');lastModalTrigger?.focus?.();}
+function setBackgroundInert(state){const main=document.getElementById('main-content');if(!main)return;main.inert=state;if(state)main.setAttribute('aria-hidden','true');else main.removeAttribute('aria-hidden');}
+function modalIsOpen(){return !document.getElementById('modal-overlay').hidden;}
+function reloadAfterUpdateIfSafe(){if(!pendingUpdateReload||modalIsOpen()||document.visibilityState!=='visible')return;pendingUpdateReload=false;location.reload();}
+function openModal(title,trigger){const o=document.getElementById('modal-overlay'),b=document.getElementById('modal-body');lastModalTrigger=trigger||document.activeElement;document.getElementById('modal-title').textContent=title;b.replaceChildren();o.hidden=false;document.body.classList.add('modal-open');setBackgroundInert(true);document.getElementById('modal-close').focus();return b;}
+function closeModal(){const o=document.getElementById('modal-overlay');if(o.hidden)return;o.hidden=true;document.body.classList.remove('modal-open');setBackgroundInert(false);lastModalTrigger?.focus?.();reloadAfterUpdateIfSafe();}
 function externalLink(label,url,className=''){const a=document.createElement('a');a.className=('modal-action '+className).trim();a.href=safeHttpsUrl(url)||'#';a.target='_blank';a.rel='noopener noreferrer';a.append(textElement('span','',label));return a;}
 function brandedLink(brand,label,url,className=''){const a=externalLink(label,url,className);a.prepend(createBrandMark(brand));return a;}
 function bibleLink(label,version,url,className=''){const a=document.createElement('a');a.className=('modal-action '+className).trim();a.href=safeHttpsUrl(url)||'#';a.target='_blank';a.rel='noopener noreferrer';const mark=document.createElement('span');mark.className='brand-mark';mark.append(createIcon('bible'));const copy=document.createElement('span');copy.className='modal-action-copy';copy.append(textElement('strong','',label),textElement('small','modal-subline',version));a.append(mark,copy);return a;}
@@ -218,9 +221,16 @@ function renderBibleModal(trigger){
     bibleLink(s.bibleEnglish,s.bibleEnglishVersion,config.bibleEnglish,'bible-english')
   );
 }
+function createInstallAction(){
+  if(!installPrompt)return null;
+  const s=UI[currentLanguage],btn=textElement('button','modal-action install-app',s.install);btn.type='button';
+  btn.addEventListener('click',async()=>{if(!installPrompt)return;const prompt=installPrompt;installPrompt=null;btn.disabled=true;await prompt.prompt();await prompt.userChoice.catch(()=>null);btn.remove();});
+  return btn;
+}
 function renderAboutModal(trigger){
   const s=UI[currentLanguage],b=openModal(s.aboutTitle,trigger);b.append(textElement('p','modal-text',s.aboutIntro));
   const meta=document.createElement('div');meta.className='about-meta';const v=document.createElement('div');v.append(textElement('span','',s.version),textElement('strong','', 'v'+(config.version||HUB_VERSION)));const w=document.createElement('div');w.append(textElement('span','',s.website),textElement('strong','','mpdgi.org'));meta.append(v,w);b.append(meta);
+  const install=createInstallAction();if(install)b.append(install);
   b.append(textElement('p','modal-text',s.external+': '+s.externalText),textElement('p','modal-text',s.privacy+': '+s.privacyText),textElement('p','modal-text about-credit',s.developerCredit),textElement('p','modal-text',s.copyright),externalLink(s.officialWebsite,config.website));
 }
 function openNamedModal(type,trigger){if(type==='give')renderGiveModal(trigger);if(type==='social')renderSocialModal(trigger);if(type==='bible')renderBibleModal(trigger);if(type==='about')renderAboutModal(trigger);}
@@ -230,7 +240,7 @@ function setupModal(){
 }
 function updateOfflineState(){const b=document.getElementById('offline-badge');b.hidden=navigator.onLine;b.textContent=navigator.onLine?'':UI[currentLanguage].offline;}
 function setupLanguage(){document.getElementById('language-toggle').addEventListener('click',()=>setLanguage(currentLanguage==='es'?'en':'es',true));}
-function setupInstall(){const btn=document.getElementById('install-button');window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;btn.hidden=false;});btn.addEventListener('click',async()=>{if(!installPrompt)return;installPrompt.prompt();await installPrompt.userChoice.catch(()=>null);installPrompt=null;btn.hidden=true;});window.addEventListener('appinstalled',()=>{installPrompt=null;btn.hidden=true;});}
+function setupInstall(){window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;});window.addEventListener('appinstalled',()=>{installPrompt=null;});}
 function setupServiceWorker(){
   if(!('serviceWorker'in navigator))return;
   window.addEventListener('load',async()=>{
@@ -241,7 +251,8 @@ function setupServiceWorker(){
         navigator.serviceWorker.addEventListener('controllerchange',()=>{
           if(reloadingForUpdate)return;
           reloadingForUpdate=true;
-          location.reload();
+          pendingUpdateReload=true;
+          reloadAfterUpdateIfSafe();
         });
       }
       const r=await navigator.serviceWorker.register('./sw.js',{scope:'./',updateViaCache:'none'});
@@ -256,7 +267,7 @@ function setupServiceWorker(){
       });
       setTimeout(checkForUpdate,1500);
       setInterval(checkForUpdate,15*60*1000);
-      document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkForUpdate();});
+      document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){checkForUpdate();reloadAfterUpdateIfSafe();}});
     }catch(e){console.warn('[MPDGI Hub] Service Worker registration failed:',e);}
   },{once:true});
 }
