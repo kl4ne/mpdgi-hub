@@ -1,4 +1,4 @@
-const VERSION='1.3.2';
+const VERSION='1.3.3';
 const CACHE_PREFIX='mpdgi-hub';
 const SHELL_CACHE=`${CACHE_PREFIX}-shell-${VERSION}`;
 const RUNTIME_CACHE=`${CACHE_PREFIX}-runtime-${VERSION}`;

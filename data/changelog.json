@@ -1,5 +1,16 @@
 [
   {
+    "version": "1.3.3",
+    "title": "Color & Header Polish",
+    "date": "2026-09-26",
+    "changes": [
+      "Changed the About card from gray to a distinct burgundy tone so no two menu cards share the same gray treatment.",
+      "Increased the official church logo slightly.",
+      "Added more breathing room between the church name and the scripture block.",
+      "Moved the Designed & Developed credit slightly lower and increased its font size by about one point."
+    ]
+  },
+  {
     "version": "1.3.2",
     "title": "Spacing, Silent Updates & NFC Readiness",
     "date": "2026-09-26",

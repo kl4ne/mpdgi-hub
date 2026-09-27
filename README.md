@@ -1,12 +1,12 @@
-# MPDGI Hub — v1.3.2
+# MPDGI Hub — v1.3.3
 
 Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
 
-## v1.3.2 — Spacing, Silent Updates & NFC Readiness
+## v1.3.3 — Color & Header Polish
 
-This patch restores intentional breathing room around the scripture divider and menu grid while keeping the compact one-screen layout. It also strengthens automatic PWA updates and formally validates the current NFC destination.
+This patch gives About its own burgundy color, slightly enlarges the official logo, adds more space between the church name and scripture block, and makes the Designed & Developed credit a little larger and lower.
 
 Live production / current NFC target:
 
@@ -54,3 +54,7 @@ No passwords, payment credentials, API keys or private data are stored in the pu
 ## Copyright
 
 © 2026 Ministerio Plenitud de Gracia. All Rights Reserved.
+
+## v1.3.3 visual refinement
+
+Website keeps the gray treatment while About now uses a distinct burgundy gradient. The official logo is slightly larger, the scripture block has more breathing room below the church name, and the developer credit is slightly larger and lower.
