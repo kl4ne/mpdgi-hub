@@ -1,0 +1,19 @@
+[
+  {
+    "version": "1.0.0",
+    "title": "NFC Launch",
+    "date": "2026-09-26",
+    "changes": [
+      "First public release of MPDGI Hub.",
+      "NFC-ready, mobile-first interface optimized for iPhone and Android.",
+      "Complete bilingual Spanish/English interface.",
+      "Member portal and official YouTube livestream access.",
+      "Giving options through Tithe.ly and Zelle.",
+      "Prayer requests and official church website access.",
+      "Events, resources and ministries entry points using the verified official-site fallback.",
+      "Facebook and Instagram social media modal.",
+      "Installable PWA with offline shell and silent Service Worker updates.",
+      "About, privacy note and official developer attribution."
+    ]
+  }
+]

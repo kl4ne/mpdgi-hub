@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
+  <title>MPDGI Hub • Ministerio Plenitud de Gracia</title>
+  <meta name="description" content="Hub digital oficial de Ministerio Plenitud de Gracia: servicios, miembros, ofrendas, oración, eventos, recursos, ministerios y redes sociales.">
+  <meta name="application-name" content="MPDGI Hub">
+  <meta name="theme-color" content="#071A36">
+  <meta name="color-scheme" content="dark">
+  <meta name="referrer" content="no-referrer">
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
+  <link rel="canonical" href="https://kl4ne.github.io/mpdgi-hub/">
+  <link rel="stylesheet" href="css/style.css">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MPDGI Hub">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="MPDGI Hub • Ministerio Plenitud de Gracia">
+  <meta property="og:description" content="Acceso rápido a los recursos oficiales de Ministerio Plenitud de Gracia.">
+  <meta property="og:url" content="https://kl4ne.github.io/mpdgi-hub/">
+  <meta property="og:image" content="https://kl4ne.github.io/mpdgi-hub/assets/icons/icon-512.png">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Saltar al contenido</a>
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
+
+  <main id="main-content" class="hub-shell">
+    <header class="hero" aria-labelledby="church-name">
+      <div class="hero-tools">
+        <div id="offline-badge" class="offline-badge" role="status" aria-live="polite" hidden></div>
+        <div class="language-switch" role="group" aria-label="Idioma / Language">
+          <button type="button" class="lang-option" data-lang="es" aria-pressed="true">ES</button>
+          <button type="button" class="lang-option" data-lang="en" aria-pressed="false">EN</button>
+        </div>
+      </div>
+
+      <div class="logo-stage">
+        <span class="logo-glow" aria-hidden="true"></span>
+        <img class="church-logo" src="assets/profile/logo-mpdg.png" width="500" height="500" alt="Logo de Ministerio Plenitud de Gracia" fetchpriority="high">
+      </div>
+
+      <p class="eyebrow">MPDGI HUB</p>
+      <h1 id="church-name">Ministerio<br><span>Plenitud de Gracia</span></h1>
+      <div class="gold-rule" aria-hidden="true"></div>
+      <blockquote id="tagline" class="tagline">“Yo no he venido a ser servido, sino a servir.”</blockquote>
+      <p id="scripture" class="scripture">Mateo 20:28</p>
+    </header>
+
+    <section class="links-section" aria-labelledby="links-heading">
+      <h2 id="links-heading" class="visually-hidden">Accesos principales</h2>
+      <div id="links-container" class="links-grid" aria-live="polite" aria-busy="true">
+        <div class="loading-card" aria-hidden="true"></div>
+        <div class="loading-card" aria-hidden="true"></div>
+        <div class="loading-card" aria-hidden="true"></div>
+        <div class="loading-card" aria-hidden="true"></div>
+      </div>
+      <noscript>
+        <p class="noscript-note">JavaScript is required for the interactive hub. Visit <a href="https://mpdgi.org">mpdgi.org</a>.</p>
+      </noscript>
+    </section>
+
+    <section class="visit-info" aria-label="Información de la iglesia">
+      <div class="visit-row visit-address">
+        <span class="visit-icon" data-info-icon="pin" aria-hidden="true"></span>
+        <p id="address-text">1045 E Normandy Blvd<br>Deltona, FL 32725</p>
+      </div>
+      <div class="visit-divider" aria-hidden="true"></div>
+      <div class="visit-row">
+        <span class="visit-icon" data-info-icon="clock" aria-hidden="true"></span>
+        <p><strong id="sunday-label">Domingos</strong><br><span id="sunday-time">10:00 AM</span></p>
+      </div>
+      <div class="visit-divider" aria-hidden="true"></div>
+      <div class="visit-row">
+        <span class="visit-icon" data-info-icon="book" aria-hidden="true"></span>
+        <p><strong id="wednesday-label">Miércoles</strong><br><span id="wednesday-time">7:00 PM</span></p>
+      </div>
+    </section>
+
+    <footer class="hub-footer">
+      <div class="footer-actions">
+        <span id="version-label" class="version-label">v1.0.0</span>
+        <button type="button" id="install-button" class="footer-button" hidden>Instalar</button>
+        <button type="button" id="about-button" class="footer-button">Acerca de</button>
+      </div>
+      <p id="developer-credit" class="developer-credit">Diseñado y desarrollado por Roberto S. Macfie para MPDGI</p>
+      <p id="copyright-text">© 2026 Ministerio Plenitud de Gracia. Todos los derechos reservados.</p>
+    </footer>
+  </main>
+
+  <div id="modal-overlay" class="modal-overlay" hidden>
+    <section id="hub-modal" class="hub-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
+      <div class="modal-head">
+        <div>
+          <p class="modal-kicker">MPDGI HUB</p>
+          <h2 id="modal-title" class="modal-title"></h2>
+        </div>
+        <button type="button" id="modal-close" class="modal-close" aria-label="Cerrar">×</button>
+      </div>
+      <div id="modal-body" class="modal-body"></div>
+    </section>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

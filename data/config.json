@@ -1,0 +1,29 @@
+{
+  "version": "1.0.0",
+  "churchName": "Ministerio Plenitud de Gracia",
+  "tagline": "Yo no he venido a ser servido, sino a servir.",
+  "taglineEn": "I did not come to be served, but to serve.",
+  "scripture": "Mateo 20:28",
+  "scriptureEn": "Matthew 20:28",
+  "address": "1045 E Normandy Blvd, Deltona, FL 32725",
+  "sundayService": "10:00 AM",
+  "wednesdayBibleStudy": "7:00 PM",
+  "website": "https://mpdgi.org",
+  "memberPortal": "https://mpdgi.chmeetings.com",
+  "prayer": "https://mpdgi.org/oracion",
+  "youtube": "https://www.youtube.com/@ministerioplenituddegracia",
+  "facebook": "https://www.facebook.com/mpdginc",
+  "instagram": "https://www.instagram.com/mpdginc/",
+  "tithely": "https://tithe.ly/give_new/www/#/tithely/give-one-time/6513581",
+  "zelle": "mpdginc@gmail.com",
+  "defaultLanguage": "es",
+  "developer": "Roberto S. Macfie",
+  "organization": "MPDGI",
+  "hubUrl": "https://kl4ne.github.io/mpdgi-hub/",
+  "futureCustomDomain": "https://connect.mpdgi.org",
+  "verifiedRoutes": {
+    "events": false,
+    "resources": false,
+    "ministries": false
+  }
+}

@@ -1,0 +1,103 @@
+[
+  {
+    "id": "live",
+    "order": 1,
+    "title": {"es": "Servicio en Vivo", "en": "Watch Live"},
+    "subtitle": {"es": "YouTube oficial", "en": "Official YouTube"},
+    "url": "https://www.youtube.com/@ministerioplenituddegracia",
+    "action": "direct",
+    "open": "new",
+    "theme": "live",
+    "icon": "play"
+  },
+  {
+    "id": "members",
+    "order": 2,
+    "title": {"es": "Portal de Miembros", "en": "Member Portal"},
+    "subtitle": {"es": "Accede a tu cuenta", "en": "Access your account"},
+    "url": "https://mpdgi.chmeetings.com",
+    "action": "direct",
+    "open": "new",
+    "theme": "blue",
+    "icon": "users"
+  },
+  {
+    "id": "give",
+    "order": 3,
+    "title": {"es": "Ofrendar", "en": "Give"},
+    "subtitle": {"es": "Tithe.ly • Zelle", "en": "Tithe.ly • Zelle"},
+    "action": "modal",
+    "modal": "give",
+    "theme": "green",
+    "icon": "heart"
+  },
+  {
+    "id": "prayer",
+    "order": 4,
+    "title": {"es": "Petición de Oración", "en": "Prayer Request"},
+    "subtitle": {"es": "Permítenos orar por ti", "en": "Let us pray for you"},
+    "url": "https://mpdgi.org/oracion",
+    "action": "direct",
+    "open": "new",
+    "theme": "purple",
+    "icon": "prayer"
+  },
+  {
+    "id": "events",
+    "order": 5,
+    "title": {"es": "Eventos", "en": "Events"},
+    "subtitle": {"es": "Próximos eventos", "en": "Upcoming events"},
+    "url": "https://mpdgi.org",
+    "action": "direct",
+    "open": "new",
+    "theme": "gold",
+    "icon": "calendar",
+    "routeVerified": false
+  },
+  {
+    "id": "resources",
+    "order": 6,
+    "title": {"es": "Recursos", "en": "Resources"},
+    "subtitle": {"es": "Prédicas y más", "en": "Sermons and more"},
+    "url": "https://mpdgi.org",
+    "action": "direct",
+    "open": "new",
+    "theme": "slate",
+    "icon": "book",
+    "routeVerified": false
+  },
+  {
+    "id": "ministries",
+    "order": 7,
+    "title": {"es": "Ministerios", "en": "Ministries"},
+    "subtitle": {"es": "Sirve con nosotros", "en": "Serve with us"},
+    "url": "https://mpdgi.org",
+    "action": "direct",
+    "open": "new",
+    "theme": "teal",
+    "icon": "church",
+    "routeVerified": false
+  },
+  {
+    "id": "social",
+    "order": 8,
+    "title": {"es": "Redes Sociales", "en": "Social Media"},
+    "subtitle": {"es": "Síguenos", "en": "Follow us"},
+    "action": "modal",
+    "modal": "social",
+    "theme": "social",
+    "icon": "social"
+  },
+  {
+    "id": "website",
+    "order": 9,
+    "title": {"es": "Sitio Web", "en": "Website"},
+    "subtitle": {"es": "mpdgi.org", "en": "mpdgi.org"},
+    "url": "https://mpdgi.org",
+    "action": "direct",
+    "open": "new",
+    "theme": "website",
+    "icon": "globe",
+    "wide": true
+  }
+]
