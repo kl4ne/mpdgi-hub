@@ -15,161 +15,82 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Validate JavaScript syntax
+      - name: Validate v1.0.0
         run: |
           node --check js/app.js
           node --check sw.js
-
-      - name: Validate release integrity
-        run: |
-          node - <<'NODE'
+          node <<'NODE'
           const fs = require('fs');
-          const path = require('path');
-
-          const read = (file) => fs.readFileSync(file,'utf8');
-          const json = (file) => JSON.parse(read(file));
-          const exists = (file) => fs.existsSync(file);
-
-          const required = [
+          const read = p => fs.readFileSync(p, 'utf8');
+          const json = p => JSON.parse(read(p));
+          const must = [
             'index.html','sw.js','manifest.json','README.md','.nojekyll',
-            'css/style.css','js/app.js',
-            'data/config.json','data/links.json','data/changelog.json',
-            'assets/profile/logo-mpdg.png',
-            'assets/icons/icon-192.png','assets/icons/icon-512.png','assets/icons/apple-touch-icon.png',
-            'assets/qr/README.md'
+            'css/style.css','js/app.js','data/config.json','data/links.json',
+            'data/changelog.json','assets/profile/logo-mpdg.png',
+            'assets/icons/icon-192.png','assets/icons/icon-512.png',
+            'assets/icons/apple-touch-icon.png','assets/qr/README.md'
           ];
-          for (const file of required) {
-            if (!exists(file)) throw new Error('Missing required file: ' + file);
-          }
-
-          for (const file of ['manifest.json','data/config.json','data/links.json','data/changelog.json']) {
-            json(file);
-            console.log(file + ' valid');
-          }
+          for (const p of must) if (!fs.existsSync(p)) throw Error('Missing: ' + p);
 
           const index = read('index.html');
           const app = read('js/app.js');
           const sw = read('sw.js');
           const manifest = json('manifest.json');
           const config = json('data/config.json');
-         ÛÛœÝ[šÜÈHœÛÛŠ	Ù]KÛ[šÜËšœÛÛ‰ÊNÂˆÛÛœÝÚ[™Ù[ÙÈHœÛÛŠ	Ù]KØÚ[™Ù[ÙËšœÛÛ‰ÊNÂˆÛÛœÝ™\œÚ[ÛˆHÛÛ™šYË™\œÚ[ÛŽÂ‚ˆYˆ
-K×—
-×—
-×—
-ÉË\Ý
-™\œÚ[ÛŠJH›ÝÈ™]È\œ›ÜŠ	Ò[˜[YÛÛ™šYÈ™\œÚ[Û‰ÊNÂˆYˆ
-™\œÚ[ÛˆOOH	ÌKŒŒ	ÊH›ÝÈ™]È\œ›ÜŠ	Õ[™^XÝY™[X\ÙH™\œÚ[Û‰ÊNÂˆYˆ
-X\š[˜ÛY\ÊP—Õ‘T”ÒSÓˆH	ÉÝ™\œÚ[ÛŸIØ
-JH›ÝÈ™]È\œ›ÜŠ	Ø\šœÈ™\œÚ[ÛˆZ\ÛX]Ú	ÊNÂˆYˆ
-\ÝËš[˜ÛY\Ê‘T”ÒSÓˆH	ÉÝ™\œÚ[ÛŸIØ
-JH›ÝÈ™]È\œ›ÜŠ	ÜÝËšœÈ™\œÚ[ÛˆZ\ÛX]Ú	ÊNÂˆYˆ
-Z[™^š[˜ÛY\Ê‰Ý™\œÚ[ÛŸX
-JH›ÝÈ™]È\œ›ÜŠ	Ñ›ÛÝ\ˆ™\œÚ[ÛˆZ\ÛX]Ú	ÊNÂˆYˆ
-Ú[™Ù[ÙÖÌOË™\œÚ[ÛˆOOH™\œÚ[ÛŠH›ÝÈ™]È\œ›ÜŠ	Ó]\ÝÚ[™Ù[ÙÈ™\œÚ[ÛˆZ\ÛX]Ú	ÊNÂˆYˆ
-Ú[™Ù[ÙÖÌOË]HOOH	Ó‘È][˜Ú	ÊH›ÝÈ™]È\œ›ÜŠ	Õ[™^XÝYÚ[™Ù[ÙÈ]IÊNÂ‚ˆYˆ
-Z[™^š[˜ÛY\Ê	Ú™YH˜ÜÜËÜÝ[K˜ÜÜÈ‰ÊJH›ÝÈ™]È\œ›ÜŠ	ÐÔÔÈ\È›Ý[šÙY	ÊNÂˆYˆ
-Z[™^š[˜ÛY\Ê	ÜÜ˜ÏHšœËØ\šœÈ‰ÊJH›ÝÈ™]È\œ›ÜŠ	Ò”È\È›Ý[šÙY	ÊNÂˆYˆ
-X\š[˜ÛY\Ê™™]ÚœÛÛŠ	Ù]KØÛÛ™šYËšœÛÛ‰ÈŠJH›ÝÈ™]È\œ›ÜŠ	ÐÛÛ™šYÈ]Z\ÛX]Ú	ÊNÂˆYˆ
-X\š[˜ÛY\Ê™™]ÚœÛÛŠ	Ù]KÛ[šÜËšœÛÛ‰ÈŠJH›ÝÈ™]È\œ›ÜŠ	Ó[šÜÈ]Z\ÛX]Ú	ÊNÂ‚ˆÛÛœÝÜÜÚÙ[œÈHÂˆ™Y˜][\Ü˜È	ÜÙ[‰È‹ˆœØÜš\\Ü˜È	ÜÙ[‰È‹ˆœÝ[K\Ü˜È	ÜÙ[‰È‹ˆ˜ÛÛ›™XÝ\Ü˜È	ÜÙ[‰È‹ˆÛÜšÙ\‹\Ü˜È	ÜÙ[‰È‹ˆ›Øš™XÝ\Ü˜È	Û›Û™IÈ‹ˆ˜˜\ÙK]\šH	ÜÙ[‰È‚ˆNÂˆ›Üˆ
-ÛÛœÝÚÙ[ˆÙˆÜÜÚÙ[œÊHÂˆYˆ
-Z[™^š[˜ÛY\ÊÚÙ[ŠJH›ÝÈ™]È\œ›ÜŠ	ÓZ\ÜÚ[™ÈÔÔ\™XÝ]™Nˆ	È
-ÈÚÙ[ŠNÂˆB‚ˆÛÛœÝ›ÛÝš[\ÈHœËœ™XY\”Þ[˜Ê	Ë‰ËÝÚ]š[U\\ÎY_JBˆ™š[\Š
-[žJHOˆ[žKš\Ñš[J
-JBˆ›X\
+          const links = json('data/links.json');
+          const changelog = json('data/changelog.json');
 
-[žJHOˆ[žK›˜[YJBˆœÛÜ
+          if (config.version !== '1.0.0') throw Error('Config version mismatch');
+          if (!app.includes("HUB_VERSION = '1.0.0'")) throw Error('App version mismatch');
+          if (!sw.includes("VERSION = '1.0.0'")) throw Error('SW version mismatch');
+          if (!index.includes('v1.0.0')) throw Error('Footer version mismatch');
+          if (changelog[0]?.version !== '1.0.0' || changelog[0]?.title !== 'NFC Launch') throw Error('Changelog mismatch');
 
-NÂˆÛÛœÝ[ÝÙY›ÛÝH™]ÈÙ]
-ÉË››Ú™ZÞ[	Ë	Ô‘PQQK›Y	Ë	Ú[™^š[	Ë	ÛX[šY™\ÝšœÛÛ‰Ë	ÜÝËšœÉ×JNÂˆ›Üˆ
-ÛÛœÝš[HÙˆ›ÛÝš[\ÊHÂˆYˆ
-X[ÝÙY›ÛÝš\Êš[JJH›ÝÈ™]È\œ›ÜŠ	Õ[™^XÝYÛÜÙH›ÛÝš[Nˆ	È
-Èš[JNÂˆB‚ˆÛÛœÝYØXÞSÛÜÙHHÉÜÝ[K˜ÜÜÉË	Ø\šœÉË	Û[šÜËšœÛÛ‰Ë	ØÛÛ™šYËšœÛÛ‰Ë	ØÚ[™Ù[ÙËšœÛÛ‰Ë	ÛÙÛË[\Ëœ™ÉË	ÚXÛÛ‹LNL‹œ™ÉË	ÚXÛÛ‹MLL‹œ™É×NÂˆ›Üˆ
-ÛÛœÝš[HÙˆYØXÞSÛÜÙJHÂˆYˆ
-^\ÝÊš[JJH›ÝÈ™]È\œ›ÜŠ	ÓYØXÞHÛÜÙHš[H™[XZ[œÎˆ	È
-Èš[JNÂˆB‚ˆYˆ
-X[šY™\ÝœÝ\Ý\›OOH	Ë‹ÉÈX[šY™\ÝœØÛÜHOOH	Ë‹ÉÈX[šY™\ÝšYOOH	Ë‹ÉÊHÂˆ›ÝÈ™]È\œ›ÜŠ	ÓX[šY™\Ý]È]\Ý™[XZ[ˆÚ]XˆYÙ\ËØÝ\ÝÛKYÛXZ[ˆÜX›IÊNÂˆBˆYˆ
-X[šY™\Ý™\Ü^HOOH	ÜÝ[™[Û™IÊH›ÝÈ™]È\œ›ÜŠ	ÓX[šY™\Ý]\Ý\ÙHÝ[™[Û™H\Ü^IÊNÂ‚ˆÛÛœÝ[YHH[™^›X]Ú
-Û˜[YOH[YKXÛÛÜˆˆÛÛ[HŠ×ˆ—JÊH‹ÊOË–ÌWNÂˆYˆ
-][YJH›ÝÈ™]È\œ›ÜŠ	ÓZ\ÜÚ[™È[YKXÛÛÜˆY]IÊNÂˆYˆ
-X[šY™\Ý[YWØÛÛÜˆOOH[YHX[šY™\Ý˜˜XÚÙÜ›Ý[™ØÛÛÜˆOOH[YJHÂˆ›ÝÈ™]È\œ›ÜŠ	ÓX[šY™\Ý[YKØ˜XÚÙÜ›Ý[™Z\ÛX]Ú	ÊNÂˆB‚ˆ›Üˆ
-ÛÛœÝXÛÛˆÙˆX[šY™\ÝšXÛÛœÈ×JHÂˆYˆ
-Y^\ÝÊXÛÛ‹œÜ˜ÊJH›ÝÈ™]È\œ›ÜŠ	ÓZ\ÜÚ[™ÈX[šY™\ÝXÛÛŽˆ	È
-ÈXÛÛ‹œÜ˜ÊNÂˆB‚ˆÛÛœÝ™\]Z\™YÕÐ\ÜÙ]ÈHÂˆ‰Ë‹Ú[™^š[	È‹‰Ë‹ØÜÜËÜÝ[K˜ÜÜÉÈ‹‰Ë‹ÚœËØ\šœÉÈ‹‰Ë‹ÛX[šY™\ÝšœÛÛ‰È‹ˆ‰Ë‹Ù]KØÛÛ™šYËšœÛÛ‰È‹‰Ë‹Ù]KÛ[šÜËšœÛÛ‰È‹‰Ë‹Ø\ÜÙ]ËÜ›Ùš[KÛÙÛË[\Ëœ™ÉÈ‹ˆ‰Ë‹Ø\ÜÙ]ËÚXÛÛœËÚXÛÛ‹LNL‹œ™ÉÈ‚ˆNÂˆ›Üˆ
-ÛÛœÝÚÙ[ˆÙˆ™\]Z\™YÕÐ\ÜÙ]ÊHÂˆYˆ
-\ÝËš[˜ÛY\ÊÚÙ[ŠJH›ÝÈ™]È\œ›ÜŠ	ÔÙ\šXÙHÛÜšÙ\ˆZ\ÜÚ[™È\ÜÙ]ˆ	È
-ÈÚÙ[ŠNÂˆB‚ˆÛÛœÝÒÙ^\ÈHÉÝÙXœÚ]IË	ÛY[X™\”Ü[	Ë	Ü˜^Y\‰Ë	Þ[Ý]X™IË	Ù˜XÙX›ÛÚÉË	Ú[œÝYÜ˜[IË	Ý][IË	ÚX•\›	Ë	Ù]\™PÝ\ÝÛQÛXZ[‰×NÂˆ›Üˆ
-ÛÛœÝÙ^HÙˆÒÙ^\ÊHÂˆÛÛœÝ\›H™]ÈT“
-ÛÛ™šYÖÚÙ^WJNÂˆYˆ
-\›œ›ÝØÛÛOOH	ÚÎ‰ÊH›ÝÈ™]È\œ›ÜŠ	ÚÙ^_H]\Ý\ÙHØ
-NÂˆB‚ˆYˆ
-ÛÛ™šYËÙXœÚ]HOOH	ÚÎ‹ËÛ\ÚK›Ü™ÉÊH›ÝÈ™]È\œ›ÜŠ	ÓÙ™šXÚX[ÙXœÚ]HZ\ÛX]Ú	ÊNÂˆYˆ
-ÛÛ™šYË›Y[X™\”Ü[OOH	ÚÎ‹ËÛ\ÚK˜ÚYY][™ÜË˜ÛÛIÊH›ÝÈ™]È\œ›ÜŠ	ÓY[X™\ˆÜ[Z\ÛX]Ú	ÊNÂˆYˆ
-ÛÛ™šYËœ˜^Y\ˆOOH	ÚÎ‹ËÛ\ÚK›Ü™ËÛÜ˜XÚ[Û‰ÊH›ÝÈ™]È\œ›ÜŠ	Ô˜^Y\ˆT“Z\ÛX]Ú	ÊNÂˆYˆ
-ÛÛ™šYËž[Ý]X™HOOH	ÚÎ‹ËÝÝÝËž[Ý]X™K˜ÛÛKÐZ[š\Ý\š[Ü[š]YYÜ˜XÚXIÊH›ÝÈ™]È\œ›ÜŠ	Ö[ÝUX™HT“Z\ÛX]Ú	ÊNÂˆYˆ
-ÛÛ™šYË™˜XÙX›ÛÚÈOOH	ÚÎ‹ËÝÝÝË™˜XÙX›ÛÚË˜ÛÛKÛ\Ú[˜ÉÊH›ÝÈ™]È\œ›ÜŠ	Ñ˜XÙX›ÛÚÈT“Z\ÛX]Ú	ÊNÂˆYˆ
-ÛÛ™šYËš[œÝYÜ˜[HOOH	ÚÎ‹ËÝÝÝËš[œÝYÜ˜[K˜ÛÛKÛ\Ú[˜ËÉÊH›ÝÈ™]È\œ›ÜŠ	Ò[œÝYÜ˜[HT“Z\ÛX]Ú	ÊNÂˆYˆ
-ÛÛ™šYË][HOOH	ÚÎ‹ËÝ]K›KÙÚ]™WÛ™]ËÝÝÝËÈËÝ][KÙÚ]™K[Û™K][YKÍLLÍNIÊH›ÝÈ™]È\œ›ÜŠ	Õ]K›HT“Z\ÛX]Ú	ÊNÂˆYˆ
-ÛÛ™šYËž™[HOOH	Û\Ú[˜ÐÛXZ[˜ÛÛIÊH›ÝÈ™]È\œ›ÜŠ	Ö™[H[XZ[Z\ÛX]Ú	ÊNÂˆYˆ
-ÛÛ™šYË™Y˜][[™ÝXYÙHOOH	Ù\ÉÊH›ÝÈ™]È\œ›ÜŠ	ÔÜ[š\Ú]\Ý™[XZ[ˆY˜][	ÊNÂˆYˆ
-ÛÛ™šYË™]™[Ü\ˆOOH	Ô›Ø™\ÈËˆXXÙšYIÊH›ÝÈ™]È\œ›ÜŠ	Ñ]™[Ü\ˆÜ™Y]Z\ÛX]Ú	ÊNÂ‚ˆYˆ
-P\œ˜^Kš\Ð\œ˜^J[šÜÊH[šÜË›[™ÝOOHJH›ÝÈ™]È\œ›ÜŠ	Ñ^XÝY^XÝHH][˜ÚØ\™ÉÊNÂˆÛÛœÝYÈH™]ÈÙ]
+          for (const token of ["default-src 'self'","script-src 'self'","style-src 'self'","connect-src 'self'","worker-src 'self'","object-src 'none'","base-uri 'self'"]) {
+            if (!index.includes(token)) throw Error('Missing CSP: ' + token);
+          }
 
-NÂˆÛÛœÝÜ™\œÈH™]ÈÙ]
+          if (manifest.start_url !== './' || manifest.scope !== './' || manifest.id !== './' || manifest.display !== 'standalone') throw Error('Manifest portability/display mismatch');
+          for (const icon of manifest.icons || []) if (!fs.existsSync(icon.src)) throw Error('Missing icon: ' + icon.src);
 
-NÂˆÛÛœÝ˜[Y[Y\ÈH™]ÈÙ]
-ÉÛ]™IË	Ø›YIË	ÙÜ™Y[‰Ë	Ü\œIË	ÙÛÛ	Ë	ÜÛ]IË	ÝX[	Ë	ÜÛØÚX[	Ë	ÝÙXœÚ]I×JNÂˆ›Üˆ
-ÛÛœÝ][HÙˆ[šÜÊHÂˆYˆ
-Z][H\[Ùˆ][HOOH	ÛØš™XÝ	ÊH›ÝÈ™]È\œ›ÜŠ	ÑXXÚØ\™]\Ý™H[ˆØš™XÝ	ÊNÂˆYˆ
-Z][KšYYËš\Ê][KšY
-JH›ÝÈ™]È\œ›ÜŠ	ÓZ\ÜÚ[™ÈÜˆ\XØ]HØ\™Yˆ	È
-È][KšY
-NÂˆYË˜Y
-][KšY
-NÂˆYˆ
-S[X™\‹š\Ò[YÙ\Š][K›Ü™\ŠH][K›Ü™\ˆHÜ™\œËš\Ê][K›Ü™\ŠJH›ÝÈ™]È\œ›ÜŠ	Ò[˜[YÙ\XØ]HÜ™\Žˆ	È
-È][KšY
-NÂˆÜ™\œË˜Y
-][K›Ü™\ŠNÂˆYˆ
-Z][K]OË™\ÈZ][K]OË™[ˆZ][KœÝX]OË™\ÈZ][KœÝX]OË™[ŠH›ÝÈ™]È\œ›ÜŠ	Ðš[[™ÝX[^Z\ÜÚ[™Îˆ	È
-È][KšY
-NÂˆYˆ
-]˜[Y[Y\Ëš\Ê][K[YJJH›ÝÈ™]È\œ›ÜŠ	Ò[˜[Y[YNˆ	È
-È][KšY
-NÂˆYˆ
-VÉÙ\™XÝ	Ë	Û[Ù[	×Kš[˜ÛY\Ê][K˜XÝ[ÛŠJH›ÝÈ™]È\œ›ÜŠ	Ò[˜[YXÝ[ÛŽˆ	È
-È][KšY
-NÂˆYˆ
-][K˜XÝ[ÛˆOOH	Ù\™XÝ	ÊHÂˆÛÛœÝ\›H™]ÈT“
-][K\›
-NÂˆYˆ
-\›œ›ÝØÛÛOOH	ÚÎ‰ÊH›ÝÈ™]È\œ›ÜŠ	Ó›Û‹RÈØ\™T“ˆ	È
-È][KšY
-NÂˆBˆYˆ
-][K˜XÝ[ÛˆOOH	Û[Ù[	È	‰ˆVÉÙÚ]™IË	ÜÛØÚX[	×Kš[˜ÛY\Ê][K›[Ù[
-JH›ÝÈ™]È\œ›ÜŠ	Ò[˜[Y[Ù[ˆ	È
-È][KšY
-NÂˆB‚ˆYˆ
-YËš\Ê	ØÛÛ›™XÝ	ÊJH›ÝÈ™]È\œ›ÜŠ	Ô™[[Ý™YÛÛ›™XÝØ\™Ø\È™Z[›ÙXÙY	ÊNÂˆYˆ
-ÐÛÛ°êXÝ]_ÛÛ›™XÝÚ]\ËÚK\Ý
-”ÓÓ‹œÝš[™ÚYžJ[šÜÊJJH›ÝÈ™]È\œ›ÜŠ	Ô™[[Ý™YÛÛ›™XÝÛÜ™[™ÈØ\È™Z[›ÙXÙY	ÊNÂ‚ˆÛÛœÝžRYHØš™XÝ™œ›ÛQ[šY\Ê[šÜË›X\
+          const urlKeys = ['website','memberPortal','prayer','youtube','facebook','instagram','tithely','hubUrl','futureCustomDomain'];
+          for (const key of urlKeys) if (new URL(config[key]).protocol !== 'https:') throw Error('Non-HTTPS config URL: ' + key);
 
-][JHOˆÚ][KšY][WJJNÂˆYˆ
-žRY›]™K\›OOHÛÛ™šYËž[Ý]X™JH›ÝÈ™]È\œ›ÜŠ	Ó]™HT“›ÝÞ[˜Ú›Ûš^™Y	ÊNÂˆYˆ
-žRY›Y[X™\œË\›OOHÛÛ™šYË›Y[X™\”Ü[
-H›ÝÈ™]È\œ›ÜŠ	ÓY[X™\ˆÜ[T“›ÝÞ[˜Ú›Ûš^™Y	ÊNÂˆYˆ
-žRYœ˜^Y\‹\›OOHÛÛ™šYËœ˜^Y\ŠH›ÝÈ™]È\œ›ÜŠ	Ô˜^Y\ˆT“›ÝÞ[˜Ú›Ûš^™Y	ÊNÂˆYˆ
-žRYÙXœÚ]K\›OOHÛÛ™šYËÙXœÚ]JH›ÝÈ™]È\œ›ÜŠ	ÕÙXœÚ]HT“›ÝÞ[˜Ú›Ûš^™Y	ÊNÂˆ›Üˆ
-ÛÛœÝYÙˆÉÙ]™[ÉË	Ü™\ÛÝ\˜Ù\ÉË	ÛZ[š\ÝšY\É×JHÂˆYˆ
-ÛÛ™šYË™\šYšYY›Ý]\ÖÚYHOOH˜[ÙH	‰ˆžRYÚYK\›OOHÛÛ™šYËÙXœÚ]JHÂˆ›ÝÈ™]È\œ›ÜŠ	ÚYH]\Ý\ÙHÙ™šXÚX[\Ú]H˜[˜XÚÈ[[H›Ý]H\È™\šYšYY
-NÂˆBˆB‚ˆYˆ
-^\ÝÊ	ÐÓSQIÊJH›ÝÈ™]È\œ›ÜŠ	ÐÝ\ÝÛHÛXZ[ˆ]\Ý›Ý™HÛÛ™šYÝ\™Y[ˆŒKŒŒZ[\ÙIÊNÂˆYˆ
-œËœ™XY\”Þ[˜Ê	Ë‰ÊKœÛÛYJ
-˜[YJHOˆ˜[YHOOH	Ë™[‰È˜[YKœÝ\ÕÚ]
-	Ë™[‹‰ÊJJH›ÝÈ™]È\œ›ÜŠ	Ñ[š\›Û›Y[ÙXÜ™]š[H]XÝY	ÊNÂ‚ˆÛÛœÛÛK›ÙÊ	ÓTÒHXˆ‰È
-È™\œÚ[Ûˆ
-È	È™[X\ÙH[YÜš]H˜[Y]Y	ÊNÂˆ“ÑB
+          if (config.website !== 'https://mpdgi.org') throw Error('Website mismatch');
+          if (config.memberPortal !== 'https://mpdgi.chmeetings.com') throw Error('Member portal mismatch');
+          if (config.prayer !== 'https://mpdgi.org/oracion') throw Error('Prayer mismatch');
+          if (config.youtube !== 'https://www.youtube.com/@ministerioplenituddegracia') throw Error('YouTube mismatch');
+          if (config.facebook !== 'https://www.facebook.com/mpdginc') throw Error('Facebook mismatch');
+          if (config.instagram !== 'https://www.instagram.com/mpdginc/') throw Error('Instagram mismatch');
+          if (config.tithely !== 'https://tithe.ly/give_new/www/#/tithely/give-one-time/6513581') throw Error('Tithe.ly mismatch');
+          if (config.zelle !== 'mpdginc@gmail.com') throw Error('Zelle mismatch');
+          if (config.defaultLanguage !== 'es') throw Error('Spanish must be default');
+          if (config.developer !== 'Roberto S. Macfie') throw Error('Developer credit mismatch');
+
+          if (!Array.isArray(links) || links.length !== 9) throw Error('Expected exactly 9 cards');
+          const ids = new Set();
+          const orders = new Set();
+          for (const item of links) {
+            if (!item.id || ids.has(item.id)) throw Error('Duplicate/missing card id');
+            ids.add(item.id);
+            if (!Number.isInteger(item.order) || orders.has(item.order)) throw Error('Duplicate/invalid order');
+            orders.add(item.order);
+            if (!item.title?.es || !item.title?.en || !item.subtitle?.es || !item.subtitle?.en) throw Error('Card not bilingual: ' + item.id);
+            if (item.action === 'direct' && new URL(item.url).protocol !== 'https:') throw Error('Non-HTTPS card: ' + item.id);
+          }
+          if (ids.has('connect') || /ConÃ©ctate|Connect with us/i.test(JSON.stringify(links))) throw Error('Removed Connect card/wording returned');
+
+          const byId = Object.fromEntries(links.map(x => [x.id, x]));
+          if (byId.live.url !== config.youtube || byId.members.url !== config.memberPortal || byId.prayer.url !== config.prayer || byId.website.url !== config.website) throw Error('Card URL sync mismatch');
+          for (const id of ['events','resources','ministries']) {
+            if (config.verifiedRoutes[id] === false && byId[id].url !== config.website) throw Error(id + ' must use official fallback');
+          }
+
+          const swMust = ['./index.html','./css/style.css','./js/app.js','./manifest.json','./data/config.json','./data/links.json','./assets/profile/logo-mpdg.png','./assets/icons/icon-192.png'];
+          for (const p of swMust) if (!sw.includes("'" + p + "'")) throw Error('SW missing: ' + p);
+
+          if (fs.existsSync('CNAME')) throw Error('CNAME must not exist yet');
+          for (const name of fs.readdirSync('.')) if (name === '.env' || name.startsWith('.env.')) throw Error('Secret env file detected');
+
+          console.log('MPDGI Hub v1.0.0 release integrity validated');
+          NODE
