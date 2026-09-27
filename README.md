@@ -1,12 +1,12 @@
-# MPDGI Hub — v1.2.2
+# MPDGI Hub — v1.3.0
 
 Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
 
-## v1.2.2 — Tighter Header & Cards
+## v1.3.0 — About Card & Ultra Compact Grid
 
-This patch further reduces the top spacing above the official logo and slightly reduces card height/padding so the Hub fits more comfortably in a single mobile viewport.
+This release restructures the final row so Website and About are equal-size cards, moves the existing About information into the new About card, removes the footer version/About controls, and reduces card height again for a tighter single-screen mobile layout.
 
 Live deployment target:
 
@@ -23,61 +23,28 @@ The existing `https://mpdgi.org` site and DNS remain untouched.
 1. Portal de Miembros / Member Portal — ChMeetings.
 2. Ofrendar / Give — Tithe.ly and centered Zelle information.
 3. Petición de Oración / Prayer Request — `https://mpdgi.org/oracion`.
-4. Biblia / Bible — modal with:
-   - Reina-Valera 1960 (RVR1960): `https://www.biblegateway.com/versions/Reina-Valera-1960-RVR1960-Biblia/`
-   - King James Version (KJV): `https://www.biblegateway.com/versions/King-James-Version-KJV-Bible/`
+4. Biblia / Bible — RVR1960 and KJV through BibleGateway.
 5. Ministerios / Ministries — `https://mpdgi.org/ministerios`.
-6. Redes Sociales / Social Media — Facebook, Instagram and YouTube, each shown with its recognizable platform mark.
+6. Redes Sociales / Social Media — Facebook, Instagram and YouTube.
 7. Sitio Web / Website — `https://mpdgi.org`.
-
-The standalone **Servicio en Vivo / YouTube**, **Eventos**, **Recursos**, and **Conéctate** cards are not part of v1.2.0. YouTube remains inside Redes Sociales.
+8. About — opens the Hub information previously accessed from the footer.
 
 ## Footer
 
-The four-item bottom navigation introduced in v1.1.0 was removed. The visible footer once again contains:
+The visible version badge and footer About button were removed. The footer now keeps only the optional install control when available, the developer credit, and copyright. The current version remains visible inside About.
 
-- current version;
-- optional PWA install button when the browser supports installation;
-- Acerca de / About;
-- developer credit;
-- copyright.
+## Layout
 
-## Icon direction
-
-The card icons use a custom monoline system designed for MPDGI Hub rather than attempting to imitate the reference mockup. Social-media buttons intentionally use recognizable brand marks because those buttons identify external platforms.
-
-## Visual system
-
-- Primary navy: `#071A36`
-- Secondary navy: `#0B2A52`
-- Gold: `#D4AF37`
-- Light gold: `#F2C94C`
-- White: `#FFFFFF`
-- UI fonts: SF Pro / Segoe UI / Roboto / Helvetica / Arial
-- Institutional heading fallback: Georgia / Times New Roman
+All eight cards are equal-size two-column cards. Card height, icon size, padding and gaps were reduced again, including extra short-screen rules, to improve the one-glance mobile fit.
 
 ## PWA and accessibility
 
-The app retains relative manifest paths, a root Service Worker, offline shell caching, old-cache cleanup, silent updates, ES/EN language support, keyboard focus management, Escape-to-close dialogs, focus trapping and reduced-motion support.
+The app retains the official logo, ES/EN support, root Service Worker, offline shell caching, silent updates, accessible dialogs, keyboard focus handling, reduced-motion support and HTTPS-only external links.
 
 ## Security
 
-This public repository must never contain passwords, API keys, tokens, banking credentials or private service credentials. The Hub stores no passwords or payment data.
-
-A restrictive same-origin Content Security Policy is applied. External navigation is HTTPS-only and uses `noopener noreferrer`.
-
-## Validation
-
-`.github/workflows/validate.yml` verifies JavaScript syntax, JSON, version synchronization, required assets, official routes, BibleGateway version links, the seven-card model, removal of deprecated cards/navigation, social-platform presentation, centered Zelle styling, PWA metadata, Service Worker paths, CSP and the absence of a premature `CNAME`.
+The Hub stores no passwords or payment information. A restrictive same-origin Content Security Policy remains active. No DNS or custom-domain settings are changed.
 
 ## Copyright
 
 © 2026 Ministerio Plenitud de Gracia. All Rights Reserved.
-
-## Compact viewport target
-
-The header, cards, decorative wave, church-info strip and footer use responsive compact sizing. A shorter-screen media query further reduces vertical spacing on phone-height viewports while retaining the same content and two-column card structure.
-
-## v1.2.2 compact refinements
-
-Top hero spacing is reduced further and the cards are slightly shorter, with extra tightening on short phone viewports. No functional links, modals, branding or content were removed.

@@ -1,9 +1,9 @@
 'use strict';
 
-const HUB_VERSION='1.2.2';
+const HUB_VERSION='1.3.0';
 const STORAGE_LANGUAGE_KEY='mpdgiHubLanguage';
-const VALID_THEMES=new Set(['blue','green','purple','gold','teal','social','website']);
-const VALID_MODAL_TYPES=new Set(['give','social','bible']);
+const VALID_THEMES=new Set(['blue','green','purple','gold','teal','social','website','about']);
+const VALID_MODAL_TYPES=new Set(['give','social','bible','about']);
 
 const UI={
   es:{
@@ -71,7 +71,8 @@ const FALLBACK_LINKS=[
   {id:'bible',order:4,title:{es:'Biblia',en:'Bible'},subtitle:{es:'Español • English',en:'Español • English'},action:'modal',modal:'bible',theme:'gold',icon:'bible'},
   {id:'ministries',order:5,title:{es:'Ministerios',en:'Ministries'},subtitle:{es:'Sirve con nosotros',en:'Serve with us'},url:'https://mpdgi.org/ministerios',action:'direct',open:'new',theme:'teal',icon:'ministry'},
   {id:'social',order:6,title:{es:'Redes Sociales',en:'Social Media'},subtitle:{es:'Facebook • Instagram • YouTube',en:'Facebook • Instagram • YouTube'},action:'modal',modal:'social',theme:'social',icon:'share'},
-  {id:'website',order:7,title:{es:'Sitio Web',en:'Website'},subtitle:{es:'mpdgi.org',en:'mpdgi.org'},url:'https://mpdgi.org',action:'direct',open:'new',theme:'website',icon:'website',wide:true}
+  {id:'website',order:7,title:{es:'Sitio Web',en:'Website'},subtitle:{es:'mpdgi.org',en:'mpdgi.org'},url:'https://mpdgi.org',action:'direct',open:'new',theme:'website',icon:'website'},
+  {id:'about',order:8,title:{es:'About',en:'About'},subtitle:{es:'Información del Hub',en:'Hub information'},action:'modal',modal:'about',theme:'about',icon:'about'}
 ];
 
 const ICONS={
@@ -108,6 +109,10 @@ const ICONS={
   website:[
     ['circle',{cx:'12',cy:'12',r:'8.5'}],
     ['path',{d:'M3.5 12h17M12 3.5c2.5 2.7 3.6 5.5 3.6 8.5S14.5 17.8 12 20.5M12 3.5C9.5 6.2 8.4 9 8.4 12s1.1 5.8 3.6 8.5'}]
+  ],
+  about:[
+    ['circle',{cx:'12',cy:'12',r:'8.5'}],
+    ['path',{d:'M12 10.5v6M12 7.2h.01'}]
   ],
   pin:[['path',{d:'M19.5 9.8c0 5.5-7.5 11.2-7.5 11.2S4.5 15.3 4.5 9.8a7.5 7.5 0 1 1 15 0Z'}],['circle',{cx:'12',cy:'9.8',r:'2.1'}]],
   clock:[['circle',{cx:'12',cy:'12',r:'8.5'}],['path',{d:'M12 7.5V12l3 1.8'}]],
@@ -158,7 +163,7 @@ function setLanguage(language,persist=true){
   document.getElementById('tagline').textContent='“'+(currentLanguage==='es'?config.tagline:config.taglineEn)+'”';
   document.getElementById('scripture').textContent=currentLanguage==='es'?config.scripture:config.scriptureEn;
   document.getElementById('sunday-label').textContent=s.sunday;document.getElementById('wednesday-label').textContent=s.wednesday;
-  document.getElementById('install-button').textContent=s.install;document.getElementById('about-button').textContent=s.about;
+  document.getElementById('install-button').textContent=s.install;
   document.getElementById('modal-close').setAttribute('aria-label',s.close);
   document.getElementById('developer-credit').textContent=s.developerCredit;document.getElementById('copyright-text').textContent=s.copyright;
   updateOfflineState();renderCards();
@@ -184,7 +189,6 @@ function updateStaticInfo(){
   const parts=(config.address||DEFAULT_CONFIG.address).split(',').map(x=>x.trim()),el=document.getElementById('address-text');
   if(parts.length>=2)el.replaceChildren(document.createTextNode(parts[0]),document.createElement('br'),document.createTextNode(parts.slice(1).join(', ')));else el.textContent=config.address;
   document.getElementById('sunday-time').textContent=config.sundayService;document.getElementById('wednesday-time').textContent=config.wednesdayBibleStudy;
-  document.getElementById('version-label').textContent='v'+(config.version||HUB_VERSION);
 }
 function focusableElements(){return[...document.getElementById('hub-modal').querySelectorAll('a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(e=>!e.hidden&&e.offsetParent!==null);}
 function openModal(title,trigger){const o=document.getElementById('modal-overlay'),b=document.getElementById('modal-body');lastModalTrigger=trigger||document.activeElement;document.getElementById('modal-title').textContent=title;b.replaceChildren();o.hidden=false;document.body.classList.add('modal-open');document.getElementById('modal-close').focus();return b;}
@@ -219,9 +223,9 @@ function renderAboutModal(trigger){
   const meta=document.createElement('div');meta.className='about-meta';const v=document.createElement('div');v.append(textElement('span','',s.version),textElement('strong','', 'v'+(config.version||HUB_VERSION)));const w=document.createElement('div');w.append(textElement('span','',s.website),textElement('strong','','mpdgi.org'));meta.append(v,w);b.append(meta);
   b.append(textElement('p','modal-text',s.external+': '+s.externalText),textElement('p','modal-text',s.privacy+': '+s.privacyText),textElement('p','modal-text about-credit',s.developerCredit),textElement('p','modal-text',s.copyright),externalLink(s.officialWebsite,config.website));
 }
-function openNamedModal(type,trigger){if(type==='give')renderGiveModal(trigger);if(type==='social')renderSocialModal(trigger);if(type==='bible')renderBibleModal(trigger);}
+function openNamedModal(type,trigger){if(type==='give')renderGiveModal(trigger);if(type==='social')renderSocialModal(trigger);if(type==='bible')renderBibleModal(trigger);if(type==='about')renderAboutModal(trigger);}
 function setupModal(){
-  const o=document.getElementById('modal-overlay');document.getElementById('modal-close').addEventListener('click',closeModal);document.getElementById('about-button').addEventListener('click',e=>renderAboutModal(e.currentTarget));o.addEventListener('click',e=>{if(e.target===o)closeModal();});
+  const o=document.getElementById('modal-overlay');document.getElementById('modal-close').addEventListener('click',closeModal);o.addEventListener('click',e=>{if(e.target===o)closeModal();});
   document.addEventListener('keydown',e=>{if(o.hidden)return;if(e.key==='Escape'){e.preventDefault();closeModal();return;}if(e.key!=='Tab')return;const items=focusableElements();if(!items.length){e.preventDefault();document.getElementById('hub-modal').focus();return;}const first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}});
 }
 function updateOfflineState(){const b=document.getElementById('offline-badge');b.hidden=navigator.onLine;b.textContent=navigator.onLine?'':UI[currentLanguage].offline;}

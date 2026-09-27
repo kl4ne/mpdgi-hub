@@ -1,5 +1,17 @@
 [
   {
+    "version": "1.3.0",
+    "title": "About Card & Ultra Compact Grid",
+    "date": "2026-09-26",
+    "changes": [
+      "Changed Sitio Web / Website from a full-width card to the same size as the other Hub cards.",
+      "Added an About card beside Website and moved the existing About modal information into that card.",
+      "Removed the footer About button and visible version badge; the version remains available inside About.",
+      "Moved the Designed & Developed credit upward by simplifying the footer.",
+      "Reduced all card heights and internal spacing again to improve one-glance mobile fit."
+    ]
+  },
+  {
     "version": "1.2.2",
     "title": "Tighter Header & Cards",
     "date": "2026-09-26",

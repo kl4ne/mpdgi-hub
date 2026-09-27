@@ -114,7 +114,22 @@
     "action": "direct",
     "open": "new",
     "theme": "website",
-    "icon": "website",
-    "wide": true
+    "icon": "website"
+  },
+  {
+    "id": "about",
+    "order": 8,
+    "title": {
+      "es": "About",
+      "en": "About"
+    },
+    "subtitle": {
+      "es": "Información del Hub",
+      "en": "Hub information"
+    },
+    "action": "modal",
+    "modal": "about",
+    "theme": "about",
+    "icon": "about"
   }
 ]
