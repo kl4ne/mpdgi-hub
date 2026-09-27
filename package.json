@@ -1,0 +1,11 @@
+{
+  "name": "mpdgi-hub",
+  "version": "1.4.0",
+  "private": true,
+  "scripts": {
+    "test:ui": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0"
+  }
+}
