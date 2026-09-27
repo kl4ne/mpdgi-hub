@@ -1,5 +1,17 @@
 [
   {
+    "version": "1.2.1",
+    "title": "Single-Screen Compact Layout",
+    "date": "2026-09-26",
+    "changes": [
+      "Condensed the hero/header so the logo, church name, motto and scripture use substantially less vertical space.",
+      "Reduced card height, gaps and icon footprint while preserving touch targets and readability.",
+      "Shortened the decorative wave, church information strip and footer.",
+      "Kept the seven-card two-column layout even on narrower phones to avoid unnecessary vertical scrolling.",
+      "Added extra compact rules for shorter phone screens so the main Hub is designed to fit in a single viewport on common mobile sizes."
+    ]
+  },
+  {
     "version": "1.2.0",
     "title": "Bible & Footer Refresh",
     "date": "2026-09-26",

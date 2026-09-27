@@ -1,12 +1,12 @@
-# MPDGI Hub — v1.2.0
+# MPDGI Hub — v1.2.1
 
 Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
 
-## v1.2.0 — Bible & Footer Refresh
+## v1.2.1 — Single-Screen Compact Layout
 
-This release keeps the official circular MPdG logo and the approved navy/gold visual direction while simplifying navigation and refining the card icon system.
+This patch keeps the v1.2.0 functionality and compresses the mobile layout so the complete Hub is designed to fit in one screen on common phone viewports without routine up/down scrolling.
 
 Live deployment target:
 
@@ -73,3 +73,7 @@ A restrictive same-origin Content Security Policy is applied. External navigatio
 ## Copyright
 
 © 2026 Ministerio Plenitud de Gracia. All Rights Reserved.
+
+## Compact viewport target
+
+The header, cards, decorative wave, church-info strip and footer use responsive compact sizing. A shorter-screen media query further reduces vertical spacing on phone-height viewports while retaining the same content and two-column card structure.
