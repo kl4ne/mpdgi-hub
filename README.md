@@ -1,22 +1,22 @@
-# MPDGI Hub — v1.4.0
+# MPDGI Hub — v1.4.1
 
 Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
 
-## v1.4.0 — Production Hardening & Compatibility
+## v1.4.1 — Custom Domain Activation
 
-v1.4.0 is the production-hardening release. It preserves the approved visual identity while improving accessibility, install behavior, silent updates, PWA compatibility, automated QA and NFC/domain readiness.
+The official Hub domain is now:
 
-Current live production / NFC target:
+`https://hub.mpdgi.org/`
+
+The repository includes the GitHub Pages `CNAME` file for `hub.mpdgi.org`. Canonical, social sharing, Hub and NFC URLs now use the church-owned subdomain.
+
+Legacy GitHub Pages address:
 
 `https://kl4ne.github.io/mpdgi-hub/`
 
-Planned permanent custom domain, **not configured yet**:
-
-`https://hub.mpdgi.org`
-
-The current GitHub Pages URL remains canonical and active until the custom domain is intentionally configured and verified. No DNS or CNAME change is part of this release.
+The legacy address remains documented as a fallback, but new NFC tags and public references should use `https://hub.mpdgi.org/` after DNS/TLS propagation is complete.
 
 ## Current cards
 
@@ -31,52 +31,25 @@ The current GitHub Pages URL remains canonical and active until the custom domai
 
 ## Installation and silent updates
 
-The Install action is no longer in the footer. It appears inside **Acerca de / About** only when the browser exposes the PWA install prompt.
+The Install action appears inside **Acerca de / About** only when the browser exposes the PWA install prompt.
 
-Existing installations update silently. The Service Worker checks on load, periodically while open and when the app returns to the foreground. A new worker activates automatically, but the reload is deferred while a modal is open or the app is backgrounded so users are not interrupted mid-task.
+Existing installations update silently. A new Service Worker activates automatically, while reload is deferred if a modal is open or the app is backgrounded.
 
-Browsers still require a user gesture for the first PWA installation.
+## NFC
 
-## Accessibility and mobile compatibility
+For all new NFC tags, use this NDEF URI/URL after the domain resolves successfully over HTTPS:
 
-- ES/EN labels and accessibility text are language-correct.
-- Modal background content becomes inert while a dialog is open.
-- Very short screens hide card subtitles before shrinking primary labels further.
-- Dynamic viewport units (`svh` / `dvh`) improve behavior around mobile browser chrome.
-- Focus trapping, Escape-to-close, reduced-motion support and visible focus remain enabled.
+`https://hub.mpdgi.org/`
 
-## PWA assets
-
-The manifest uses PNG 192×192 and 512×512 icons, declares `lang: es` and `dir: ltr`, and keeps standalone display. Apple devices use the dedicated Apple Touch Icon. No app shortcuts are added.
-
-A 1200×630 branded social sharing card is available at:
-
-`assets/social/mpdgi-hub-share.svg`
-
-## NFC and domain plan
-
-For NFC tags today, encode this exact NDEF URI/URL:
-
-`https://kl4ne.github.io/mpdgi-hub/`
-
-The planned permanent destination is `https://hub.mpdgi.org`, but it must not be programmed into production tags until DNS, TLS and GitHub Pages custom-domain behavior are configured and verified.
+The domain is church-owned and can remain stable even if the underlying hosting changes later.
 
 ## Automated QA
 
-GitHub Actions now validates:
-
-- version/config/PWA consistency;
-- HTTPS routes and the current NFC URL;
-- recursive secret and `.env` detection;
-- four mobile viewport sizes;
-- eight cards, ES/EN switching and all modal flows;
-- no horizontal or vertical overflow on the target viewports;
-- no browser console errors;
-- Lighthouse performance, accessibility and best-practices thresholds.
+GitHub Actions validates version/config/PWA consistency, HTTPS routes, custom-domain configuration, recursive secret detection, four mobile viewport sizes, eight cards, ES/EN switching, modal flows, overflow, console errors and Lighthouse thresholds.
 
 ## Security
 
-The Hub remains dependency-light at runtime, self-hosted, HTTPS-only for external navigation and protected by a restrictive same-origin Content Security Policy. No passwords, payment credentials, API keys or private data belong in the public repository.
+The Hub remains dependency-light at runtime, self-hosted, HTTPS-only for external navigation and protected by a restrictive same-origin Content Security Policy.
 
 ## Copyright
 

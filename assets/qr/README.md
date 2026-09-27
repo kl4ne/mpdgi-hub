@@ -1,15 +1,15 @@
 # NFC / QR target
 
-Current production NFC/QR destination:
+Official production NFC/QR destination:
+
+`https://hub.mpdgi.org/`
+
+For NFC, encode that address as a standard **NDEF URI/URL record**. Rewritable NFC tags are preferred.
+
+Legacy GitHub Pages fallback:
 
 `https://kl4ne.github.io/mpdgi-hub/`
 
-For NFC, encode the address above as a standard **NDEF URI/URL record**. Rewritable NFC tags are preferred.
+The repository includes a GitHub Pages `CNAME` file for `hub.mpdgi.org`. Do not remove the CNAME while the custom domain is in use.
 
-Planned permanent custom domain:
-
-`https://hub.mpdgi.org`
-
-The custom domain is intentionally **not configured yet**. Do not program `hub.mpdgi.org` into production tags until DNS, TLS, canonical URL, redirect behavior and GitHub Pages custom-domain configuration are activated and verified.
-
-The Hub is HTTPS, PWA-enabled, mobile responsive and does not require a special NFC API: the tag simply opens the Hub URL.
+Before mass-programming NFC tags, confirm `https://hub.mpdgi.org/` resolves successfully and serves HTTPS.

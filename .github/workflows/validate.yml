@@ -15,7 +15,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate v1.4.0
+      - name: Validate v1.4.1
         run: |
           node --check js/app.js
           node --check sw.js
@@ -23,28 +23,28 @@ jobs:
           const fs=require('fs');
           const read=p=>fs.readFileSync(p,'utf8');
           const json=p=>JSON.parse(read(p));
-          const must=['index.html','sw.js','manifest.json','README.md','.nojekyll','css/style.css','js/app.js','data/config.json','data/links.json','data/changelog.json','assets/profile/logo-mpdg.png','assets/icons/icon-192.png','assets/icons/icon-512.png','assets/icons/apple-touch-icon.png','assets/social/mpdgi-hub-share.svg','assets/qr/README.md','package.json','playwright.config.js','tests/ui.spec.js','.github/workflows/qa.yml'];
+          const must=['index.html','sw.js','manifest.json','README.md','.nojekyll','CNAME','css/style.css','js/app.js','data/config.json','data/links.json','data/changelog.json','assets/profile/logo-mpdg.png','assets/icons/icon-192.png','assets/icons/icon-512.png','assets/icons/apple-touch-icon.png','assets/social/mpdgi-hub-share.svg','assets/qr/README.md','package.json','playwright.config.js','tests/ui.spec.js','.github/workflows/qa.yml'];
           for(const p of must)if(!fs.existsSync(p))throw Error('Missing: '+p);
 
           const index=read('index.html'),css=read('css/style.css'),app=read('js/app.js'),sw=read('sw.js');
           const manifest=json('manifest.json'),config=json('data/config.json'),links=json('data/links.json'),changelog=json('data/changelog.json');
 
-          if(config.version!=='1.4.0'||!app.includes("HUB_VERSION='1.4.0'")||!sw.includes("VERSION='1.4.0'"))throw Error('Version mismatch');
-          if(changelog[0]?.version!=='1.4.0'||changelog[0]?.title!=='Production Hardening & Compatibility')throw Error('Changelog mismatch');
+          if(config.version!=='1.4.1'||!app.includes("HUB_VERSION='1.4.1'")||!sw.includes("VERSION='1.4.1'"))throw Error('Version mismatch');
+          if(changelog[0]?.version!=='1.4.1'||changelog[0]?.title!=='Custom Domain Activation')throw Error('Changelog mismatch');
 
           for(const t of ["default-src 'self'","script-src 'self'","style-src 'self'","connect-src 'self'","worker-src 'self'","object-src 'none'","base-uri 'self'"])if(!index.includes(t))throw Error('Missing CSP: '+t);
           if(manifest.start_url!=='./'||manifest.scope!=='./'||manifest.id!=='./'||manifest.display!=='standalone'||manifest.lang!=='es'||manifest.dir!=='ltr')throw Error('Manifest mismatch'); if(manifest.shortcuts)throw Error('Manifest shortcuts must remain disabled');
           for(const icon of manifest.icons||[])if(!fs.existsSync(icon.src))throw Error('Missing icon: '+icon.src);
           if(fs.statSync('assets/profile/logo-mpdg.png').size<5000||fs.statSync('assets/icons/icon-192.png').size<5000)throw Error('Official logo/icon asset too small or missing');
 
-          const urlKeys=['website','memberPortal','prayer','ministries','youtube','facebook','instagram','tithely','bibleSpanish','bibleEnglish','hubUrl','nfcUrl','futureCustomDomain'];
+          const urlKeys=['website','memberPortal','prayer','ministries','youtube','facebook','instagram','tithely','bibleSpanish','bibleEnglish','hubUrl','nfcUrl','customDomain','legacyGitHubPagesUrl'];
           for(const key of urlKeys)if(new URL(config[key]).protocol!=='https:')throw Error('Non-HTTPS: '+key);
           if(config.ministries!=='https://mpdgi.org/ministerios')throw Error('Ministries route mismatch');
           if(config.bibleSpanish!=='https://www.biblegateway.com/versions/Reina-Valera-1960-RVR1960-Biblia/')throw Error('RVR1960 route mismatch');
           if(config.bibleEnglish!=='https://www.biblegateway.com/versions/King-James-Version-KJV-Bible/')throw Error('KJV route mismatch');
-          if(config.defaultLanguage!=='es'||config.developer!=='Roberto S. Macfie')throw Error('Config identity/default mismatch'); if(config.futureCustomDomain!=='https://hub.mpdgi.org')throw Error('Planned custom domain mismatch');
-          if(config.nfcUrl!=='https://kl4ne.github.io/mpdgi-hub/'||config.nfcUrl!==config.hubUrl)throw Error('NFC production URL mismatch');
-          if(!index.includes('<link rel="canonical" href="https://kl4ne.github.io/mpdgi-hub/">'))throw Error('Canonical NFC URL mismatch');
+          if(config.defaultLanguage!=='es'||config.developer!=='Roberto S. Macfie')throw Error('Config identity/default mismatch'); if(config.customDomain!=='https://hub.mpdgi.org/'||config.legacyGitHubPagesUrl!=='https://kl4ne.github.io/mpdgi-hub/')throw Error('Custom domain configuration mismatch');
+          if(config.nfcUrl!=='https://hub.mpdgi.org/'||config.nfcUrl!==config.hubUrl||config.customDomain!==config.hubUrl)throw Error('NFC production URL mismatch');
+          if(!index.includes('<link rel="canonical" href="https://hub.mpdgi.org/">'))throw Error('Canonical custom-domain URL mismatch');
 
           if(!Array.isArray(links)||links.length!==8)throw Error('Expected exactly 8 cards');
           const ids=new Set(links.map(x=>x.id));
@@ -73,11 +73,11 @@ jobs:
           for(const token of ["updateViaCache:'none'","controllerchange","r.update()","SKIP_WAITING","15*60*1000"])if(!app.includes(token))throw Error('Silent update missing: '+token);
           if(!sw.includes('self.skipWaiting()')||!sw.includes('self.clients.claim()'))throw Error('Service Worker immediate activation missing');
           const qr=read('assets/qr/README.md');
-          if(!qr.includes('https://kl4ne.github.io/mpdgi-hub/')||!qr.includes('NDEF URI/URL record'))throw Error('NFC documentation mismatch');
+          if(!qr.includes('https://hub.mpdgi.org/')||!qr.includes('NDEF URI/URL record'))throw Error('NFC documentation mismatch');
           if(css.includes('.bottom-nav')||css.includes('.nav-item'))throw Error('Bottom-nav CSS returned');
 
           for(const p of ['./index.html','./css/style.css','./js/app.js','./manifest.json','./data/config.json','./data/links.json','./assets/profile/logo-mpdg.png','./assets/icons/icon-192.png','./assets/icons/icon-512.png','./assets/icons/apple-touch-icon.png'])if(!sw.includes("'"+p+"'"))throw Error('SW missing: '+p);
-          if(fs.existsSync('CNAME'))throw Error('CNAME must not exist yet');
+          if(read('CNAME').trim()!=='hub.mpdgi.org')throw Error('CNAME mismatch');
           const path=require('path');
           const walk=(dir)=>fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>{const p=path.join(dir,e.name);if(e.name==='.git'||e.name==='node_modules')return[];return e.isDirectory()?walk(p):[p]});
           const allFiles=walk('.');
@@ -93,7 +93,7 @@ jobs:
           ];
           for(const p of textFiles){const body=read(p);for(const re of secretPatterns)if(re.test(body))throw Error('Potential secret detected in '+p+': '+re);}
           if(!index.includes('assets/icons/apple-touch-icon.png'))throw Error('Apple touch icon mismatch');
-          if(!index.includes('assets/social/mpdgi-hub-share.svg')||!index.includes('content="1200"')||!index.includes('content="630"'))throw Error('Social preview metadata mismatch');
+          if(!index.includes('https://hub.mpdgi.org/assets/social/mpdgi-hub-share.svg')||!index.includes('content="1200"')||!index.includes('content="630"'))throw Error('Social preview metadata mismatch');
 
-          console.log('MPDGI Hub v1.4.0 validated');
+          console.log('MPDGI Hub v1.4.1 validated');
           NODE

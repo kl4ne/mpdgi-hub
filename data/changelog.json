@@ -1,5 +1,17 @@
 [
   {
+    "version": "1.4.1",
+    "title": "Custom Domain Activation",
+    "date": "2026-09-26",
+    "changes": [
+      "Activated hub.mpdgi.org as the official MPDGI Hub custom domain.",
+      "Added the GitHub Pages CNAME configuration for hub.mpdgi.org.",
+      "Changed canonical, Open Graph, Twitter, Hub and NFC URLs to https://hub.mpdgi.org/.",
+      "Kept the previous GitHub Pages address documented as a legacy fallback.",
+      "Updated validation so releases require the custom domain and CNAME configuration."
+    ]
+  },
+  {
     "version": "1.4.0",
     "title": "Production Hardening & Compatibility",
     "date": "2026-09-26",
