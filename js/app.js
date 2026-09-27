@@ -163,7 +163,6 @@ function setLanguage(language,persist=true){
   document.getElementById('tagline').textContent='“'+(currentLanguage==='es'?config.tagline:config.taglineEn)+'”';
   document.getElementById('scripture').textContent=currentLanguage==='es'?config.scripture:config.scriptureEn;
   document.getElementById('sunday-label').textContent=s.sunday;document.getElementById('wednesday-label').textContent=s.wednesday;
-  document.getElementById('install-button').textContent=s.install;
   document.getElementById('modal-close').setAttribute('aria-label',s.close);
   document.getElementById('developer-credit').textContent=s.developerCredit;document.getElementById('copyright-text').textContent=s.copyright;
   updateOfflineState();renderCards();
