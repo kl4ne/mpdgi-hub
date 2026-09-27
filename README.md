@@ -1,22 +1,22 @@
-# MPDGI Hub — v1.3.3
+# MPDGI Hub — v1.4.0
 
 Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
 
-## v1.3.3 — Color & Header Polish
+## v1.4.0 — Production Hardening & Compatibility
 
-This patch gives About its own burgundy color, slightly enlarges the official logo, adds more space between the church name and scripture block, and makes the Designed & Developed credit a little larger and lower.
+v1.4.0 is the production-hardening release. It preserves the approved visual identity while improving accessibility, install behavior, silent updates, PWA compatibility, automated QA and NFC/domain readiness.
 
-Live production / current NFC target:
+Current live production / NFC target:
 
 `https://kl4ne.github.io/mpdgi-hub/`
 
-Future custom domain, **not configured yet**:
+Planned permanent custom domain, **not configured yet**:
 
-`https://connect.mpdgi.org`
+`https://hub.mpdgi.org`
 
-The existing `https://mpdgi.org` site and DNS remain untouched.
+The current GitHub Pages URL remains canonical and active until the custom domain is intentionally configured and verified. No DNS or CNAME change is part of this release.
 
 ## Current cards
 
@@ -27,34 +27,57 @@ The existing `https://mpdgi.org` site and DNS remain untouched.
 5. Ministerios / Ministries — `https://mpdgi.org/ministerios`.
 6. Redes Sociales / Social Media — Facebook, Instagram and YouTube.
 7. Sitio Web / Website — `https://mpdgi.org`.
-8. About — Hub information, version, privacy, external services, developer credit and copyright.
+8. Acerca de / About — Hub information, version, privacy, developer credit and install action when supported.
 
-## Silent updates
+## Installation and silent updates
 
-Once the Hub is being used normally or has already been installed as a PWA, the Service Worker checks for a new version on load, every 15 minutes while open, and whenever the app returns to the foreground. A waiting update is activated with `skipWaiting`, claimed immediately, and the app reloads once automatically without displaying an update prompt.
+The Install action is no longer in the footer. It appears inside **Acerca de / About** only when the browser exposes the PWA install prompt.
 
-Browsers do not allow a website to perform the **first PWA installation** silently without a user gesture. The existing Install control remains available when the browser exposes installation. Subsequent Hub releases update silently through the Service Worker.
+Existing installations update silently. The Service Worker checks on load, periodically while open and when the app returns to the foreground. A new worker activates automatically, but the reload is deferred while a modal is open or the app is backgrounded so users are not interrupted mid-task.
 
-## NFC readiness
+Browsers still require a user gesture for the first PWA installation.
 
-The current NFC/QR URL is:
+## Accessibility and mobile compatibility
+
+- ES/EN labels and accessibility text are language-correct.
+- Modal background content becomes inert while a dialog is open.
+- Very short screens hide card subtitles before shrinking primary labels further.
+- Dynamic viewport units (`svh` / `dvh`) improve behavior around mobile browser chrome.
+- Focus trapping, Escape-to-close, reduced-motion support and visible focus remain enabled.
+
+## PWA assets
+
+The manifest uses PNG 192×192 and 512×512 icons, declares `lang: es` and `dir: ltr`, and keeps standalone display. Apple devices use the dedicated Apple Touch Icon. No app shortcuts are added.
+
+A 1200×630 branded social sharing card is available at:
+
+`assets/social/mpdgi-hub-share.svg`
+
+## NFC and domain plan
+
+For NFC tags today, encode this exact NDEF URI/URL:
 
 `https://kl4ne.github.io/mpdgi-hub/`
 
-Program the NFC tag as a standard NDEF URI/URL record using that exact HTTPS address. The Hub itself does not require NFC hardware APIs; tapping the tag opens the production URL in the device browser or installed PWA.
+The planned permanent destination is `https://hub.mpdgi.org`, but it must not be programmed into production tags until DNS, TLS and GitHub Pages custom-domain behavior are configured and verified.
 
-The planned `connect.mpdgi.org` domain is still not configured. Until it is intentionally activated, NFC tags should use the GitHub Pages production URL. Rewritable NFC tags are preferable if the destination may change later.
+## Automated QA
 
-## PWA and security
+GitHub Actions now validates:
 
-The app retains the official logo, ES/EN support, standalone manifest, root Service Worker, offline shell caching, automatic old-cache cleanup, accessible dialogs, keyboard focus handling, reduced-motion support, HTTPS-only external navigation and a restrictive same-origin Content Security Policy.
+- version/config/PWA consistency;
+- HTTPS routes and the current NFC URL;
+- recursive secret and `.env` detection;
+- four mobile viewport sizes;
+- eight cards, ES/EN switching and all modal flows;
+- no horizontal or vertical overflow on the target viewports;
+- no browser console errors;
+- Lighthouse performance, accessibility and best-practices thresholds.
 
-No passwords, payment credentials, API keys or private data are stored in the public repository.
+## Security
+
+The Hub remains dependency-light at runtime, self-hosted, HTTPS-only for external navigation and protected by a restrictive same-origin Content Security Policy. No passwords, payment credentials, API keys or private data belong in the public repository.
 
 ## Copyright
 
 © 2026 Ministerio Plenitud de Gracia. All Rights Reserved.
-
-## v1.3.3 visual refinement
-
-Website keeps the gray treatment while About now uses a distinct burgundy gradient. The official logo is slightly larger, the scripture block has more breathing room below the church name, and the developer credit is slightly larger and lower.
