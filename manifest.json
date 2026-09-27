@@ -8,7 +8,10 @@
   "display": "standalone",
   "background_color": "#071A36",
   "theme_color": "#071A36",
-  "categories": ["lifestyle", "social"],
+  "categories": [
+    "lifestyle",
+    "social"
+  ],
   "icons": [
     {
       "src": "assets/icons/icon-192.png",
@@ -17,10 +20,12 @@
       "purpose": "any"
     },
     {
-      "src": "assets/icons/icon-512.svg",
+      "src": "assets/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "lang": "es",
+  "dir": "ltr"
 }
