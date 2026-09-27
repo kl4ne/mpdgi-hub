@@ -15,7 +15,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate v1.3.3
+      - name: Validate v1.4.0
         run: |
           node --check js/app.js
           node --check sw.js
@@ -23,17 +23,17 @@ jobs:
           const fs=require('fs');
           const read=p=>fs.readFileSync(p,'utf8');
           const json=p=>JSON.parse(read(p));
-          const must=['index.html','sw.js','manifest.json','README.md','.nojekyll','css/style.css','js/app.js','data/config.json','data/links.json','data/changelog.json','assets/profile/logo-mpdg.png','assets/icons/icon-192.png','assets/icons/icon-512.svg','assets/qr/README.md'];
+          const must=['index.html','sw.js','manifest.json','README.md','.nojekyll','css/style.css','js/app.js','data/config.json','data/links.json','data/changelog.json','assets/profile/logo-mpdg.png','assets/icons/icon-192.png','assets/icons/icon-512.png','assets/icons/apple-touch-icon.png','assets/social/mpdgi-hub-share.svg','assets/qr/README.md','package.json','playwright.config.js','tests/ui.spec.js','.github/workflows/qa.yml'];
           for(const p of must)if(!fs.existsSync(p))throw Error('Missing: '+p);
 
           const index=read('index.html'),css=read('css/style.css'),app=read('js/app.js'),sw=read('sw.js');
           const manifest=json('manifest.json'),config=json('data/config.json'),links=json('data/links.json'),changelog=json('data/changelog.json');
 
-          if(config.version!=='1.3.3'||!app.includes("HUB_VERSION='1.3.3'")||!sw.includes("VERSION='1.3.3'"))throw Error('Version mismatch');
-          if(changelog[0]?.version!=='1.3.3'||changelog[0]?.title!=='Color & Header Polish')throw Error('Changelog mismatch');
+          if(config.version!=='1.4.0'||!app.includes("HUB_VERSION='1.4.0'")||!sw.includes("VERSION='1.4.0'"))throw Error('Version mismatch');
+          if(changelog[0]?.version!=='1.4.0'||changelog[0]?.title!=='Production Hardening & Compatibility')throw Error('Changelog mismatch');
 
           for(const t of ["default-src 'self'","script-src 'self'","style-src 'self'","connect-src 'self'","worker-src 'self'","object-src 'none'","base-uri 'self'"])if(!index.includes(t))throw Error('Missing CSP: '+t);
-          if(manifest.start_url!=='./'||manifest.scope!=='./'||manifest.id!=='./'||manifest.display!=='standalone')throw Error('Manifest mismatch');
+          if(manifest.start_url!=='./'||manifest.scope!=='./'||manifest.id!=='./'||manifest.display!=='standalone'||manifest.lang!=='es'||manifest.dir!=='ltr')throw Error('Manifest mismatch'); if(manifest.shortcuts)throw Error('Manifest shortcuts must remain disabled');
           for(const icon of manifest.icons||[])if(!fs.existsSync(icon.src))throw Error('Missing icon: '+icon.src);
           if(fs.statSync('assets/profile/logo-mpdg.png').size<5000||fs.statSync('assets/icons/icon-192.png').size<5000)throw Error('Official logo/icon asset too small or missing');
 
@@ -42,7 +42,7 @@ jobs:
           if(config.ministries!=='https://mpdgi.org/ministerios')throw Error('Ministries route mismatch');
           if(config.bibleSpanish!=='https://www.biblegateway.com/versions/Reina-Valera-1960-RVR1960-Biblia/')throw Error('RVR1960 route mismatch');
           if(config.bibleEnglish!=='https://www.biblegateway.com/versions/King-James-Version-KJV-Bible/')throw Error('KJV route mismatch');
-          if(config.defaultLanguage!=='es'||config.developer!=='Roberto S. Macfie')throw Error('Config identity/default mismatch');
+          if(config.defaultLanguage!=='es'||config.developer!=='Roberto S. Macfie')throw Error('Config identity/default mismatch'); if(config.futureCustomDomain!=='https://hub.mpdgi.org')throw Error('Planned custom domain mismatch');
           if(config.nfcUrl!=='https://kl4ne.github.io/mpdgi-hub/'||config.nfcUrl!==config.hubUrl)throw Error('NFC production URL mismatch');
           if(!index.includes('<link rel="canonical" href="https://kl4ne.github.io/mpdgi-hub/">'))throw Error('Canonical NFC URL mismatch');
 
@@ -59,26 +59,41 @@ jobs:
           if(JSON.stringify(links).includes(config.youtube))throw Error('YouTube must not be a standalone card URL');
 
           if(index.includes('bottom-nav')||index.includes('data-nav-action')||index.includes('data-nav-card'))throw Error('Bottom navigation returned');
-          for(const footerToken of ['hub-footer','install-button','developer-credit','copyright-text'])if(!index.includes(footerToken))throw Error('Footer missing: '+footerToken);
+          for(const footerToken of ['hub-footer','developer-credit','copyright-text'])if(!index.includes(footerToken))throw Error('Footer missing: '+footerToken); if(index.includes('id="install-button"'))throw Error('Install button must not be in static footer');
           if(index.includes('version-label')||index.includes('about-button'))throw Error('Legacy footer version/About controls returned');
 
           if(!app.includes("VALID_MODAL_TYPES=new Set(['give','social','bible','about'])"))throw Error('Modal types mismatch');
-          if(!app.includes("if(type==='about')renderAboutModal(trigger)"))throw Error('About card modal wiring missing');
+          if(!app.includes("if(type==='about')renderAboutModal(trigger)"))throw Error('About card modal wiring missing'); if(!app.includes("es:'Acerca de',en:'About'"))throw Error('About translation mismatch'); if(!app.includes('createInstallAction'))throw Error('About install action missing'); if(!app.includes('setBackgroundInert'))throw Error('Modal inert handling missing'); if(!app.includes('reloadAfterUpdateIfSafe'))throw Error('Safe silent reload missing');
           if(!app.includes("brandedLink('facebook',s.facebook")||!app.includes("brandedLink('instagram',s.instagram")||!app.includes("brandedLink('youtube',s.youtube"))throw Error('Social brand links missing');
           if(/Abrir Facebook|Abrir Instagram|Abrir YouTube|Open Facebook|Open Instagram|Open YouTube/.test(app))throw Error('Abrir/Open wording returned to social buttons');
           if(!app.includes('config.bibleSpanish')||!app.includes('config.bibleEnglish'))throw Error('Bible links missing from app');
           if(!css.includes('.zelle-box{text-align:center'))throw Error('Zelle must be centered');
           if(!css.includes('.hub-card.card-about{background:linear-gradient(135deg,#a34357,#612536)}'))throw Error('About card must use distinct burgundy theme');
-          if(!css.includes('.developer-credit{color:#d0dbe7;font-weight:650;font-size:.64rem'))throw Error('Developer credit styling mismatch');
+          if(!css.includes('.developer-credit{color:#d0dbe7;font-weight:650;font-size:.64rem'))throw Error('Developer credit styling mismatch'); if(!css.includes('min-height:100svh')||!css.includes('min-height:100dvh'))throw Error('Dynamic viewport support missing'); if(!css.includes('@media(max-height:680px)'))throw Error('Very short-screen readability rule missing');
           for(const token of ["updateViaCache:'none'","controllerchange","r.update()","SKIP_WAITING","15*60*1000"])if(!app.includes(token))throw Error('Silent update missing: '+token);
           if(!sw.includes('self.skipWaiting()')||!sw.includes('self.clients.claim()'))throw Error('Service Worker immediate activation missing');
           const qr=read('assets/qr/README.md');
           if(!qr.includes('https://kl4ne.github.io/mpdgi-hub/')||!qr.includes('NDEF URI/URL record'))throw Error('NFC documentation mismatch');
           if(css.includes('.bottom-nav')||css.includes('.nav-item'))throw Error('Bottom-nav CSS returned');
 
-          for(const p of ['./index.html','./css/style.css','./js/app.js','./manifest.json','./data/config.json','./data/links.json','./assets/profile/logo-mpdg.png','./assets/icons/icon-192.png','./assets/icons/icon-512.svg'])if(!sw.includes("'"+p+"'"))throw Error('SW missing: '+p);
+          for(const p of ['./index.html','./css/style.css','./js/app.js','./manifest.json','./data/config.json','./data/links.json','./assets/profile/logo-mpdg.png','./assets/icons/icon-192.png','./assets/icons/icon-512.png','./assets/icons/apple-touch-icon.png'])if(!sw.includes("'"+p+"'"))throw Error('SW missing: '+p);
           if(fs.existsSync('CNAME'))throw Error('CNAME must not exist yet');
-          for(const name of fs.readdirSync('.'))if(name==='.env'||name.startsWith('.env.'))throw Error('Secret env file detected');
+          const path=require('path');
+          const walk=(dir)=>fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>{const p=path.join(dir,e.name);if(e.name==='.git'||e.name==='node_modules')return[];return e.isDirectory()?walk(p):[p]});
+          const allFiles=walk('.');
+          for(const p of allFiles){const base=path.basename(p);if(base==='.env'||base.startsWith('.env.'))throw Error('Secret env file detected: '+p);}
+          const textFiles=allFiles.filter(p=>/\.(?:js|json|html|css|md|yml|yaml|txt|xml|svg)$/i.test(p));
+          const secretPatterns=[
+            /AKIA[0-9A-Z]{16}/,
+            /gh[pousr]_[A-Za-z0-9]{36,255}/,
+            /AIza[0-9A-Za-z_-]{35}/,
+            /sk-[A-Za-z0-9]{20,}/,
+            /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/,
+            /(?:api[_-]?key|client[_-]?secret|access[_-]?token|auth[_-]?token|password)\s*[:=]\s*["'][^"'\n]{12,}["']/i
+          ];
+          for(const p of textFiles){const body=read(p);for(const re of secretPatterns)if(re.test(body))throw Error('Potential secret detected in '+p+': '+re);}
+          if(!index.includes('assets/icons/apple-touch-icon.png'))throw Error('Apple touch icon mismatch');
+          if(!index.includes('assets/social/mpdgi-hub-share.svg')||!index.includes('content="1200"')||!index.includes('content="630"'))throw Error('Social preview metadata mismatch');
 
-          console.log('MPDGI Hub v1.3.3 validated');
+          console.log('MPDGI Hub v1.4.0 validated');
           NODE
