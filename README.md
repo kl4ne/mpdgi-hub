@@ -1,12 +1,12 @@
-# MPDGI Hub — v1.2.1
+# MPDGI Hub — v1.2.2
 
 Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
 
-## v1.2.1 — Single-Screen Compact Layout
+## v1.2.2 — Tighter Header & Cards
 
-This patch keeps the v1.2.0 functionality and compresses the mobile layout so the complete Hub is designed to fit in one screen on common phone viewports without routine up/down scrolling.
+This patch further reduces the top spacing above the official logo and slightly reduces card height/padding so the Hub fits more comfortably in a single mobile viewport.
 
 Live deployment target:
 
@@ -77,3 +77,7 @@ A restrictive same-origin Content Security Policy is applied. External navigatio
 ## Compact viewport target
 
 The header, cards, decorative wave, church-info strip and footer use responsive compact sizing. A shorter-screen media query further reduces vertical spacing on phone-height viewports while retaining the same content and two-column card structure.
+
+## v1.2.2 compact refinements
+
+Top hero spacing is reduced further and the cards are slightly shorter, with extra tightening on short phone viewports. No functional links, modals, branding or content were removed.

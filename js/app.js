@@ -1,6 +1,6 @@
 'use strict';
 
-const HUB_VERSION='1.2.1';
+const HUB_VERSION='1.2.2';
 const STORAGE_LANGUAGE_KEY='mpdgiHubLanguage';
 const VALID_THEMES=new Set(['blue','green','purple','gold','teal','social','website']);
 const VALID_MODAL_TYPES=new Set(['give','social','bible']);
