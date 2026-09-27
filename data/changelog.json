@@ -1,5 +1,18 @@
 [
   {
+    "version": "1.3.2",
+    "title": "Spacing, Silent Updates & NFC Readiness",
+    "date": "2026-09-26",
+    "changes": [
+      "Added space below Matthew 20:28 before the divider line.",
+      "Added space between the divider line and the menu grid.",
+      "Added space between the final menu row and the yellow wave.",
+      "Enabled silent Service Worker updates for existing installations: new versions activate automatically and the app reloads once without an update prompt.",
+      "Added periodic and foreground update checks with updateViaCache disabled for the Service Worker script.",
+      "Declared and validated the current NFC/QR production target as https://kl4ne.github.io/mpdgi-hub/."
+    ]
+  },
+  {
     "version": "1.3.1",
     "title": "Balanced Vertical Spacing",
     "date": "2026-09-26",

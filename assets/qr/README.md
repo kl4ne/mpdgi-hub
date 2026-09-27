@@ -1,3 +1,11 @@
-# QR assets
+# NFC / QR target
 
-Reserved for future MPDGI Hub QR assets. The permanent NFC/QR destination is intended to be `https://connect.mpdgi.org` after the custom domain is activated and verified. No DNS or custom-domain change is part of the v1.0.0 build phase.
+Current production NFC/QR destination:
+
+`https://kl4ne.github.io/mpdgi-hub/`
+
+For NFC, encode the address above as a standard **NDEF URI/URL record**. Use rewritable NFC tags if possible.
+
+The future custom domain `https://connect.mpdgi.org` is intentionally **not configured yet**. Do not program that address into production tags until its DNS, TLS, redirect behavior, and GitHub Pages custom-domain configuration are intentionally activated and verified.
+
+The production Hub is HTTPS, PWA-enabled, mobile responsive, and does not require a special NFC API: the NFC tag simply opens the Hub URL.

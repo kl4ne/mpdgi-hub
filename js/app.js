@@ -1,6 +1,6 @@
 'use strict';
 
-const HUB_VERSION='1.3.1';
+const HUB_VERSION='1.3.2';
 const STORAGE_LANGUAGE_KEY='mpdgiHubLanguage';
 const VALID_THEMES=new Set(['blue','green','purple','gold','teal','social','website','about']);
 const VALID_MODAL_TYPES=new Set(['give','social','bible','about']);
@@ -231,7 +231,35 @@ function setupModal(){
 function updateOfflineState(){const b=document.getElementById('offline-badge');b.hidden=navigator.onLine;b.textContent=navigator.onLine?'':UI[currentLanguage].offline;}
 function setupLanguage(){document.getElementById('language-toggle').addEventListener('click',()=>setLanguage(currentLanguage==='es'?'en':'es',true));}
 function setupInstall(){const btn=document.getElementById('install-button');window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;btn.hidden=false;});btn.addEventListener('click',async()=>{if(!installPrompt)return;installPrompt.prompt();await installPrompt.userChoice.catch(()=>null);installPrompt=null;btn.hidden=true;});window.addEventListener('appinstalled',()=>{installPrompt=null;btn.hidden=true;});}
-function setupServiceWorker(){if(!('serviceWorker'in navigator))return;window.addEventListener('load',async()=>{try{const r=await navigator.serviceWorker.register('./sw.js',{scope:'./'});if(r.waiting)r.waiting.postMessage({type:'SKIP_WAITING'});r.addEventListener('updatefound',()=>{const w=r.installing;w?.addEventListener('statechange',()=>{if(w.state==='installed'&&navigator.serviceWorker.controller)w.postMessage({type:'SKIP_WAITING'});});});}catch(e){console.warn('[MPDGI Hub] Service Worker registration failed:',e);}},{once:true});}
+function setupServiceWorker(){
+  if(!('serviceWorker'in navigator))return;
+  window.addEventListener('load',async()=>{
+    try{
+      const hadController=Boolean(navigator.serviceWorker.controller);
+      let reloadingForUpdate=false;
+      if(hadController){
+        navigator.serviceWorker.addEventListener('controllerchange',()=>{
+          if(reloadingForUpdate)return;
+          reloadingForUpdate=true;
+          location.reload();
+        });
+      }
+      const r=await navigator.serviceWorker.register('./sw.js',{scope:'./',updateViaCache:'none'});
+      const activateWaiting=()=>{if(r.waiting)r.waiting.postMessage({type:'SKIP_WAITING'});};
+      const checkForUpdate=async()=>{try{await r.update();activateWaiting();}catch{}};
+      activateWaiting();
+      r.addEventListener('updatefound',()=>{
+        const w=r.installing;
+        w?.addEventListener('statechange',()=>{
+          if(w.state==='installed'&&navigator.serviceWorker.controller)w.postMessage({type:'SKIP_WAITING'});
+        });
+      });
+      setTimeout(checkForUpdate,1500);
+      setInterval(checkForUpdate,15*60*1000);
+      document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkForUpdate();});
+    }catch(e){console.warn('[MPDGI Hub] Service Worker registration failed:',e);}
+  },{once:true});
+}
 function resolveInitialLanguage(){try{const s=localStorage.getItem(STORAGE_LANGUAGE_KEY);if(s==='es'||s==='en')return s;}catch{}return config.defaultLanguage==='en'?'en':'es';}
 
 async function init(){

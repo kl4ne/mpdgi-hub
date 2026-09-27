@@ -1,18 +1,18 @@
-# MPDGI Hub — v1.3.1
+# MPDGI Hub — v1.3.2
 
 Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
 
-## v1.3.1 — Balanced Vertical Spacing
+## v1.3.2 — Spacing, Silent Updates & NFC Readiness
 
-This patch keeps the compact v1.3.0 card sizing but restores a little vertical breathing room between menu rows so the grid feels less cramped while remaining optimized for a single-screen mobile view.
+This patch restores intentional breathing room around the scripture divider and menu grid while keeping the compact one-screen layout. It also strengthens automatic PWA updates and formally validates the current NFC destination.
 
-Live deployment target:
+Live production / current NFC target:
 
 `https://kl4ne.github.io/mpdgi-hub/`
 
-Future NFC custom domain, **not configured yet**:
+Future custom domain, **not configured yet**:
 
 `https://connect.mpdgi.org`
 
@@ -27,28 +27,30 @@ The existing `https://mpdgi.org` site and DNS remain untouched.
 5. Ministerios / Ministries — `https://mpdgi.org/ministerios`.
 6. Redes Sociales / Social Media — Facebook, Instagram and YouTube.
 7. Sitio Web / Website — `https://mpdgi.org`.
-8. About — opens the Hub information previously accessed from the footer.
+8. About — Hub information, version, privacy, external services, developer credit and copyright.
 
-## Footer
+## Silent updates
 
-The visible version badge and footer About button were removed. The footer now keeps only the optional install control when available, the developer credit, and copyright. The current version remains visible inside About.
+Once the Hub is being used normally or has already been installed as a PWA, the Service Worker checks for a new version on load, every 15 minutes while open, and whenever the app returns to the foreground. A waiting update is activated with `skipWaiting`, claimed immediately, and the app reloads once automatically without displaying an update prompt.
 
-## Layout
+Browsers do not allow a website to perform the **first PWA installation** silently without a user gesture. The existing Install control remains available when the browser exposes installation. Subsequent Hub releases update silently through the Service Worker.
 
-All eight cards are equal-size two-column cards. Card height, icon size, padding and gaps were reduced again, including extra short-screen rules, to improve the one-glance mobile fit.
+## NFC readiness
 
-## PWA and accessibility
+The current NFC/QR URL is:
 
-The app retains the official logo, ES/EN support, root Service Worker, offline shell caching, silent updates, accessible dialogs, keyboard focus handling, reduced-motion support and HTTPS-only external links.
+`https://kl4ne.github.io/mpdgi-hub/`
 
-## Security
+Program the NFC tag as a standard NDEF URI/URL record using that exact HTTPS address. The Hub itself does not require NFC hardware APIs; tapping the tag opens the production URL in the device browser or installed PWA.
 
-The Hub stores no passwords or payment information. A restrictive same-origin Content Security Policy remains active. No DNS or custom-domain settings are changed.
+The planned `connect.mpdgi.org` domain is still not configured. Until it is intentionally activated, NFC tags should use the GitHub Pages production URL. Rewritable NFC tags are preferable if the destination may change later.
+
+## PWA and security
+
+The app retains the official logo, ES/EN support, standalone manifest, root Service Worker, offline shell caching, automatic old-cache cleanup, accessible dialogs, keyboard focus handling, reduced-motion support, HTTPS-only external navigation and a restrictive same-origin Content Security Policy.
+
+No passwords, payment credentials, API keys or private data are stored in the public repository.
 
 ## Copyright
 
 © 2026 Ministerio Plenitud de Gracia. All Rights Reserved.
-
-## v1.3.1 spacing refinement
-
-Menu rows now have a slightly larger vertical gap than the horizontal gap. Button height and the rest of the compact layout remain unchanged.

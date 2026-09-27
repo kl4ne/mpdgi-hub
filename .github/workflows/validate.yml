@@ -15,7 +15,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate v1.3.1
+      - name: Validate v1.3.2
         run: |
           node --check js/app.js
           node --check sw.js
@@ -29,20 +29,22 @@ jobs:
           const index=read('index.html'),css=read('css/style.css'),app=read('js/app.js'),sw=read('sw.js');
           const manifest=json('manifest.json'),config=json('data/config.json'),links=json('data/links.json'),changelog=json('data/changelog.json');
 
-          if(config.version!=='1.3.1'||!app.includes("HUB_VERSION='1.3.1'")||!sw.includes("VERSION='1.3.1'"))throw Error('Version mismatch');
-          if(changelog[0]?.version!=='1.3.1'||changelog[0]?.title!=='Balanced Vertical Spacing')throw Error('Changelog mismatch');
+          if(config.version!=='1.3.2'||!app.includes("HUB_VERSION='1.3.2'")||!sw.includes("VERSION='1.3.2'"))throw Error('Version mismatch');
+          if(changelog[0]?.version!=='1.3.2'||changelog[0]?.title!=='Spacing, Silent Updates & NFC Readiness')throw Error('Changelog mismatch');
 
           for(const t of ["default-src 'self'","script-src 'self'","style-src 'self'","connect-src 'self'","worker-src 'self'","object-src 'none'","base-uri 'self'"])if(!index.includes(t))throw Error('Missing CSP: '+t);
           if(manifest.start_url!=='./'||manifest.scope!=='./'||manifest.id!=='./'||manifest.display!=='standalone')throw Error('Manifest mismatch');
           for(const icon of manifest.icons||[])if(!fs.existsSync(icon.src))throw Error('Missing icon: '+icon.src);
           if(fs.statSync('assets/profile/logo-mpdg.png').size<5000||fs.statSync('assets/icons/icon-192.png').size<5000)throw Error('Official logo/icon asset too small or missing');
 
-          const urlKeys=['website','memberPortal','prayer','ministries','youtube','facebook','instagram','tithely','bibleSpanish','bibleEnglish','hubUrl','futureCustomDomain'];
+          const urlKeys=['website','memberPortal','prayer','ministries','youtube','facebook','instagram','tithely','bibleSpanish','bibleEnglish','hubUrl','nfcUrl','futureCustomDomain'];
           for(const key of urlKeys)if(new URL(config[key]).protocol!=='https:')throw Error('Non-HTTPS: '+key);
           if(config.ministries!=='https://mpdgi.org/ministerios')throw Error('Ministries route mismatch');
           if(config.bibleSpanish!=='https://www.biblegateway.com/versions/Reina-Valera-1960-RVR1960-Biblia/')throw Error('RVR1960 route mismatch');
           if(config.bibleEnglish!=='https://www.biblegateway.com/versions/King-James-Version-KJV-Bible/')throw Error('KJV route mismatch');
           if(config.defaultLanguage!=='es'||config.developer!=='Roberto S. Macfie')throw Error('Config identity/default mismatch');
+          if(config.nfcUrl!=='https://kl4ne.github.io/mpdgi-hub/'||config.nfcUrl!==config.hubUrl)throw Error('NFC production URL mismatch');
+          if(!index.includes('<link rel="canonical" href="https://kl4ne.github.io/mpdgi-hub/">'))throw Error('Canonical NFC URL mismatch');
 
           if(!Array.isArray(links)||links.length!==8)throw Error('Expected exactly 8 cards');
           const ids=new Set(links.map(x=>x.id));
@@ -66,11 +68,15 @@ jobs:
           if(/Abrir Facebook|Abrir Instagram|Abrir YouTube|Open Facebook|Open Instagram|Open YouTube/.test(app))throw Error('Abrir/Open wording returned to social buttons');
           if(!app.includes('config.bibleSpanish')||!app.includes('config.bibleEnglish'))throw Error('Bible links missing from app');
           if(!css.includes('.zelle-box{text-align:center'))throw Error('Zelle must be centered');
+          for(const token of ["updateViaCache:'none'","controllerchange","r.update()","SKIP_WAITING","15*60*1000"])if(!app.includes(token))throw Error('Silent update missing: '+token);
+          if(!sw.includes('self.skipWaiting()')||!sw.includes('self.clients.claim()'))throw Error('Service Worker immediate activation missing');
+          const qr=read('assets/qr/README.md');
+          if(!qr.includes('https://kl4ne.github.io/mpdgi-hub/')||!qr.includes('NDEF URI/URL record'))throw Error('NFC documentation mismatch');
           if(css.includes('.bottom-nav')||css.includes('.nav-item'))throw Error('Bottom-nav CSS returned');
 
           for(const p of ['./index.html','./css/style.css','./js/app.js','./manifest.json','./data/config.json','./data/links.json','./assets/profile/logo-mpdg.png','./assets/icons/icon-192.png','./assets/icons/icon-512.svg'])if(!sw.includes("'"+p+"'"))throw Error('SW missing: '+p);
           if(fs.existsSync('CNAME'))throw Error('CNAME must not exist yet');
           for(const name of fs.readdirSync('.'))if(name==='.env'||name.startsWith('.env.'))throw Error('Secret env file detected');
 
-          console.log('MPDGI Hub v1.3.1 validated');
+          console.log('MPDGI Hub v1.3.2 validated');
           NODE
