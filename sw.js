@@ -1,11 +1,11 @@
-const VERSION='1.3.3';
+const VERSION='1.4.0';
 const CACHE_PREFIX='mpdgi-hub';
 const SHELL_CACHE=`${CACHE_PREFIX}-shell-${VERSION}`;
 const RUNTIME_CACHE=`${CACHE_PREFIX}-runtime-${VERSION}`;
 const CRITICAL_ASSETS=[
   './','./index.html','./css/style.css','./js/app.js','./manifest.json',
   './data/config.json','./data/links.json','./assets/profile/logo-mpdg.png',
-  './assets/icons/icon-192.png','./assets/icons/icon-512.svg'
+  './assets/icons/icon-192.png','./assets/icons/icon-512.png','./assets/icons/apple-touch-icon.png'
 ];
 const OPTIONAL_ASSETS=['./data/changelog.json'];
 
