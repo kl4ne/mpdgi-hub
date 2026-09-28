@@ -5,7 +5,7 @@ test('WebKit mobile layout stays compact and usable',async({page})=>{
   const errors=[];
   page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
   page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('/',{waitUntil:'networkidle'});
+  await page.goto('/',{waitUntil:'domcontentloaded'});
   await expect(page.locator('[data-card-id]')).toHaveCount(8);
   const dims=await page.evaluate(()=>({innerWidth:window.innerWidth,scrollWidth:document.documentElement.scrollWidth}));
   expect(dims.scrollWidth).toBeLessThanOrEqual(dims.innerWidth+1);
@@ -13,7 +13,7 @@ test('WebKit mobile layout stays compact and usable',async({page})=>{
 });
 
 test('WebKit language and accessibility labels switch correctly',async({page})=>{
-  await page.goto('/',{waitUntil:'networkidle'});
+  await page.goto('/',{waitUntil:'domcontentloaded'});
   await expect(page.locator('.skip-link')).toHaveText('Saltar al contenido');
   await page.locator('#language-toggle').click();
   await expect(page.locator('#language-code')).toHaveText('EN');
@@ -22,7 +22,7 @@ test('WebKit language and accessibility labels switch correctly',async({page})=>
 });
 
 test('WebKit social modal exposes all official social profiles',async({page})=>{
-  await page.goto('/',{waitUntil:'networkidle'});
+  await page.goto('/',{waitUntil:'domcontentloaded'});
   await page.locator('[data-card-id="social"] .card-action').click();
   await expect(page.locator('.social-facebook')).toHaveAttribute('href','https://www.facebook.com/mpdginc');
   await expect(page.locator('.social-instagram')).toHaveAttribute('href','https://www.instagram.com/mpdginc/');
@@ -31,7 +31,7 @@ test('WebKit social modal exposes all official social profiles',async({page})=>{
 });
 
 test('WebKit giving modal keeps Square wallets and Zelle instructions',async({page})=>{
-  await page.goto('/',{waitUntil:'networkidle'});
+  await page.goto('/',{waitUntil:'domcontentloaded'});
   await page.locator('[data-card-id="give"] .card-action').click();
   await expect(page.locator('.square-button')).toHaveAttribute('href','https://square.link/u/8veQoUxF');
   await expect(page.locator('.payment-wallet-applepay')).toHaveCount(1);

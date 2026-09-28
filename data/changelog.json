@@ -12,7 +12,8 @@
       "Added a post-deployment production smoke check in the main QA pipeline for hub.mpdgi.org.",
       "Updated CI to Node 24, actions/checkout v7, actions/setup-node v7, Playwright 1.63.0 and Lighthouse 13.5.0.",
       "Synchronized package, runtime and configuration release metadata to v1.4.5 without changing the approved visual layout.",
-      "Scoped WebKit to a focused mobile smoke suite so cross-browser coverage remains fast and stable."
+      "Scoped WebKit to a focused mobile smoke suite so cross-browser coverage remains fast and stable.",
+      "Runs WebKit smoke tests against the deployed HTTPS domain so production CSP is tested without weakening local security policy."
     ]
   },
   {

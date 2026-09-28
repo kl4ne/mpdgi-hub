@@ -145,6 +145,7 @@ jobs:
           if(!qa.includes('actions/checkout@v7')||!qa.includes('actions/setup-node@v7')||!qa.includes("node-version: '24'"))throw Error('Modern GitHub Actions runtime missing');
           if(!qa.includes('lighthouse@13.5.0')||!qa.includes('chromium webkit'))throw Error('QA dependency/runtime upgrade missing');
           if(!qa.includes('Production smoke after Pages deployment')||!qa.includes('https://hub.mpdgi.org/'))throw Error('Production smoke check missing');
+          if(!qa.includes('Playwright WebKit production smoke')||!qa.includes('BASE_URL: https://hub.mpdgi.org'))throw Error('Production WebKit smoke missing');
           if(!read('tests/webkit.spec.js').includes('WebKit mobile layout'))throw Error('Focused WebKit smoke suite missing');
 
           const qr=read('assets/qr/README.md');

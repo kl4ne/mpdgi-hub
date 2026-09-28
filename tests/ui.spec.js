@@ -136,14 +136,18 @@ test('social card subtitle includes TikTok in both languages',async({page})=>{
 
 test('shared runtime version is loaded and matches config',async({page})=>{
   await page.goto('/',{waitUntil:'networkidle'});
-  const values=await page.evaluate(async()=>({
-    runtime:window.__MPDGI_HUB_VERSION__,
-    source:globalThis.MPDGI_HUB_VERSION,
-    config:(await fetch('data/config.json',{cache:'no-store'})).json().then(x=>x.version)
-  }));
+  const values=await page.evaluate(async()=>{
+    const response=await fetch('data/config.json',{cache:'no-store'});
+    const config=await response.json();
+    return {
+      runtime:window.__MPDGI_HUB_VERSION__,
+      source:globalThis.MPDGI_HUB_VERSION,
+      config:config.version
+    };
+  });
   expect(values.runtime).toBe('1.4.5');
   expect(values.source).toBe('1.4.5');
-  expect(await values.config).toBe('1.4.5');
+  expect(values.config).toBe('1.4.5');
 });
 
 test('accessibility labels switch with language',async({page})=>{
