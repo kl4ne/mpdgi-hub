@@ -2,7 +2,7 @@
   "id": "./",
   "name": "MPDGI Hub • Ministerio Plenitud de Gracia",
   "short_name": "MPDGI Hub",
-  "description": "Official NFC-ready digital hub for Ministerio Plenitud de Gracia.",
+  "description": "Hub digital oficial preparado para NFC de Ministerio Plenitud de Gracia.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

@@ -1,8 +1,22 @@
-# MPDGI Hub — v1.4.4
+# MPDGI Hub — v1.4.5
 
 Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
+
+## v1.4.5 — Maintenance, Compatibility & Code Cleanup
+
+This maintenance release keeps the approved visual design while improving the code underneath it:
+
+- Added a shared runtime version source used by the app and Service Worker.
+- Moved social/payment SVGs out of `app.js` into local self-hosted brand assets, reducing the main JavaScript payload substantially.
+- Removed dead CSS, unused Zelle SVG code, unused route metadata and the unused `icon-512.svg` file.
+- Changed config/link data caching to stale-while-revalidate so cached content appears immediately on slow connections while fresh data updates in the background.
+- Added WebKit/iPhone-oriented browser QA in addition to Chromium.
+- Added a real offline reload test and bilingual accessibility-label tests.
+- Added a post-deployment production smoke workflow for `https://hub.mpdgi.org/`.
+- Updated CI to Node 24, `actions/checkout@v7`, `actions/setup-node@v7`, Playwright 1.63.0 and Lighthouse 13.5.0.
+- Synchronized the package, runtime and configuration release version at 1.4.5.
 
 ## v1.4.4 — TikTok & Social Brand Refresh
 
@@ -46,7 +60,7 @@ Legacy GitHub Pages address:
 
 `https://kl4ne.github.io/mpdgi-hub/`
 
-The legacy address remains documented as a fallback, but new NFC tags and public references should use `https://hub.mpdgi.org/` after DNS/TLS propagation is complete.
+The legacy address remains documented as a fallback. New NFC tags and public references use the active HTTPS production address `https://hub.mpdgi.org/`.
 
 ## Current cards
 
@@ -67,7 +81,7 @@ Existing installations update silently. A new Service Worker activates automatic
 
 ## NFC
 
-For all new NFC tags, use this NDEF URI/URL after the domain resolves successfully over HTTPS:
+For all new NFC tags, use this active HTTPS NDEF URI/URL:
 
 `https://hub.mpdgi.org/`
 
@@ -75,7 +89,7 @@ The domain is church-owned and can remain stable even if the underlying hosting 
 
 ## Automated QA
 
-GitHub Actions validates version/config/PWA consistency, HTTPS routes, custom-domain configuration, recursive secret detection, four mobile viewport sizes, eight cards, ES/EN switching, modal flows, overflow, console errors and Lighthouse thresholds.
+GitHub Actions validates version/config/PWA consistency, HTTPS routes, custom-domain configuration, recursive secret detection, Chromium and WebKit behavior, four mobile viewport sizes, offline reload, eight cards, ES/EN switching, modal flows, overflow, console errors and Lighthouse thresholds. A separate production smoke workflow verifies the deployed custom domain after GitHub Pages completes.
 
 ## Security
 

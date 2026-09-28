@@ -59,7 +59,8 @@ test('primary links and footer structure are correct',async({page})=>{
   await expect(page.locator('#developer-credit')).toContainText('Roberto S. Macfie');
 });
 
-test('service worker registers on localhost',async({page})=>{
+test('service worker registers on localhost',async({page,browserName})=>{
+  test.skip(browserName==='webkit','Service worker registration assertion is Chromium-only in CI.');
   await page.goto('/',{waitUntil:'networkidle'});
   const registered=await page.evaluate(async()=>{
     if(!('serviceWorker' in navigator))return false;
@@ -130,4 +131,40 @@ test('social card subtitle includes TikTok in both languages',async({page})=>{
   await expect(page.locator('[data-card-id="social"] .card-subtitle')).toContainText('TikTok');
   await page.locator('#language-toggle').click();
   await expect(page.locator('[data-card-id="social"] .card-subtitle')).toContainText('TikTok');
+});
+
+
+test('shared runtime version is loaded and matches config',async({page})=>{
+  await page.goto('/',{waitUntil:'networkidle'});
+  const values=await page.evaluate(async()=>({
+    runtime:window.__MPDGI_HUB_VERSION__,
+    source:globalThis.MPDGI_HUB_VERSION,
+    config:(await fetch('data/config.json',{cache:'no-store'})).json().then(x=>x.version)
+  }));
+  expect(values.runtime).toBe('1.4.5');
+  expect(values.source).toBe('1.4.5');
+  expect(await values.config).toBe('1.4.5');
+});
+
+test('accessibility labels switch with language',async({page})=>{
+  await page.goto('/',{waitUntil:'networkidle'});
+  await expect(page.locator('.skip-link')).toHaveText('Saltar al contenido');
+  await expect(page.locator('.visit-info')).toHaveAttribute('aria-label','Información de la iglesia');
+  await page.locator('#language-toggle').click();
+  await expect(page.locator('.skip-link')).toHaveText('Skip to content');
+  await expect(page.locator('.visit-info')).toHaveAttribute('aria-label','Church information');
+  await expect(page.locator('.church-logo')).toHaveAttribute('alt','Official logo of Ministerio Plenitud de Gracia');
+});
+
+test('cached shell reloads offline in Chromium',async({page,context,browserName})=>{
+  test.skip(browserName!=='chromium','Offline PWA cache assertion is Chromium-only in CI.');
+  await page.goto('/',{waitUntil:'networkidle'});
+  await page.waitForFunction(()=>Boolean(navigator.serviceWorker?.controller),null,{timeout:10000});
+  await page.reload({waitUntil:'networkidle'});
+  await context.setOffline(true);
+  await page.reload({waitUntil:'domcontentloaded'});
+  await expect(page.locator('[data-card-id]')).toHaveCount(8);
+  await expect(page.locator('#offline-badge')).toBeVisible();
+  await expect(page.locator('[data-card-id="social"] .card-subtitle')).toContainText('TikTok');
+  await context.setOffline(false);
 });

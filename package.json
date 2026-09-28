@@ -1,11 +1,13 @@
 {
   "name": "mpdgi-hub",
-  "version": "1.4.0",
+  "version": "1.4.5",
   "private": true,
   "scripts": {
-    "test:ui": "playwright test"
+    "test:ui": "playwright test",
+    "test:ui:chromium": "playwright test --project=chromium",
+    "test:ui:webkit": "playwright test --project=webkit"
   },
   "devDependencies": {
-    "@playwright/test": "^1.55.0"
+    "@playwright/test": "1.63.0"
   }
 }

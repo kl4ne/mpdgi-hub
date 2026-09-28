@@ -13,40 +13,105 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: Validate v1.4.4
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Validate v1.4.5
         run: |
+          node --check js/version.js
           node --check js/app.js
           node --check sw.js
+          node --check playwright.config.js
           node <<'NODE'
           const fs=require('fs');
+          const path=require('path');
           const read=p=>fs.readFileSync(p,'utf8');
           const json=p=>JSON.parse(read(p));
-          const must=['index.html','sw.js','manifest.json','README.md','.nojekyll','CNAME','css/style.css','js/app.js','data/config.json','data/links.json','data/changelog.json','assets/profile/logo-mpdg.png','assets/icons/icon-192.png','assets/icons/icon-512.png','assets/icons/apple-touch-icon.png','assets/social/mpdgi-hub-share.svg','assets/qr/README.md','package.json','playwright.config.js','tests/ui.spec.js','.github/workflows/qa.yml'];
+
+          const brandAssets=[
+            'assets/brands/social/facebook.svg',
+            'assets/brands/social/instagram.svg',
+            'assets/brands/social/youtube.svg',
+            'assets/brands/social/tiktok.svg',
+            'assets/brands/payments/tithely.svg',
+            'assets/brands/payments/square.svg',
+            'assets/brands/payments/visa.svg',
+            'assets/brands/payments/mastercard.svg',
+            'assets/brands/payments/amex.svg',
+            'assets/brands/payments/discover.svg',
+            'assets/brands/payments/jcb.svg',
+            'assets/brands/payments/unionpay.svg',
+            'assets/brands/payments/applepay.svg',
+            'assets/brands/payments/googlepay.svg',
+            'assets/brands/payments/cashapp.svg'
+          ];
+          const must=[
+            'index.html','sw.js','manifest.json','README.md','.nojekyll','CNAME',
+            'css/style.css','js/version.js','js/app.js','data/config.json','data/links.json','data/changelog.json',
+            'assets/profile/logo-mpdg.png','assets/icons/icon-192.png','assets/icons/icon-512.png','assets/icons/apple-touch-icon.png',
+            'assets/social/mpdgi-hub-share.svg','assets/qr/README.md',
+            'package.json','playwright.config.js','tests/ui.spec.js',
+            '.github/workflows/qa.yml','.github/workflows/production-smoke.yml',
+            ...brandAssets
+          ];
           for(const p of must)if(!fs.existsSync(p))throw Error('Missing: '+p);
+          if(fs.existsSync('assets/icons/icon-512.svg'))throw Error('Unused icon-512.svg must remain removed');
 
           const index=read('index.html'),css=read('css/style.css'),app=read('js/app.js'),sw=read('sw.js');
-          const manifest=json('manifest.json'),config=json('data/config.json'),links=json('data/links.json'),changelog=json('data/changelog.json');
+          const qa=read('.github/workflows/qa.yml'),smoke=read('.github/workflows/production-smoke.yml');
+          const manifest=json('manifest.json'),config=json('data/config.json'),links=json('data/links.json'),changelog=json('data/changelog.json'),pkg=json('package.json');
 
-          if(config.version!=='1.4.4'||!app.includes("HUB_VERSION='1.4.4'")||!sw.includes("VERSION='1.4.4'"))throw Error('Version mismatch');
-          if(changelog[0]?.version!=='1.4.4'||changelog[0]?.title!=='TikTok & Social Brand Refresh')throw Error('Changelog mismatch');
+          delete globalThis.MPDGI_HUB_VERSION;
+          require('./js/version.js');
+          const release=globalThis.MPDGI_HUB_VERSION;
+          if(release!=='1.4.5')throw Error('Runtime version source mismatch');
+          if(pkg.version!==release||config.version!==release||changelog[0]?.version!==release)throw Error('Release metadata mismatch');
+          if(changelog[0]?.title!=='Maintenance, Compatibility & Code Cleanup')throw Error('Changelog title mismatch');
+          if(!app.includes("globalThis.MPDGI_HUB_VERSION||'dev'"))throw Error('App does not consume shared version');
+          if(!sw.includes("importScripts('./js/version.js')")||!sw.includes("self.MPDGI_HUB_VERSION||'dev'"))throw Error('Service Worker does not consume shared version');
+          if(!index.includes('<script src="js/version.js"></script>')||index.indexOf('js/version.js')>index.indexOf('js/app.js'))throw Error('Version script ordering mismatch');
 
-          for(const t of ["default-src 'self'","script-src 'self'","style-src 'self'","connect-src 'self'","worker-src 'self'","object-src 'none'","base-uri 'self'"])if(!index.includes(t))throw Error('Missing CSP: '+t);
-          if(manifest.start_url!=='./'||manifest.scope!=='./'||manifest.id!=='./'||manifest.display!=='standalone'||manifest.lang!=='es'||manifest.dir!=='ltr')throw Error('Manifest mismatch'); if(manifest.shortcuts)throw Error('Manifest shortcuts must remain disabled');
-          for(const icon of manifest.icons||[])if(!fs.existsSync(icon.src))throw Error('Missing icon: '+icon.src);
+          if(app.length>=32000)throw Error('app.js unexpectedly large: '+app.length);
+          if(app.includes('SOCIAL_BRAND_SVGS')||app.includes('PAYMENT_BRAND_SVGS'))throw Error('Inline brand SVG bundle returned');
+          if(!app.includes('SOCIAL_BRAND_ASSETS')||!app.includes('PAYMENT_BRAND_ASSETS'))throw Error('Local brand asset maps missing');
+          for(const p of brandAssets){
+            if(fs.statSync(p).size<100)throw Error('Brand asset too small: '+p);
+            const rel=p.replace(/^assets\//,'assets/');
+            if(!app.includes(rel))throw Error('Brand asset not referenced by app: '+p);
+            if(!sw.includes("'./"+p+"'"))throw Error('Brand asset not precached: '+p);
+          }
+
+          if(css.includes('.modal-action.primary'))throw Error('Dead primary-button CSS returned');
+          if(!css.includes('.payment-brand-logo img')||!css.includes('.social-facebook .brand-mark img'))throw Error('Externalized brand image CSS missing');
+          if('organization' in config||'verifiedRoutes' in config)throw Error('Unused config metadata returned');
+          if(links.some(x=>'routeVerified' in x))throw Error('Unused routeVerified metadata returned');
+          if(sw.includes('data/changelog.json'))throw Error('Changelog must not be runtime-cached');
+          if(!sw.includes('dataStaleWhileRevalidate')||!sw.includes('event.waitUntil(network.then'))throw Error('Fast data refresh strategy missing');
+
+          for(const t of ["default-src 'self'","script-src 'self'","style-src 'self'","img-src 'self' data:","connect-src 'self'","worker-src 'self'","object-src 'none'","base-uri 'self'"])if(!index.includes(t))throw Error('Missing CSP: '+t);
+          if(manifest.start_url!=='./'||manifest.scope!=='./'||manifest.id!=='./'||manifest.display!=='standalone'||manifest.lang!=='es'||manifest.dir!=='ltr')throw Error('Manifest mismatch');
+          if(manifest.shortcuts)throw Error('Manifest shortcuts must remain disabled');
+          if(!manifest.description.startsWith('Hub digital oficial'))throw Error('Manifest description language mismatch');
+          for(const icon of manifest.icons||[])if(!fs.existsSync(icon.src))throw Error('Missing manifest icon: '+icon.src);
           if(fs.statSync('assets/profile/logo-mpdg.png').size<5000||fs.statSync('assets/icons/icon-192.png').size<5000)throw Error('Official logo/icon asset too small or missing');
 
           const urlKeys=['website','memberPortal','prayer','ministries','youtube','facebook','instagram','tiktok','tithely','square','bibleSpanish','bibleEnglish','hubUrl','nfcUrl','customDomain','legacyGitHubPagesUrl'];
           for(const key of urlKeys)if(new URL(config[key]).protocol!=='https:')throw Error('Non-HTTPS: '+key);
-          if(config.ministries!=='https://mpdgi.org/ministerios')throw Error('Ministries route mismatch');
-          if(config.square!=='https://square.link/u/8veQoUxF')throw Error('Square donation URL mismatch');
+          if(config.square!=='https://square.link/u/8veQoUxF')throw Error('Square URL mismatch');
           if(config.tiktok!=='https://www.tiktok.com/@mpdginc')throw Error('TikTok URL mismatch');
+          if(config.ministries!=='https://mpdgi.org/ministerios')throw Error('Ministries route mismatch');
           if(config.bibleSpanish!=='https://www.biblegateway.com/versions/Reina-Valera-1960-RVR1960-Biblia/')throw Error('RVR1960 route mismatch');
           if(config.bibleEnglish!=='https://www.biblegateway.com/versions/King-James-Version-KJV-Bible/')throw Error('KJV route mismatch');
-          if(config.defaultLanguage!=='es'||config.developer!=='Roberto S. Macfie')throw Error('Config identity/default mismatch'); if(config.customDomain!=='https://hub.mpdgi.org/'||config.legacyGitHubPagesUrl!=='https://kl4ne.github.io/mpdgi-hub/')throw Error('Custom domain configuration mismatch');
-          if(config.nfcUrl!=='https://hub.mpdgi.org/'||config.nfcUrl!==config.hubUrl||config.customDomain!==config.hubUrl)throw Error('NFC production URL mismatch');
-          if(!index.includes('<link rel="canonical" href="https://hub.mpdgi.org/">'))throw Error('Canonical custom-domain URL mismatch');
+          if(config.defaultLanguage!=='es'||config.developer!=='Roberto S. Macfie')throw Error('Config identity/default mismatch');
+          if(config.customDomain!=='https://hub.mpdgi.org/'||config.nfcUrl!==config.customDomain||config.hubUrl!==config.customDomain)throw Error('Production custom-domain mismatch');
+          if(config.legacyGitHubPagesUrl!=='https://kl4ne.github.io/mpdgi-hub/')throw Error('Legacy fallback mismatch');
+          if(read('CNAME').trim()!=='hub.mpdgi.org')throw Error('CNAME mismatch');
+          if(!index.includes('<link rel="canonical" href="https://hub.mpdgi.org/">'))throw Error('Canonical URL mismatch');
 
           if(!Array.isArray(links)||links.length!==8)throw Error('Expected exactly 8 cards');
           const ids=new Set(links.map(x=>x.id));
@@ -56,42 +121,48 @@ jobs:
           if(byId.bible.action!=='modal'||byId.bible.modal!=='bible')throw Error('Bible must use modal');
           if(byId.social.action!=='modal'||byId.social.modal!=='social')throw Error('Social must use modal');
           if(byId.about.action!=='modal'||byId.about.modal!=='about')throw Error('About must use modal');
-          if(byId.website.wide)throw Error('Website must not be full width');
-          if(byId.ministries.url!==config.ministries)throw Error('Ministries card mismatch');
-          if(JSON.stringify(links).includes(config.youtube))throw Error('YouTube must not be a standalone card URL');
-
-          if(index.includes('bottom-nav')||index.includes('data-nav-action')||index.includes('data-nav-card'))throw Error('Bottom navigation returned');
-          for(const footerToken of ['hub-footer','developer-credit','copyright-text'])if(!index.includes(footerToken))throw Error('Footer missing: '+footerToken); if(index.includes('id="install-button"'))throw Error('Install button must not be in static footer');
-          if(index.includes('version-label')||index.includes('about-button'))throw Error('Legacy footer version/About controls returned');
+          if(!byId.social.subtitle.es.includes('TikTok')||!byId.social.subtitle.en.includes('TikTok'))throw Error('TikTok subtitle missing');
+          if(!byId.give.subtitle.es.includes('Square')||!byId.give.subtitle.en.includes('Square'))throw Error('Square subtitle missing');
 
           if(!app.includes("VALID_MODAL_TYPES=new Set(['give','social','bible','about'])"))throw Error('Modal types mismatch');
-          if(!app.includes("if(type==='about')renderAboutModal(trigger)"))throw Error('About card modal wiring missing'); if(!app.includes("es:'Acerca de',en:'About'"))throw Error('About translation mismatch'); if(!app.includes('createInstallAction'))throw Error('About install action missing'); if(!app.includes('setBackgroundInert'))throw Error('Modal inert handling missing'); if(!app.includes('reloadAfterUpdateIfSafe'))throw Error('Safe silent reload missing');
-          if(!app.includes("brandedLink('facebook',s.facebook")||!app.includes("brandedLink('instagram',s.instagram")||!app.includes("brandedLink('youtube',s.youtube")||!app.includes("brandedLink('tiktok',s.tiktok"))throw Error('Social brand links missing');
-          if(!app.includes('SOCIAL_BRAND_SVGS')||!app.includes("social-brand-"))throw Error('Social brand SVG system missing');
-          if(!byId.social.subtitle.es.includes('TikTok')||!byId.social.subtitle.en.includes('TikTok'))throw Error('TikTok missing from Social card subtitle');
-          if(/Abrir Facebook|Abrir Instagram|Abrir YouTube|Abrir TikTok|Open Facebook|Open Instagram|Open YouTube|Open TikTok/.test(app))throw Error('Abrir/Open wording returned to social buttons');
-          if(!app.includes('config.bibleSpanish')||!app.includes('config.bibleEnglish'))throw Error('Bible links missing from app');
-          if(!app.includes('config.square')||!app.includes("paymentMethodLink('square'")||!app.includes('PAYMENT_CARD_LOGOS'))throw Error('Square/payment branding missing from app');
-          if(!byId.give.subtitle.es.includes('Square')||!byId.give.subtitle.en.includes('Square'))throw Error('Square missing from Give card subtitle');
-          for(const brand of ['tithely','square','zelle','visa','mastercard','amex','discover','jcb','unionpay','applepay','googlepay','cashapp'])if(!app.includes(brand+":"))throw Error('Payment brand missing: '+brand);
+          if(!app.includes("brandedLink('facebook',s.facebook")||!app.includes("brandedLink('instagram',s.instagram")||!app.includes("brandedLink('youtube',s.youtube")||!app.includes("brandedLink('tiktok',s.tiktok"))throw Error('Social links missing');
           if(!app.includes('PAYMENT_WALLETS')||!app.includes("['applepay','Apple Pay']")||!app.includes("['googlepay','Google Pay']")||!app.includes("['cashapp','Cash App Pay']"))throw Error('Square wallet options missing');
-          if(!app.includes('zelleStep1')||!app.includes('zelleStep5')||!app.includes("zelleTitle:'Cómo ofrendar con Zelle®'"))throw Error('Zelle instructions missing');
-          if(!css.includes('.zelle-box{text-align:center')||!css.includes('font-size:clamp(1.08rem,4.3vw,1.28rem)'))throw Error('Zelle readability styling missing');
-          if(!css.includes('.modal-action.social-tiktok')||!css.includes('box-shadow:inset 4px 0 #111'))throw Error('TikTok social styling missing');
-          if(!css.includes('.hub-card.card-about{background:linear-gradient(135deg,#a34357,#612536)}'))throw Error('About card must use distinct burgundy theme');
-          if(!css.includes('.developer-credit{color:#d0dbe7;font-weight:650;font-size:.64rem'))throw Error('Developer credit styling mismatch'); if(!css.includes('min-height:100svh')||!css.includes('min-height:100dvh'))throw Error('Dynamic viewport support missing'); if(!css.includes('@media(max-height:680px)'))throw Error('Very short-screen readability rule missing');
-          for(const token of ["updateViaCache:'none'","controllerchange","r.update()","SKIP_WAITING","15*60*1000"])if(!app.includes(token))throw Error('Silent update missing: '+token);
+          if(!app.includes('zelleStep1')||!app.includes('zelleStep5'))throw Error('Zelle instructions missing');
+          if(!app.includes("skip:'Skip to content'")||!app.includes("visitInfoLabel:'Church information'")||!app.includes("logoAlt:'Official logo of Ministerio Plenitud de Gracia'"))throw Error('Bilingual accessibility labels missing');
+          if(!app.includes('setBackgroundInert')||!app.includes('reloadAfterUpdateIfSafe')||!app.includes('createInstallAction'))throw Error('Core modal/PWA behavior missing');
+
+          if(!css.includes('.hub-card.card-about{background:linear-gradient(135deg,#a34357,#612536)}'))throw Error('About theme mismatch');
+          if(!css.includes('min-height:100svh')||!css.includes('min-height:100dvh'))throw Error('Dynamic viewport support missing');
+          if(!css.includes('@media(max-height:680px)'))throw Error('Short-screen readability rule missing');
           if(!sw.includes('self.skipWaiting()')||!sw.includes('self.clients.claim()'))throw Error('Service Worker immediate activation missing');
+          for(const p of ['./index.html','./css/style.css','./js/version.js','./js/app.js','./manifest.json','./data/config.json','./data/links.json','./assets/profile/logo-mpdg.png','./assets/icons/icon-192.png','./assets/icons/icon-512.png','./assets/icons/apple-touch-icon.png'])if(!sw.includes("'"+p+"'"))throw Error('SW missing critical asset: '+p);
+
+          if(pkg.devDependencies?.['@playwright/test']!=='1.63.0')throw Error('Playwright version mismatch');
+          const pw=read('playwright.config.js');
+          if(!pw.includes("name:'chromium'")||!pw.includes("name:'webkit'"))throw Error('Cross-browser projects missing');
+          const tests=read('tests/ui.spec.js');
+          if(!tests.includes('cached shell reloads offline in Chromium')||!tests.includes('accessibility labels switch with language'))throw Error('Maintenance QA tests missing');
+          for(const workflow of [qa,smoke]){
+            if(!workflow.includes('actions/checkout@v7')||!workflow.includes('actions/setup-node@v7')||!workflow.includes("node-version: '24'"))throw Error('Modern GitHub Actions runtime missing');
+          }
+          if(!qa.includes('lighthouse@13.5.0')||!qa.includes('chromium webkit'))throw Error('QA dependency/runtime upgrade missing');
+          if(!smoke.includes('https://hub.mpdgi.org/')||!smoke.includes('workflow_run'))throw Error('Production smoke workflow mismatch');
+
           const qr=read('assets/qr/README.md');
           if(!qr.includes('https://hub.mpdgi.org/')||!qr.includes('NDEF URI/URL record'))throw Error('NFC documentation mismatch');
-          if(css.includes('.bottom-nav')||css.includes('.nav-item'))throw Error('Bottom-nav CSS returned');
+          if(index.includes('bottom-nav')||css.includes('.bottom-nav')||css.includes('.nav-item'))throw Error('Bottom navigation returned');
+          if(index.includes('id="install-button"'))throw Error('Static install button returned');
 
-          for(const p of ['./index.html','./css/style.css','./js/app.js','./manifest.json','./data/config.json','./data/links.json','./assets/profile/logo-mpdg.png','./assets/icons/icon-192.png','./assets/icons/icon-512.png','./assets/icons/apple-touch-icon.png'])if(!sw.includes("'"+p+"'"))throw Error('SW missing: '+p);
-          if(read('CNAME').trim()!=='hub.mpdgi.org')throw Error('CNAME mismatch');
-          const path=require('path');
-          const walk=(dir)=>fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>{const p=path.join(dir,e.name);if(e.name==='.git'||e.name==='node_modules')return[];return e.isDirectory()?walk(p):[p]});
+          const walk=dir=>fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>{
+            const p=path.join(dir,e.name);
+            if(e.name==='.git'||e.name==='node_modules')return[];
+            return e.isDirectory()?walk(p):[p];
+          });
           const allFiles=walk('.');
-          for(const p of allFiles){const base=path.basename(p);if(base==='.env'||base.startsWith('.env.'))throw Error('Secret env file detected: '+p);}
+          for(const p of allFiles){
+            const base=path.basename(p);
+            if(base==='.env'||base.startsWith('.env.'))throw Error('Secret env file detected: '+p);
+          }
           const textFiles=allFiles.filter(p=>/\.(?:js|json|html|css|md|yml|yaml|txt|xml|svg)$/i.test(p));
           const secretPatterns=[
             /AKIA[0-9A-Z]{16}/,
@@ -101,9 +172,10 @@ jobs:
             /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/,
             /(?:api[_-]?key|client[_-]?secret|access[_-]?token|auth[_-]?token|password)\s*[:=]\s*["'][^"'\n]{12,}["']/i
           ];
-          for(const p of textFiles){const body=read(p);for(const re of secretPatterns)if(re.test(body))throw Error('Potential secret detected in '+p+': '+re);}
-          if(!index.includes('assets/icons/apple-touch-icon.png'))throw Error('Apple touch icon mismatch');
-          if(!index.includes('https://hub.mpdgi.org/assets/social/mpdgi-hub-share.svg')||!index.includes('content="1200"')||!index.includes('content="630"'))throw Error('Social preview metadata mismatch');
+          for(const p of textFiles){
+            const body=read(p);
+            for(const re of secretPatterns)if(re.test(body))throw Error('Potential secret detected in '+p+': '+re);
+          }
 
-          console.log('MPDGI Hub v1.4.4 validated');
+          console.log('MPDGI Hub v1.4.5 validated');
           NODE

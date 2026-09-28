@@ -12,4 +12,4 @@ Legacy GitHub Pages fallback:
 
 The repository includes a GitHub Pages `CNAME` file for `hub.mpdgi.org`. Do not remove the CNAME while the custom domain is in use.
 
-Before mass-programming NFC tags, confirm `https://hub.mpdgi.org/` resolves successfully and serves HTTPS.
+The production custom domain is active over HTTPS. Before programming a large batch of NFC tags, a quick live tap test is still recommended.

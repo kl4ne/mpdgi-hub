@@ -1,13 +1,13 @@
 'use strict';
 
-const HUB_VERSION='1.4.4';
+const HUB_VERSION=globalThis.MPDGI_HUB_VERSION||'dev';
 const STORAGE_LANGUAGE_KEY='mpdgiHubLanguage';
 const VALID_THEMES=new Set(['blue','green','purple','gold','teal','social','website','about']);
 const VALID_MODAL_TYPES=new Set(['give','social','bible','about']);
 
 const UI={
   es:{
-    linksHeading:'Accesos principales',sunday:'Domingos',wednesday:'Miércoles',install:'Instalar',about:'Acerca de',
+    linksHeading:'Accesos principales',sunday:'Domingos',wednesday:'Miércoles',install:'Instalar',about:'Acerca de',skip:'Saltar al contenido',visitInfoLabel:'Información de la iglesia',logoAlt:'Logo oficial de Ministerio Plenitud de Gracia',
     close:'Cerrar',offline:'Sin conexión • algunos enlaces externos no estarán disponibles',
     loadError:'No fue posible cargar los accesos. Visita mpdgi.org para continuar.',
     giveTitle:'Ofrendar',giveIntro:'Selecciona una opción segura para apoyar a Ministerio Plenitud de Gracia.',
@@ -28,7 +28,7 @@ const UI={
     officialWebsite:'Abrir mpdgi.org',languageLabel:'Cambiar idioma a inglés'
   },
   en:{
-    linksHeading:'Main access links',sunday:'Sundays',wednesday:'Wednesdays',install:'Install',about:'About',
+    linksHeading:'Main access links',sunday:'Sundays',wednesday:'Wednesdays',install:'Install',about:'About',skip:'Skip to content',visitInfoLabel:'Church information',logoAlt:'Official logo of Ministerio Plenitud de Gracia',
     close:'Close',offline:'Offline • some external links will not be available',
     loadError:'The hub links could not be loaded. Visit mpdgi.org to continue.',
     giveTitle:'Give',giveIntro:'Choose a secure option to support Ministerio Plenitud de Gracia.',
@@ -127,14 +127,15 @@ function createIcon(name){
   return svg;
 }
 
-const SOCIAL_BRAND_SVGS={
-  facebook:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#1877F2" d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/></svg>',
-  instagram:'<svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="igBrand" x1="2" y1="22" x2="22" y2="2"><stop stop-color="#FFDC80"/><stop offset=".32" stop-color="#F77737"/><stop offset=".58" stop-color="#E1306C"/><stop offset=".78" stop-color="#C13584"/><stop offset="1" stop-color="#833AB4"/></linearGradient></defs><path fill="url(#igBrand)" d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg>',
-  youtube:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#FF0000" d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814z"/><path fill="#fff" d="m9.545 15.568 6.273-3.568-6.273-3.568z"/></svg>',
-  tiktok:'<svg viewBox="0 0 26 26" aria-hidden="true"><path fill="#25F4EE" transform="translate(-.55 .35)" d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/><path fill="#FE2C55" transform="translate(.55 -.2)" d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/><path fill="#111" d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>'
+const SOCIAL_BRAND_ASSETS={
+  facebook:'assets/brands/social/facebook.svg',
+  instagram:'assets/brands/social/instagram.svg',
+  youtube:'assets/brands/social/youtube.svg',
+  tiktok:'assets/brands/social/tiktok.svg'
 };
 function createBrandMark(name){
-  const wrap=document.createElement('span');wrap.className='brand-mark social-brand-'+name;wrap.setAttribute('aria-hidden','true');wrap.innerHTML=SOCIAL_BRAND_SVGS[name]||'';
+  const wrap=document.createElement('span');wrap.className='brand-mark social-brand-'+name;wrap.setAttribute('aria-hidden','true');
+  const src=SOCIAL_BRAND_ASSETS[name];if(src){const img=document.createElement('img');img.src=src;img.alt='';img.decoding='async';wrap.append(img);}
   return wrap;
 }
 
@@ -151,6 +152,9 @@ function setLanguage(language,persist=true){
   const s=UI[currentLanguage];
   document.getElementById('language-code').textContent=currentLanguage.toUpperCase();
   document.getElementById('language-toggle').setAttribute('aria-label',s.languageLabel);
+  document.querySelector('.skip-link').textContent=s.skip;
+  document.querySelector('.visit-info').setAttribute('aria-label',s.visitInfoLabel);
+  document.querySelector('.church-logo').alt=s.logoAlt;
   document.getElementById('links-heading').textContent=s.linksHeading;
   document.getElementById('tagline').textContent='“'+(currentLanguage==='es'?config.tagline:config.taglineEn)+'”';
   document.getElementById('scripture').textContent=currentLanguage==='es'?config.scripture:config.scriptureEn;
@@ -190,23 +194,27 @@ function closeModal(){const o=document.getElementById('modal-overlay');if(o.hidd
 function externalLink(label,url,className=''){const a=document.createElement('a');a.className=('modal-action '+className).trim();a.href=safeHttpsUrl(url)||'#';a.target='_blank';a.rel='noopener noreferrer';a.append(textElement('span','',label));return a;}
 function brandedLink(brand,label,url,className=''){const a=externalLink(label,url,className);a.prepend(createBrandMark(brand));return a;}
 
-const PAYMENT_BRAND_SVGS={
-  tithely:'<svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#181f36"/><path fill="#5bd9a4" d="M8.5 9.4c0-1.5 1.2-2.7 2.7-2.7h9.6c1.5 0 2.7 1.2 2.7 2.7v2.7c0 4.4-3.2 8-7.5 8.6v4.6h-4v-4.6a8.2 8.2 0 0 1-3.5-6.7V9.4Zm4 1.5v3a4 4 0 0 0 3.5 4 4 4 0 0 0 3.5-4v-3h-7Z"/></svg>',
-  square:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#111" d="M4.01 0A4.01 4.01 0 000 4.01v15.98c0 2.21 1.8 4 4.01 4.01h15.98C22.2 24 24 22.2 24 19.99V4A4.01 4.01 0 0019.99 0H4zm1.62 4.36h12.74c.7 0 1.26.57 1.26 1.27v12.74c0 .7-.56 1.27-1.26 1.27H5.63c-.7 0-1.26-.57-1.26-1.27V5.63a1.27 1.27 0 011.26-1.27zm3.83 4.35a.73.73 0 00-.73.73v5.09c0 .4.32.72.72.72h5.1a.73.73 0 00.73-.72V9.44a.73.73 0 00-.73-.73h-5.1Z"/></svg>',
-  zelle:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#6D1ED4" d="M13.559 24h-2.841a.483.483 0 0 1-.483-.483v-2.765H5.638a.667.667 0 0 1-.666-.666v-2.234a.67.67 0 0 1 .142-.412l8.139-10.382h-7.25a.667.667 0 0 1-.667-.667V3.914c0-.367.299-.666.666-.666h4.23V.483c0-.266.217-.483.483-.483h2.841c.266 0 .483.217.483.483v2.765h4.323c.367 0 .666.299.666.666v2.137a.67.67 0 0 1-.141.41l-8.19 10.481h7.665c.367 0 .666.299.666.666v2.477a.667.667 0 0 1-.666.667h-4.32v2.765a.483.483 0 0 1-.483.483Z"/></svg>',
-  visa:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#1434CB" d="M9.112 8.262 5.97 15.758H3.92L2.374 9.775c-.094-.368-.175-.503-.461-.658C1.447 8.864.677 8.627 0 8.479l.046-.217h3.3a.904.904 0 0 1 .894.764l.817 4.338 2.018-5.102zm8.033 5.049c.008-1.979-2.736-2.088-2.717-2.972.006-.269.262-.555.822-.628a3.66 3.66 0 0 1 1.913.336l.34-1.59a5.207 5.207 0 0 0-1.814-.333c-1.917 0-3.266 1.02-3.278 2.479-.012 1.079.963 1.68 1.698 2.04.756.367 1.01.603 1.006.931-.005.504-.602.725-1.16.734-.975.015-1.54-.263-1.992-.473l-.351 1.642c.453.208 1.289.39 2.156.398 2.037 0 3.37-1.006 3.377-2.564m5.061 2.447H24l-1.565-7.496h-1.656a.883.883 0 0 0-.826.55l-2.909 6.946h2.036l.405-1.12h2.488zm-2.163-2.656 1.02-2.815.588 2.815zm-8.16-4.84-1.603 7.496H8.34l1.605-7.496z"/></svg>',
-  mastercard:'<svg viewBox="0 0 64 40" aria-hidden="true"><circle cx="25" cy="20" r="13" fill="#EB001B"/><circle cx="39" cy="20" r="13" fill="#F79E1B"/><path d="M32 9.4a13 13 0 0 1 0 21.2 13 13 0 0 1 0-21.2Z" fill="#FF5F00"/></svg>',
-  amex:'<svg viewBox="0 0 64 40" aria-hidden="true"><rect x="2" y="4" width="60" height="32" rx="5" fill="#2E77BB"/><text x="32" y="18" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" font-weight="800" fill="#fff">AMERICAN</text><text x="32" y="29" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" font-weight="800" fill="#fff">EXPRESS</text></svg>',
-  discover:'<svg viewBox="0 0 64 40" aria-hidden="true"><rect width="64" height="40" rx="6" fill="#fff"/><text x="5" y="24" font-family="Arial,sans-serif" font-size="10" font-weight="800" fill="#111">DISC</text><circle cx="37" cy="20" r="7" fill="#FF6000"/><text x="44" y="24" font-family="Arial,sans-serif" font-size="8.5" font-weight="800" fill="#111">VER</text></svg>',
-  jcb:'<svg viewBox="0 0 64 40" aria-hidden="true"><rect x="7" y="5" width="16" height="30" rx="4" fill="#0B6FB8"/><rect x="24" y="5" width="16" height="30" rx="4" fill="#D9232E"/><rect x="41" y="5" width="16" height="30" rx="4" fill="#168447"/><text x="15" y="25" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="800" fill="#fff">J</text><text x="32" y="25" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="800" fill="#fff">C</text><text x="49" y="25" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="800" fill="#fff">B</text></svg>',
-  unionpay:'<svg viewBox="0 0 72 40" aria-hidden="true"><path d="M8 5h22l-7 30H1L8 5Z" fill="#D81E3B"/><path d="M26 5h22l-7 30H19l7-30Z" fill="#1879B9"/><path d="M44 5h22l-7 30H37l7-30Z" fill="#149A78"/><text x="35" y="23" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" font-weight="800" fill="#fff">UnionPay</text></svg>',
-  applepay:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#111" d="M2.15 4.318a42.16 42.16 0 0 0-.454.003c-.15.005-.303.013-.452.04a1.44 1.44 0 0 0-1.06.772c-.07.138-.114.278-.14.43-.028.148-.037.3-.04.45A10.2 10.2 0 0 0 0 6.222v11.557c0 .07.002.138.003.207.004.15.013.303.04.452.027.15.072.291.142.429a1.436 1.436 0 0 0 .63.63c.138.07.278.115.43.142.148.027.3.036.45.04l.208.003h20.194l.207-.003c.15-.004.303-.013.452-.04.15-.027.291-.071.428-.141a1.432 1.432 0 0 0 .631-.631c.07-.138.115-.278.141-.43.027-.148.036-.3.04-.45.002-.07.003-.138.003-.208l.001-.246V6.221c0-.07-.002-.138-.004-.207a2.995 2.995 0 0 0-.04-.452 1.446 1.446 0 0 0-1.2-1.201 3.022 3.022 0 0 0-.452-.04 10.448 10.448 0 0 0-.453-.003zm0 .512h19.942c.066 0 .131.002.197.003.115.004.25.01.375.032.109.02.2.05.287.094a.927.927 0 0 1 .407.407.997.997 0 0 1 .094.288c.022.123.028.258.031.374.002.065.003.13.003.197v11.552c0 .065 0 .13-.003.196-.003.115-.009.25-.032.375a.927.927 0 0 1-.5.693 1.002 1.002 0 0 1-.286.094 2.598 2.598 0 0 1-.373.032l-.2.003H1.906c-.066 0-.133-.002-.196-.003a2.61 2.61 0 0 1-.375-.032c-.109-.02-.2-.05-.288-.094a.918.918 0 0 1-.406-.407 1.006 1.006 0 0 1-.094-.288 2.531 2.531 0 0 1-.032-.373 9.588 9.588 0 0 1-.002-.197V6.224c0-.065 0-.131.002-.197.004-.114.01-.248.032-.375.02-.108.05-.199.094-.287a.925.925 0 0 1 .407-.406 1.03 1.03 0 0 1 .287-.094c.125-.022.26-.029.375-.032.065-.002.131-.002.196-.003zm4.71 3.7c-.3.016-.668.199-.88.456-.191.22-.36.58-.316.918.338.03.675-.169.888-.418.205-.258.345-.603.308-.955zm2.207.42v5.493h.852v-1.877h1.18c1.078 0 1.835-.739 1.835-1.812 0-1.07-.742-1.805-1.808-1.805zm.852.719h.982c.739 0 1.161.396 1.161 1.089 0 .692-.422 1.092-1.164 1.092h-.979zm-3.154.3c-.45.01-.83.28-1.05.28-.235 0-.593-.264-.981-.257a1.446 1.446 0 0 0-1.23.747c-.527.908-.139 2.255.374 2.995.249.366.549.769.944.754.373-.014.52-.242.973-.242.454 0 .586.242.98.235.41-.007.667-.366.915-.733.286-.417.403-.82.41-.841-.007-.008-.79-.308-.797-1.209-.008-.754.615-1.113.644-1.135-.352-.52-.9-.578-1.09-.593a1.123 1.123 0 0 0-.092-.002zm8.204.397c-.99 0-1.606.533-1.652 1.256h.777c.072-.358.369-.586.845-.586.502 0 .803.266.803.711v.309l-1.097.064c-.951.054-1.488.484-1.488 1.184 0 .72.548 1.207 1.332 1.207.526 0 1.032-.281 1.264-.727h.019v.659h.788v-2.76c0-.803-.62-1.317-1.591-1.317zm1.94.072l1.446 4.009c0 .003-.073.24-.073.247-.125.41-.33.571-.711.571-.069 0-.206 0-.267-.015v.666c.06.011.267.019.335.019.83 0 1.226-.312 1.568-1.283l1.5-4.214h-.868l-1.012 3.259h-.015l-1.013-3.26zm-1.167 2.189v.316c0 .521-.45.917-1.024.917-.442 0-.731-.228-.731-.579 0-.342.278-.56.769-.593z"/></svg>',
-  googlepay:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#111" d="M3.963 7.235A3.963 3.963 0 00.422 9.419a3.963 3.963 0 000 3.559 3.963 3.963 0 003.541 2.184c1.07 0 1.97-.352 2.627-.957.748-.69 1.18-1.71 1.18-2.916a4.722 4.722 0 00-.07-.806H3.964v1.526h2.14a1.835 1.835 0 01-.79 1.205c-.356.241-.814.379-1.35.379-1.034 0-1.911-.697-2.225-1.636a2.375 2.375 0 010-1.517c.314-.94 1.191-1.636 2.225-1.636a2.152 2.152 0 011.52.594l1.132-1.13a3.808 3.808 0 0 0-2.652-1.033zm6.501.55v6.9h.886V11.89h1.465c.603 0 1.11-.196 1.522-.588a1.911 1.911 0 00.635-1.464 1.92 1.92 0 00-.635-1.456 2.125 2.125 0 00-1.522-.598zm2.427.85a1.156 1.156 0 01.823.365 1.176 1.176 0 010 1.686 1.171 1.171 0 01-.877.357H11.35V8.635h1.487a1.156 1.156 0 01.054 0zm4.124 1.175c-.842 0-1.477.308-1.907.925l.781.491c.288-.417.68-.626 1.175-.626a1.255 1.255 0 01.856.323 1.009 1.009 0 01.366.785v.202c-.34-.193-.774-.289-1.3-.289-.617 0-1.11.145-1.479.434-.37.288-.554.677-.554 1.165a1.476 1.476 0 00.525 1.156c.35.308.785.463 1.305.463.61 0 1.098-.27 1.465-.81h.038v.655h.848v-2.909c0-.61-.19-1.09-.568-1.44-.38-.35-.896-.525-1.551-.525zm2.263.154l1.946 4.422-1.098 2.38h.915L24 9.963h-.965l-1.368 3.391h-.02l-1.406-3.39zm-2.146 2.368c.494 0 .88.11 1.156.33 0 .372-.147.696-.44.973a1.413 1.413 0 01-.997.414 1.081 1.081 0 01-.69-.232.708.708 0 01-.293-.578c0-.257.12-.47.363-.647.24-.173.54-.26.9-.26Z"/></svg>',
-  cashapp:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#00D64F" d="M23.59 3.475a5.1 5.1 0 00-3.05-3.05c-1.31-.42-2.5-.42-4.92-.42H8.36c-2.4 0-3.61 0-4.9.4a5.1 5.1 0 00-3.05 3.06C0 4.765 0 5.965 0 8.365v7.27c0 2.41 0 3.6.4 4.9a5.1 5.1 0 003.05 3.05c1.3.41 2.5.41 4.9.41h7.28c2.41 0 3.61 0 4.9-.4a5.1 5.1 0 003.06-3.06c.41-1.3.41-2.5.41-4.9v-7.25c0-2.41 0-3.61-.41-4.91zm-6.17 4.63-.93.93a.5.5 0 01-.67.01 5 5 0 00-3.22-1.18c-.97 0-1.94.32-1.94 1.21 0 .9 1.04 1.2 2.24 1.65 2.1.7 3.84 1.58 3.84 3.64 0 2.24-1.74 3.78-4.58 3.95l-.26 1.2a.49.49 0 01-.48.39H9.63l-.09-.01a.5.5 0 01-.38-.59l.28-1.27a6.54 6.54 0 01-2.88-1.57v-.01a.48.48 0 010-.68l1-.97a.49.49 0 01.67 0c.91.86 2.13 1.34 3.39 1.32 1.3 0 2.17-.55 2.17-1.42 0-.87-.88-1.1-2.54-1.72-1.76-.63-3.43-1.52-3.43-3.6 0-2.42 2.01-3.6 4.39-3.71l.25-1.23a.48.48 0 01.48-.38h1.78l.1.01c.26.06.43.31.37.57l-.27 1.37c.9.3 1.75.77 2.48 1.39l.02.02c.19.2.19.5 0 .68z"/></svg>'
+const PAYMENT_BRAND_ASSETS={
+  tithely:'assets/brands/payments/tithely.svg',
+  square:'assets/brands/payments/square.svg',
+  visa:'assets/brands/payments/visa.svg',
+  mastercard:'assets/brands/payments/mastercard.svg',
+  amex:'assets/brands/payments/amex.svg',
+  discover:'assets/brands/payments/discover.svg',
+  jcb:'assets/brands/payments/jcb.svg',
+  unionpay:'assets/brands/payments/unionpay.svg',
+  applepay:'assets/brands/payments/applepay.svg',
+  googlepay:'assets/brands/payments/googlepay.svg',
+  cashapp:'assets/brands/payments/cashapp.svg'
 };
 function createPaymentBrandMark(name,label=''){
-  const wrap=document.createElement('span');wrap.className='payment-brand-logo payment-brand-'+name;wrap.innerHTML=PAYMENT_BRAND_SVGS[name]||'';
-  if(label){wrap.setAttribute('role','img');wrap.setAttribute('aria-label',label);}else wrap.setAttribute('aria-hidden','true');
+  const wrap=document.createElement('span');wrap.className='payment-brand-logo payment-brand-'+name;
+  const src=PAYMENT_BRAND_ASSETS[name];
+  if(src){
+    const img=document.createElement('img');img.src=src;img.alt=label;img.decoding='async';
+    if(!label)img.setAttribute('aria-hidden','true');
+    wrap.append(img);
+  }
   return wrap;
 }
 function paymentMethodLink(brand,brandName,label,url,className=''){

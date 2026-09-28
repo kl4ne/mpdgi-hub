@@ -80,8 +80,7 @@
     "action": "direct",
     "open": "new",
     "theme": "teal",
-    "icon": "ministry",
-    "routeVerified": true
+    "icon": "ministry"
   },
   {
     "id": "social",

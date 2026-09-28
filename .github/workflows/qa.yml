@@ -13,18 +13,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '24'
+          package-manager-cache: false
 
       - name: Install QA dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install Chromium and WebKit
+        run: npx playwright install --with-deps chromium webkit
 
       - name: Start local Hub
         run: |
@@ -36,14 +37,14 @@ jobs:
           cat /tmp/mpdgi-hub-http.log
           exit 1
 
-      - name: Playwright mobile and functional QA
+      - name: Playwright Chromium and WebKit QA
         env:
           BASE_URL: http://127.0.0.1:4173
         run: npm run test:ui
 
       - name: Lighthouse
         run: |
-          npx --yes lighthouse@12 http://127.0.0.1:4173/             --chrome-flags="--headless --no-sandbox --disable-gpu"             --only-categories=performance,accessibility,best-practices             --output=json --output-path=lighthouse.json --quiet
+          npx --yes lighthouse@13.5.0 http://127.0.0.1:4173/             --chrome-flags="--headless --no-sandbox --disable-gpu"             --only-categories=performance,accessibility,best-practices             --output=json --output-path=lighthouse.json --quiet
           node <<'NODE'
           const r=require('./lighthouse.json');
           const scores=Object.fromEntries(Object.entries(r.categories).map(([k,v])=>[k,v.score]));

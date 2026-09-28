@@ -9,5 +9,9 @@ module.exports=defineConfig({
   use:{
     baseURL:process.env.BASE_URL||'http://127.0.0.1:4173',
     headless:true
-  }
+  },
+  projects:[
+    {name:'chromium',use:{browserName:'chromium'}},
+    {name:'webkit',use:{browserName:'webkit'}}
+  ]
 });
