@@ -88,3 +88,25 @@ test('giving modal includes Tithe.ly, Square, Zelle and accepted card branding',
   await expect(page.locator('.payment-brand-jcb')).toHaveCount(1);
   await expect(page.locator('.payment-brand-unionpay')).toHaveCount(1);
 });
+
+
+test('Square wallets and Zelle instructions are present and readable',async({page})=>{
+  await page.goto('/',{waitUntil:'networkidle'});
+  await page.locator('[data-card-id="give"] .card-action').click();
+  await expect(page.locator('.payment-wallet-applepay')).toHaveCount(1);
+  await expect(page.locator('.payment-wallet-googlepay')).toHaveCount(1);
+  await expect(page.locator('.payment-wallet-cashapp')).toContainText('Cash App Pay');
+  await expect(page.locator('.zelle-title')).toHaveText('Cómo ofrendar con Zelle®');
+  await expect(page.locator('.zelle-steps li')).toHaveCount(5);
+  await expect(page.locator('.zelle-email')).toHaveText('mpdginc@gmail.com');
+  await expect(page.locator('.copy-button')).toHaveText('Copiar correo');
+});
+
+test('English giving instructions translate correctly',async({page})=>{
+  await page.goto('/',{waitUntil:'networkidle'});
+  await page.locator('#language-toggle').click();
+  await page.locator('[data-card-id="give"] .card-action').click();
+  await expect(page.locator('.zelle-title')).toHaveText('How to give with Zelle®');
+  await expect(page.locator('.copy-button')).toHaveText('Copy email');
+  await expect(page.locator('.payment-wallet-cashapp')).toContainText('Cash App Pay');
+});

@@ -1,5 +1,18 @@
 [
   {
+    "version": "1.4.3",
+    "title": "Giving UX & Digital Wallets",
+    "date": "2026-09-27",
+    "changes": [
+      "Added Apple Pay, Google Pay and Cash App Pay branding under the Square giving option.",
+      "Improved the Square and Tithe.ly provider lockups so each payment option is easier to recognize at a glance.",
+      "Expanded Zelle instructions with a direct five-step bank-app flow for adding the official MPDGI email recipient.",
+      "Increased Zelle email size, contrast and copy-button clarity for easier mobile use.",
+      "Kept Zelle as a bank-app workflow instead of adding a QR code that would be inconvenient when the Hub and bank app are used on the same phone.",
+      "Added automated QA and validation for the new digital-wallet and Zelle instruction experience."
+    ]
+  },
+  {
     "version": "1.4.2",
     "title": "Square Giving & Payment Branding",
     "date": "2026-09-27",

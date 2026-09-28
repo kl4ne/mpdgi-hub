@@ -1,8 +1,20 @@
-# MPDGI Hub — v1.4.2
+# MPDGI Hub — v1.4.3
 
 Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
+
+## v1.4.3 — Giving UX & Digital Wallets
+
+The **Ofrendar / Give** modal now shows Square's enabled digital-wallet options alongside its accepted card networks:
+
+- Apple Pay
+- Google Pay
+- Cash App Pay
+
+The Zelle flow now gives clear bank-app instructions, displays `mpdginc@gmail.com` at a larger, higher-contrast size, and provides a dedicated **Copiar correo / Copy email** action. A QR code is intentionally not used because the Hub and banking app are commonly used on the same phone.
+
+Square and Tithe.ly use brand-oriented provider lockups. Zelle is presented as the standard-character **Zelle®** mark rather than a stylized logo so the Hub does not imply a brand license that has not been documented.
 
 ## v1.4.2 — Square Giving & Payment Branding
 
