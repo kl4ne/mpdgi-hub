@@ -21,7 +21,7 @@ jobs:
           node-version: '24'
           package-manager-cache: false
 
-      - name: Validate v1.4.5
+      - name: Validate v1.4.6
         run: |
           node --check js/version.js
           node --check js/app.js
@@ -69,25 +69,30 @@ jobs:
           delete globalThis.MPDGI_HUB_VERSION;
           require('./js/version.js');
           const release=globalThis.MPDGI_HUB_VERSION;
-          if(release!=='1.4.5')throw Error('Runtime version source mismatch');
+          if(release!=='1.4.6')throw Error('Runtime version source mismatch');
           if(pkg.version!==release||config.version!==release||changelog[0]?.version!==release)throw Error('Release metadata mismatch');
-          if(changelog[0]?.title!=='Maintenance, Compatibility & Code Cleanup')throw Error('Changelog title mismatch');
+          if(changelog[0]?.title!=='Payment Logo Rendering Hotfix')throw Error('Changelog title mismatch');
           if(!app.includes("globalThis.MPDGI_HUB_VERSION||'dev'"))throw Error('App does not consume shared version');
           if(!sw.includes("importScripts('./js/version.js')")||!sw.includes("self.MPDGI_HUB_VERSION||'dev'"))throw Error('Service Worker does not consume shared version');
           if(!index.includes('<script src="js/version.js"></script>')||index.indexOf('js/version.js')>index.indexOf('js/app.js'))throw Error('Version script ordering mismatch');
 
-          if(app.length>=32000)throw Error('app.js unexpectedly large: '+app.length);
-          if(app.includes('SOCIAL_BRAND_SVGS')||app.includes('PAYMENT_BRAND_SVGS'))throw Error('Inline brand SVG bundle returned');
-          if(!app.includes('SOCIAL_BRAND_ASSETS')||!app.includes('PAYMENT_BRAND_ASSETS'))throw Error('Local brand asset maps missing');
+          if(app.length>=38000)throw Error('app.js unexpectedly large after payment hotfix: '+app.length);
+          if(app.includes('SOCIAL_BRAND_SVGS'))throw Error('Inline social SVG bundle returned');
+          if(!app.includes('SOCIAL_BRAND_ASSETS'))throw Error('Local social brand asset map missing');
+          if(!app.includes('PAYMENT_BRAND_SVGS')||app.includes('PAYMENT_BRAND_ASSETS'))throw Error('Known-good inline payment SVG rendering missing');
           for(const p of brandAssets){
             if(fs.statSync(p).size<100)throw Error('Brand asset too small: '+p);
             const rel=p.replace(/^assets\//,'assets/');
-            if(!app.includes(rel))throw Error('Brand asset not referenced by app: '+p);
-            if(!sw.includes("'./"+p+"'"))throw Error('Brand asset not precached: '+p);
+            if(p.includes('/social/')){
+              if(!app.includes(rel))throw Error('Social brand asset not referenced by app: '+p);
+              if(!sw.includes("'./"+p+"'"))throw Error('Social brand asset not precached: '+p);
+            }else{
+              if(app.includes(rel)||sw.includes("'./"+p+"'"))throw Error('External payment asset still used at runtime: '+p);
+            }
           }
 
           if(css.includes('.modal-action.primary'))throw Error('Dead primary-button CSS returned');
-          if(!css.includes('.payment-brand-logo img')||!css.includes('.social-facebook .brand-mark img'))throw Error('Externalized brand image CSS missing');
+          if(!css.includes('.payment-brand-logo svg')||!css.includes('.social-facebook .brand-mark img'))throw Error('Brand rendering CSS mismatch');
           if('organization' in config||'verifiedRoutes' in config)throw Error('Unused config metadata returned');
           if(links.some(x=>'routeVerified' in x))throw Error('Unused routeVerified metadata returned');
           if(sw.includes('data/changelog.json'))throw Error('Changelog must not be runtime-cached');
@@ -141,7 +146,7 @@ jobs:
           const pw=read('playwright.config.js');
           if(!pw.includes("name:'chromium'")||!pw.includes("name:'webkit'"))throw Error('Cross-browser projects missing');
           const tests=read('tests/ui.spec.js');
-          if(!tests.includes('cached shell reloads offline in Chromium')||!tests.includes('accessibility labels switch with language'))throw Error('Maintenance QA tests missing');
+          if(!tests.includes('cached shell reloads offline in Chromium')||!tests.includes('accessibility labels switch with language')||!tests.includes('payment logos use known-good inline SVG rendering'))throw Error('Maintenance/payment QA tests missing');
           if(!qa.includes('actions/checkout@v7')||!qa.includes('actions/setup-node@v7')||!qa.includes("node-version: '24'"))throw Error('Modern GitHub Actions runtime missing');
           if(!qa.includes('lighthouse@13.5.0')||!qa.includes('chromium webkit'))throw Error('QA dependency/runtime upgrade missing');
           if(!qa.includes('Production smoke after Pages deployment')||!qa.includes('https://hub.mpdgi.org/'))throw Error('Production smoke check missing');
@@ -177,5 +182,5 @@ jobs:
             for(const re of secretPatterns)if(re.test(body))throw Error('Potential secret detected in '+p+': '+re);
           }
 
-          console.log('MPDGI Hub v1.4.5 validated');
+          console.log('MPDGI Hub v1.4.6 validated');
           NODE

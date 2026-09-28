@@ -1,8 +1,12 @@
-# MPDGI Hub — v1.4.5
+# MPDGI Hub — v1.4.6
 
 Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
+
+## v1.4.6 — Payment Logo Rendering Hotfix
+
+This hotfix restores the exact payment-logo implementation that was visually approved in v1.4.4. Credit-card marks plus Apple Pay, Google Pay and Cash App Pay are rendered inline again to avoid the regression introduced when those SVGs were externalized in v1.4.5. All unrelated v1.4.5 maintenance and QA improvements remain in place.
 
 ## v1.4.5 — Maintenance, Compatibility & Code Cleanup
 

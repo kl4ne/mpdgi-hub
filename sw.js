@@ -9,13 +9,7 @@ const CRITICAL_ASSETS=[
   './data/config.json','./data/links.json','./assets/profile/logo-mpdg.png',
   './assets/icons/icon-192.png','./assets/icons/icon-512.png','./assets/icons/apple-touch-icon.png',
   './assets/brands/social/facebook.svg','./assets/brands/social/instagram.svg',
-  './assets/brands/social/youtube.svg','./assets/brands/social/tiktok.svg',
-  './assets/brands/payments/tithely.svg','./assets/brands/payments/square.svg',
-  './assets/brands/payments/visa.svg','./assets/brands/payments/mastercard.svg',
-  './assets/brands/payments/amex.svg','./assets/brands/payments/discover.svg',
-  './assets/brands/payments/jcb.svg','./assets/brands/payments/unionpay.svg',
-  './assets/brands/payments/applepay.svg','./assets/brands/payments/googlepay.svg',
-  './assets/brands/payments/cashapp.svg'
+  './assets/brands/social/youtube.svg','./assets/brands/social/tiktok.svg'
 ];
 
 self.addEventListener('install',event=>{

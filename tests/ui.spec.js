@@ -145,9 +145,9 @@ test('shared runtime version is loaded and matches config',async({page})=>{
       config:config.version
     };
   });
-  expect(values.runtime).toBe('1.4.5');
-  expect(values.source).toBe('1.4.5');
-  expect(values.config).toBe('1.4.5');
+  expect(values.runtime).toBe('1.4.6');
+  expect(values.source).toBe('1.4.6');
+  expect(values.config).toBe('1.4.6');
 });
 
 test('accessibility labels switch with language',async({page})=>{
@@ -171,4 +171,19 @@ test('cached shell reloads offline in Chromium',async({page,context,browserName}
   await expect(page.locator('#offline-badge')).toBeVisible();
   await expect(page.locator('[data-card-id="social"] .card-subtitle')).toContainText('TikTok');
   await context.setOffline(false);
+});
+
+
+test('payment logos use known-good inline SVG rendering',async({page})=>{
+  await page.goto('/',{waitUntil:'networkidle'});
+  await page.locator('[data-card-id="give"] .card-action').click();
+  await expect(page.locator('.payment-card-chip svg')).toHaveCount(6);
+  await expect(page.locator('.payment-wallet-applepay svg')).toHaveCount(1);
+  await expect(page.locator('.payment-wallet-googlepay svg')).toHaveCount(1);
+  await expect(page.locator('.payment-wallet-cashapp svg')).toHaveCount(1);
+  const boxes=await page.locator('.payment-card-chip svg,.payment-wallet-chip svg').evaluateAll(nodes=>nodes.map(n=>{
+    const r=n.getBoundingClientRect();return {w:r.width,h:r.height};
+  }));
+  expect(boxes.length).toBeGreaterThanOrEqual(9);
+  expect(boxes.every(b=>b.w>10&&b.h>10)).toBeTruthy();
 });

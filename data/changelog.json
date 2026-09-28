@@ -1,5 +1,16 @@
 [
   {
+    "version": "1.4.6",
+    "title": "Payment Logo Rendering Hotfix",
+    "date": "2026-09-28",
+    "changes": [
+      "Restored the exact inline payment-logo rendering that was visually approved in v1.4.4.",
+      "Fixed broken or distorted card-network, Apple Pay, Google Pay and Cash App Pay marks introduced by v1.4.5.",
+      "Kept the v1.4.5 accessibility, caching, Chromium, WebKit and production-smoke improvements.",
+      "Removed external payment-logo files from the Service Worker runtime cache."
+    ]
+  },
+  {
     "version": "1.4.5",
     "title": "Maintenance, Compatibility & Code Cleanup",
     "date": "2026-09-28",
