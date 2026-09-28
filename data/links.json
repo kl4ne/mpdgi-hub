@@ -24,8 +24,8 @@
       "en": "Give"
     },
     "subtitle": {
-      "es": "Tithe.ly • Zelle",
-      "en": "Tithe.ly • Zelle"
+      "es": "Tithe.ly • Square • Zelle",
+      "en": "Tithe.ly • Square • Zelle"
     },
     "action": "modal",
     "modal": "give",

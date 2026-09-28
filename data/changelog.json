@@ -1,5 +1,17 @@
 [
   {
+    "version": "1.4.2",
+    "title": "Square Giving & Payment Branding",
+    "date": "2026-09-27",
+    "changes": [
+      "Added the official MPDGI Square donation link to Ofrendar / Give.",
+      "Added branded Tithe.ly, Square and Zelle presentation inside the giving modal.",
+      "Added accepted-card branding for Visa, Mastercard, American Express, Discover, JCB and UnionPay.",
+      "Kept all giving options inside the existing Ofrendar / Give card so the Hub remains an eight-card compact layout.",
+      "Added automated QA and validation for the Square URL, giving methods and payment-brand presentation."
+    ]
+  },
+  {
     "version": "1.4.1",
     "title": "Custom Domain Activation",
     "date": "2026-09-26",

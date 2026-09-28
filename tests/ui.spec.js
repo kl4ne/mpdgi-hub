@@ -72,3 +72,19 @@ test('service worker registers on localhost',async({page})=>{
   });
   expect(registered).toBe(true);
 });
+
+
+test('giving modal includes Tithe.ly, Square, Zelle and accepted card branding',async({page})=>{
+  await page.goto('/',{waitUntil:'networkidle'});
+  await page.locator('[data-card-id="give"] .card-action').click();
+  await expect(page.locator('.tithely-button')).toHaveAttribute('href','https://tithe.ly/give_new/www/#/tithely/give-one-time/6513581');
+  await expect(page.locator('.square-button')).toHaveAttribute('href','https://square.link/u/8veQoUxF');
+  await expect(page.locator('.zelle-email')).toHaveText('mpdginc@gmail.com');
+  await expect(page.locator('.payment-card-chip')).toHaveCount(6);
+  await expect(page.locator('.payment-brand-visa')).toHaveCount(1);
+  await expect(page.locator('.payment-brand-mastercard')).toHaveCount(1);
+  await expect(page.locator('.payment-brand-amex')).toHaveCount(1);
+  await expect(page.locator('.payment-brand-discover')).toHaveCount(1);
+  await expect(page.locator('.payment-brand-jcb')).toHaveCount(1);
+  await expect(page.locator('.payment-brand-unionpay')).toHaveCount(1);
+});

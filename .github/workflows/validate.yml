@@ -15,7 +15,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate v1.4.1
+      - name: Validate v1.4.2
         run: |
           node --check js/app.js
           node --check sw.js
@@ -29,17 +29,18 @@ jobs:
           const index=read('index.html'),css=read('css/style.css'),app=read('js/app.js'),sw=read('sw.js');
           const manifest=json('manifest.json'),config=json('data/config.json'),links=json('data/links.json'),changelog=json('data/changelog.json');
 
-          if(config.version!=='1.4.1'||!app.includes("HUB_VERSION='1.4.1'")||!sw.includes("VERSION='1.4.1'"))throw Error('Version mismatch');
-          if(changelog[0]?.version!=='1.4.1'||changelog[0]?.title!=='Custom Domain Activation')throw Error('Changelog mismatch');
+          if(config.version!=='1.4.2'||!app.includes("HUB_VERSION='1.4.2'")||!sw.includes("VERSION='1.4.2'"))throw Error('Version mismatch');
+          if(changelog[0]?.version!=='1.4.2'||changelog[0]?.title!=='Square Giving & Payment Branding')throw Error('Changelog mismatch');
 
           for(const t of ["default-src 'self'","script-src 'self'","style-src 'self'","connect-src 'self'","worker-src 'self'","object-src 'none'","base-uri 'self'"])if(!index.includes(t))throw Error('Missing CSP: '+t);
           if(manifest.start_url!=='./'||manifest.scope!=='./'||manifest.id!=='./'||manifest.display!=='standalone'||manifest.lang!=='es'||manifest.dir!=='ltr')throw Error('Manifest mismatch'); if(manifest.shortcuts)throw Error('Manifest shortcuts must remain disabled');
           for(const icon of manifest.icons||[])if(!fs.existsSync(icon.src))throw Error('Missing icon: '+icon.src);
           if(fs.statSync('assets/profile/logo-mpdg.png').size<5000||fs.statSync('assets/icons/icon-192.png').size<5000)throw Error('Official logo/icon asset too small or missing');
 
-          const urlKeys=['website','memberPortal','prayer','ministries','youtube','facebook','instagram','tithely','bibleSpanish','bibleEnglish','hubUrl','nfcUrl','customDomain','legacyGitHubPagesUrl'];
+          const urlKeys=['website','memberPortal','prayer','ministries','youtube','facebook','instagram','tithely','square','bibleSpanish','bibleEnglish','hubUrl','nfcUrl','customDomain','legacyGitHubPagesUrl'];
           for(const key of urlKeys)if(new URL(config[key]).protocol!=='https:')throw Error('Non-HTTPS: '+key);
           if(config.ministries!=='https://mpdgi.org/ministerios')throw Error('Ministries route mismatch');
+          if(config.square!=='https://square.link/u/8veQoUxF')throw Error('Square donation URL mismatch');
           if(config.bibleSpanish!=='https://www.biblegateway.com/versions/Reina-Valera-1960-RVR1960-Biblia/')throw Error('RVR1960 route mismatch');
           if(config.bibleEnglish!=='https://www.biblegateway.com/versions/King-James-Version-KJV-Bible/')throw Error('KJV route mismatch');
           if(config.defaultLanguage!=='es'||config.developer!=='Roberto S. Macfie')throw Error('Config identity/default mismatch'); if(config.customDomain!=='https://hub.mpdgi.org/'||config.legacyGitHubPagesUrl!=='https://kl4ne.github.io/mpdgi-hub/')throw Error('Custom domain configuration mismatch');
@@ -67,6 +68,9 @@ jobs:
           if(!app.includes("brandedLink('facebook',s.facebook")||!app.includes("brandedLink('instagram',s.instagram")||!app.includes("brandedLink('youtube',s.youtube"))throw Error('Social brand links missing');
           if(/Abrir Facebook|Abrir Instagram|Abrir YouTube|Open Facebook|Open Instagram|Open YouTube/.test(app))throw Error('Abrir/Open wording returned to social buttons');
           if(!app.includes('config.bibleSpanish')||!app.includes('config.bibleEnglish'))throw Error('Bible links missing from app');
+          if(!app.includes('config.square')||!app.includes("paymentMethodLink('square'")||!app.includes('PAYMENT_CARD_LOGOS'))throw Error('Square/payment branding missing from app');
+          if(!byId.give.subtitle.es.includes('Square')||!byId.give.subtitle.en.includes('Square'))throw Error('Square missing from Give card subtitle');
+          for(const brand of ['tithely','square','zelle','visa','mastercard','amex','discover','jcb','unionpay'])if(!app.includes(brand+":"))throw Error('Payment brand missing: '+brand);
           if(!css.includes('.zelle-box{text-align:center'))throw Error('Zelle must be centered');
           if(!css.includes('.hub-card.card-about{background:linear-gradient(135deg,#a34357,#612536)}'))throw Error('About card must use distinct burgundy theme');
           if(!css.includes('.developer-credit{color:#d0dbe7;font-weight:650;font-size:.64rem'))throw Error('Developer credit styling mismatch'); if(!css.includes('min-height:100svh')||!css.includes('min-height:100dvh'))throw Error('Dynamic viewport support missing'); if(!css.includes('@media(max-height:680px)'))throw Error('Very short-screen readability rule missing');
@@ -95,5 +99,5 @@ jobs:
           if(!index.includes('assets/icons/apple-touch-icon.png'))throw Error('Apple touch icon mismatch');
           if(!index.includes('https://hub.mpdgi.org/assets/social/mpdgi-hub-share.svg')||!index.includes('content="1200"')||!index.includes('content="630"'))throw Error('Social preview metadata mismatch');
 
-          console.log('MPDGI Hub v1.4.1 validated');
+          console.log('MPDGI Hub v1.4.2 validated');
           NODE

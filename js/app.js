@@ -1,6 +1,6 @@
 'use strict';
 
-const HUB_VERSION='1.4.1';
+const HUB_VERSION='1.4.2';
 const STORAGE_LANGUAGE_KEY='mpdgiHubLanguage';
 const VALID_THEMES=new Set(['blue','green','purple','gold','teal','social','website','about']);
 const VALID_MODAL_TYPES=new Set(['give','social','bible','about']);
@@ -11,7 +11,7 @@ const UI={
     close:'Cerrar',offline:'Sin conexión • algunos enlaces externos no estarán disponibles',
     loadError:'No fue posible cargar los accesos. Visita mpdgi.org para continuar.',
     giveTitle:'Ofrendar',giveIntro:'Selecciona una opción segura para apoyar a Ministerio Plenitud de Gracia.',
-    tithely:'Ofrendar con Tithe.ly',zelleInstruction:'Correo oficial para Zelle',copy:'Copiar',copied:'Copiado',
+    tithely:'Ofrendar con Tithe.ly',square:'Ofrendar con Square',acceptedCards:'Tarjetas aceptadas por Square',zelle:'Zelle',zelleInstruction:'Correo oficial para Zelle',copy:'Copiar',copied:'Copiado',
     copyFailed:'No se pudo copiar. Mantén presionado el correo para copiarlo.',
     socialTitle:'Redes Sociales',socialIntro:'Selecciona una de nuestras plataformas oficiales.',
     facebook:'Facebook',instagram:'Instagram',youtube:'YouTube',
@@ -21,7 +21,7 @@ const UI={
     aboutTitle:'Acerca de MPDGI Hub',
     aboutIntro:'Hub digital oficial preparado para NFC de Ministerio Plenitud de Gracia, creado para brindar acceso rápido a los servicios y recursos oficiales de la iglesia.',
     version:'Versión',website:'Sitio web oficial',external:'Servicios externos',
-    externalText:'Tithe.ly, ChMeetings, BibleGateway, YouTube, Facebook e Instagram están sujetos a sus propios términos y políticas de privacidad.',
+    externalText:'Tithe.ly, Square, ChMeetings, BibleGateway, YouTube, Facebook e Instagram están sujetos a sus propios términos y políticas de privacidad.',
     privacy:'Privacidad',privacyText:'Este Hub no almacena contraseñas, información de pago ni información personal sensible.',
     developerCredit:'Designed & Developed by Roberto S. Macfie for MPDGI',
     copyright:'© 2026 Ministerio Plenitud de Gracia. Todos los derechos reservados.',
@@ -32,7 +32,7 @@ const UI={
     close:'Close',offline:'Offline • some external links will not be available',
     loadError:'The hub links could not be loaded. Visit mpdgi.org to continue.',
     giveTitle:'Give',giveIntro:'Choose a secure option to support Ministerio Plenitud de Gracia.',
-    tithely:'Give with Tithe.ly',zelleInstruction:'Official Zelle email',copy:'Copy',copied:'Copied',
+    tithely:'Give with Tithe.ly',square:'Give with Square',acceptedCards:'Cards accepted by Square',zelle:'Zelle',zelleInstruction:'Official Zelle email',copy:'Copy',copied:'Copied',
     copyFailed:'Could not copy. Press and hold the email address to copy it.',
     socialTitle:'Social Media',socialIntro:'Choose one of our official platforms.',
     facebook:'Facebook',instagram:'Instagram',youtube:'YouTube',
@@ -42,7 +42,7 @@ const UI={
     aboutTitle:'About MPDGI Hub',
     aboutIntro:'Official NFC-ready digital hub for Ministerio Plenitud de Gracia, created to provide fast access to the church’s official services and resources.',
     version:'Version',website:'Official website',external:'External services',
-    externalText:'Tithe.ly, ChMeetings, BibleGateway, YouTube, Facebook, and Instagram are subject to their respective terms and privacy policies.',
+    externalText:'Tithe.ly, Square, ChMeetings, BibleGateway, YouTube, Facebook, and Instagram are subject to their respective terms and privacy policies.',
     privacy:'Privacy',privacyText:'This Hub does not store passwords, payment information, or sensitive personal information.',
     developerCredit:'Designed & Developed by Roberto S. Macfie for MPDGI',
     copyright:'© 2026 Ministerio Plenitud de Gracia. All Rights Reserved.',
@@ -58,7 +58,7 @@ const DEFAULT_CONFIG={
   memberPortal:'https://mpdgi.chmeetings.com',prayer:'https://mpdgi.org/oracion',
   ministries:'https://mpdgi.org/ministerios',youtube:'https://www.youtube.com/@ministerioplenituddegracia',
   facebook:'https://www.facebook.com/mpdginc',instagram:'https://www.instagram.com/mpdginc/',
-  tithely:'https://tithe.ly/give_new/www/#/tithely/give-one-time/6513581',zelle:'mpdginc@gmail.com',
+  tithely:'https://tithe.ly/give_new/www/#/tithely/give-one-time/6513581',square:'https://square.link/u/8veQoUxF',zelle:'mpdginc@gmail.com',
   bibleSpanish:'https://www.biblegateway.com/versions/Reina-Valera-1960-RVR1960-Biblia/',
   bibleEnglish:'https://www.biblegateway.com/versions/King-James-Version-KJV-Bible/',
   defaultLanguage:'es'
@@ -66,7 +66,7 @@ const DEFAULT_CONFIG={
 
 const FALLBACK_LINKS=[
   {id:'members',order:1,title:{es:'Portal de Miembros',en:'Member Portal'},subtitle:{es:'ChMeetings',en:'ChMeetings'},url:'https://mpdgi.chmeetings.com',action:'direct',open:'new',theme:'blue',icon:'member'},
-  {id:'give',order:2,title:{es:'Ofrendar',en:'Give'},subtitle:{es:'Tithe.ly • Zelle',en:'Tithe.ly • Zelle'},action:'modal',modal:'give',theme:'green',icon:'offering'},
+  {id:'give',order:2,title:{es:'Ofrendar',en:'Give'},subtitle:{es:'Tithe.ly • Square • Zelle',en:'Tithe.ly • Square • Zelle'},action:'modal',modal:'give',theme:'green',icon:'offering'},
   {id:'prayer',order:3,title:{es:'Petición de Oración',en:'Prayer Request'},subtitle:{es:'Envíanos tu petición',en:'Send us your request'},url:'https://mpdgi.org/oracion',action:'direct',open:'new',theme:'purple',icon:'prayer'},
   {id:'bible',order:4,title:{es:'Biblia',en:'Bible'},subtitle:{es:'Español • English',en:'Español • English'},action:'modal',modal:'bible',theme:'gold',icon:'bible'},
   {id:'ministries',order:5,title:{es:'Ministerios',en:'Ministries'},subtitle:{es:'Sirve con nosotros',en:'Serve with us'},url:'https://mpdgi.org/ministerios',action:'direct',open:'new',theme:'teal',icon:'ministry'},
@@ -197,12 +197,46 @@ function openModal(title,trigger){const o=document.getElementById('modal-overlay
 function closeModal(){const o=document.getElementById('modal-overlay');if(o.hidden)return;o.hidden=true;document.body.classList.remove('modal-open');setBackgroundInert(false);lastModalTrigger?.focus?.();reloadAfterUpdateIfSafe();}
 function externalLink(label,url,className=''){const a=document.createElement('a');a.className=('modal-action '+className).trim();a.href=safeHttpsUrl(url)||'#';a.target='_blank';a.rel='noopener noreferrer';a.append(textElement('span','',label));return a;}
 function brandedLink(brand,label,url,className=''){const a=externalLink(label,url,className);a.prepend(createBrandMark(brand));return a;}
+
+const PAYMENT_BRAND_SVGS={
+  tithely:'<svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#181f36"/><path fill="#5bd9a4" d="M8.5 9.4c0-1.5 1.2-2.7 2.7-2.7h9.6c1.5 0 2.7 1.2 2.7 2.7v2.7c0 4.4-3.2 8-7.5 8.6v4.6h-4v-4.6a8.2 8.2 0 0 1-3.5-6.7V9.4Zm4 1.5v3a4 4 0 0 0 3.5 4 4 4 0 0 0 3.5-4v-3h-7Z"/></svg>',
+  square:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#111" d="M4.01 0A4.01 4.01 0 000 4.01v15.98c0 2.21 1.8 4 4.01 4.01h15.98C22.2 24 24 22.2 24 19.99V4A4.01 4.01 0 0019.99 0H4zm1.62 4.36h12.74c.7 0 1.26.57 1.26 1.27v12.74c0 .7-.56 1.27-1.26 1.27H5.63c-.7 0-1.26-.57-1.26-1.27V5.63a1.27 1.27 0 011.26-1.27zm3.83 4.35a.73.73 0 00-.73.73v5.09c0 .4.32.72.72.72h5.1a.73.73 0 00.73-.72V9.44a.73.73 0 00-.73-.73h-5.1Z"/></svg>',
+  zelle:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#6D1ED4" d="M13.559 24h-2.841a.483.483 0 0 1-.483-.483v-2.765H5.638a.667.667 0 0 1-.666-.666v-2.234a.67.67 0 0 1 .142-.412l8.139-10.382h-7.25a.667.667 0 0 1-.667-.667V3.914c0-.367.299-.666.666-.666h4.23V.483c0-.266.217-.483.483-.483h2.841c.266 0 .483.217.483.483v2.765h4.323c.367 0 .666.299.666.666v2.137a.67.67 0 0 1-.141.41l-8.19 10.481h7.665c.367 0 .666.299.666.666v2.477a.667.667 0 0 1-.666.667h-4.32v2.765a.483.483 0 0 1-.483.483Z"/></svg>',
+  visa:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#1434CB" d="M9.112 8.262 5.97 15.758H3.92L2.374 9.775c-.094-.368-.175-.503-.461-.658C1.447 8.864.677 8.627 0 8.479l.046-.217h3.3a.904.904 0 0 1 .894.764l.817 4.338 2.018-5.102zm8.033 5.049c.008-1.979-2.736-2.088-2.717-2.972.006-.269.262-.555.822-.628a3.66 3.66 0 0 1 1.913.336l.34-1.59a5.207 5.207 0 0 0-1.814-.333c-1.917 0-3.266 1.02-3.278 2.479-.012 1.079.963 1.68 1.698 2.04.756.367 1.01.603 1.006.931-.005.504-.602.725-1.16.734-.975.015-1.54-.263-1.992-.473l-.351 1.642c.453.208 1.289.39 2.156.398 2.037 0 3.37-1.006 3.377-2.564m5.061 2.447H24l-1.565-7.496h-1.656a.883.883 0 0 0-.826.55l-2.909 6.946h2.036l.405-1.12h2.488zm-2.163-2.656 1.02-2.815.588 2.815zm-8.16-4.84-1.603 7.496H8.34l1.605-7.496z"/></svg>',
+  mastercard:'<svg viewBox="0 0 64 40" aria-hidden="true"><circle cx="25" cy="20" r="13" fill="#EB001B"/><circle cx="39" cy="20" r="13" fill="#F79E1B"/><path d="M32 9.4a13 13 0 0 1 0 21.2 13 13 0 0 1 0-21.2Z" fill="#FF5F00"/></svg>',
+  amex:'<svg viewBox="0 0 64 40" aria-hidden="true"><rect x="2" y="4" width="60" height="32" rx="5" fill="#2E77BB"/><text x="32" y="18" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" font-weight="800" fill="#fff">AMERICAN</text><text x="32" y="29" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" font-weight="800" fill="#fff">EXPRESS</text></svg>',
+  discover:'<svg viewBox="0 0 64 40" aria-hidden="true"><rect width="64" height="40" rx="6" fill="#fff"/><text x="5" y="24" font-family="Arial,sans-serif" font-size="10" font-weight="800" fill="#111">DISC</text><circle cx="37" cy="20" r="7" fill="#FF6000"/><text x="44" y="24" font-family="Arial,sans-serif" font-size="8.5" font-weight="800" fill="#111">VER</text></svg>',
+  jcb:'<svg viewBox="0 0 64 40" aria-hidden="true"><rect x="7" y="5" width="16" height="30" rx="4" fill="#0B6FB8"/><rect x="24" y="5" width="16" height="30" rx="4" fill="#D9232E"/><rect x="41" y="5" width="16" height="30" rx="4" fill="#168447"/><text x="15" y="25" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="800" fill="#fff">J</text><text x="32" y="25" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="800" fill="#fff">C</text><text x="49" y="25" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="800" fill="#fff">B</text></svg>',
+  unionpay:'<svg viewBox="0 0 72 40" aria-hidden="true"><path d="M8 5h22l-7 30H1L8 5Z" fill="#D81E3B"/><path d="M26 5h22l-7 30H19l7-30Z" fill="#1879B9"/><path d="M44 5h22l-7 30H37l7-30Z" fill="#149A78"/><text x="35" y="23" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" font-weight="800" fill="#fff">UnionPay</text></svg>'
+};
+function createPaymentBrandMark(name,label=''){
+  const wrap=document.createElement('span');wrap.className='payment-brand-logo payment-brand-'+name;wrap.innerHTML=PAYMENT_BRAND_SVGS[name]||'';
+  if(label){wrap.setAttribute('role','img');wrap.setAttribute('aria-label',label);}else wrap.setAttribute('aria-hidden','true');
+  return wrap;
+}
+function paymentMethodLink(brand,label,url,className=''){
+  const a=externalLink(label,url,className);a.prepend(createPaymentBrandMark(brand));return a;
+}
+const PAYMENT_CARD_LOGOS=[['visa','Visa'],['mastercard','Mastercard'],['amex','American Express'],['discover','Discover'],['jcb','JCB'],['unionpay','UnionPay']];
+function paymentCards(label){
+  const section=document.createElement('section');section.className='payment-cards';section.setAttribute('aria-label',label);
+  section.append(textElement('p','payment-cards-label',label));
+  const strip=document.createElement('div');strip.className='payment-card-strip';strip.setAttribute('role','list');
+  PAYMENT_CARD_LOGOS.forEach(([brand,name])=>{const chip=document.createElement('span');chip.className='payment-card-chip';chip.setAttribute('role','listitem');chip.append(createPaymentBrandMark(brand,name));strip.append(chip);});
+  section.append(strip);return section;
+}
 function bibleLink(label,version,url,className=''){const a=document.createElement('a');a.className=('modal-action '+className).trim();a.href=safeHttpsUrl(url)||'#';a.target='_blank';a.rel='noopener noreferrer';const mark=document.createElement('span');mark.className='brand-mark';mark.append(createIcon('bible'));const copy=document.createElement('span');copy.className='modal-action-copy';copy.append(textElement('strong','',label),textElement('small','modal-subline',version));a.append(mark,copy);return a;}
 async function copyText(value){if(!value)return false;try{if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(value);return true;}}catch{}try{const t=document.createElement('textarea');t.value=value;t.readOnly=true;t.style.cssText='position:fixed;opacity:0';document.body.append(t);t.select();const ok=document.execCommand('copy');t.remove();return ok;}catch{return false;}}
 
 function renderGiveModal(trigger){
-  const s=UI[currentLanguage],b=openModal(s.giveTitle,trigger);b.append(textElement('p','modal-text',s.giveIntro),externalLink(s.tithely,config.tithely,'primary'));
-  const z=document.createElement('section');z.className='zelle-box';z.append(textElement('p','zelle-label',s.zelleInstruction),textElement('p','zelle-email',config.zelle));
+  const s=UI[currentLanguage],b=openModal(s.giveTitle,trigger);
+  b.append(textElement('p','modal-text',s.giveIntro),
+    paymentMethodLink('tithely',s.tithely,config.tithely,'tithely-button'),
+    paymentMethodLink('square',s.square,config.square,'square-button'),
+    paymentCards(s.acceptedCards));
+  const z=document.createElement('section');z.className='zelle-box';
+  const brand=document.createElement('div');brand.className='zelle-brand';brand.append(createPaymentBrandMark('zelle'),textElement('strong','',s.zelle));
+  z.append(brand,textElement('p','zelle-label',s.zelleInstruction),textElement('p','zelle-email',config.zelle));
   const row=document.createElement('div');row.className='copy-row';const btn=textElement('button','copy-button',s.copy);btn.type='button';const status=textElement('span','copy-status','');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
   btn.addEventListener('click',async()=>{const ok=await copyText(config.zelle);status.textContent=ok?s.copied:s.copyFailed;if(ok)setTimeout(()=>status.textContent='',1800);});row.append(btn,status);z.append(row);b.append(z);
 }

@@ -1,8 +1,18 @@
-# MPDGI Hub — v1.4.1
+# MPDGI Hub — v1.4.2
 
 Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
+
+## v1.4.2 — Square Giving & Payment Branding
+
+The **Ofrendar / Give** modal now supports three church giving methods:
+
+- Tithe.ly
+- Square — `https://square.link/u/8veQoUxF`
+- Zelle — `mpdginc@gmail.com`
+
+The modal includes payment-brand visuals and the six card networks documented for Square card acceptance in the U.S.: Visa, Mastercard, American Express, Discover, JCB and UnionPay.
 
 ## v1.4.1 — Custom Domain Activation
 
@@ -21,7 +31,7 @@ The legacy address remains documented as a fallback, but new NFC tags and public
 ## Current cards
 
 1. Portal de Miembros / Member Portal — ChMeetings.
-2. Ofrendar / Give — Tithe.ly and centered Zelle information.
+2. Ofrendar / Give — Tithe.ly, Square, accepted-card branding and centered Zelle information.
 3. Petición de Oración / Prayer Request — `https://mpdgi.org/oracion`.
 4. Biblia / Bible — RVR1960 and KJV through BibleGateway.
 5. Ministerios / Ministries — `https://mpdgi.org/ministerios`.
