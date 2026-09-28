@@ -1,6 +1,6 @@
 'use strict';
 
-const HUB_VERSION='1.4.3';
+const HUB_VERSION='1.4.4';
 const STORAGE_LANGUAGE_KEY='mpdgiHubLanguage';
 const VALID_THEMES=new Set(['blue','green','purple','gold','teal','social','website','about']);
 const VALID_MODAL_TYPES=new Set(['give','social','bible','about']);
@@ -14,14 +14,14 @@ const UI={
     tithely:'Ofrendar con Tithe.ly',square:'Ofrendar con Square',acceptedCards:'Tarjetas aceptadas por Square',wallets:'También disponible con Square',zelle:'Zelle®',zelleTitle:'Cómo ofrendar con Zelle®',zelleInstruction:'Correo oficial de MPDGI',zelleStep1:'Abre la aplicación de tu banco y entra a Zelle®.',zelleStep2:'Selecciona Enviar o Send money.',zelleStep3:'Elige Añadir destinatario o Add new recipient.',zelleStep4:'Selecciona Email y usa el correo oficial que aparece abajo.',zelleStep5:'Verifica los datos del destinatario, escribe la cantidad y envía.',zelleNote:'Los nombres de los botones pueden variar según tu banco.',copy:'Copiar correo',copied:'Copiado',
     copyFailed:'No se pudo copiar. Mantén presionado el correo para copiarlo.',
     socialTitle:'Redes Sociales',socialIntro:'Selecciona una de nuestras plataformas oficiales.',
-    facebook:'Facebook',instagram:'Instagram',youtube:'YouTube',
+    facebook:'Facebook',instagram:'Instagram',youtube:'YouTube',tiktok:'TikTok',
     bibleTitle:'Biblia',bibleIntro:'Selecciona el idioma y la versión que deseas leer.',
     bibleSpanish:'Biblia en Español',bibleSpanishVersion:'Reina-Valera 1960 (RVR1960)',
     bibleEnglish:'Bible in English',bibleEnglishVersion:'King James Version (KJV)',
     aboutTitle:'Acerca de MPDGI Hub',
     aboutIntro:'Hub digital oficial preparado para NFC de Ministerio Plenitud de Gracia, creado para brindar acceso rápido a los servicios y recursos oficiales de la iglesia.',
     version:'Versión',website:'Sitio web oficial',external:'Servicios externos',
-    externalText:'Tithe.ly, Square, ChMeetings, BibleGateway, YouTube, Facebook e Instagram están sujetos a sus propios términos y políticas de privacidad.',
+    externalText:'Tithe.ly, Square, ChMeetings, BibleGateway, YouTube, Facebook, Instagram y TikTok están sujetos a sus propios términos y políticas de privacidad.',
     privacy:'Privacidad',privacyText:'Este Hub no almacena contraseñas, información de pago ni información personal sensible.',
     developerCredit:'Designed & Developed by Roberto S. Macfie for MPDGI',
     copyright:'© 2026 Ministerio Plenitud de Gracia. Todos los derechos reservados.',
@@ -35,14 +35,14 @@ const UI={
     tithely:'Give with Tithe.ly',square:'Give with Square',acceptedCards:'Cards accepted by Square',wallets:'Also available with Square',zelle:'Zelle®',zelleTitle:'How to give with Zelle®',zelleInstruction:'Official MPDGI email',zelleStep1:'Open your banking app and go to Zelle®.',zelleStep2:'Select Send or Send money.',zelleStep3:'Choose Add recipient or Add new recipient.',zelleStep4:'Select Email and use the official address shown below.',zelleStep5:'Verify the recipient details, enter the amount, and send.',zelleNote:'Button names may vary by bank.',copy:'Copy email',copied:'Copied',
     copyFailed:'Could not copy. Press and hold the email address to copy it.',
     socialTitle:'Social Media',socialIntro:'Choose one of our official platforms.',
-    facebook:'Facebook',instagram:'Instagram',youtube:'YouTube',
+    facebook:'Facebook',instagram:'Instagram',youtube:'YouTube',tiktok:'TikTok',
     bibleTitle:'Bible',bibleIntro:'Choose the language and version you want to read.',
     bibleSpanish:'Biblia en Español',bibleSpanishVersion:'Reina-Valera 1960 (RVR1960)',
     bibleEnglish:'Bible in English',bibleEnglishVersion:'King James Version (KJV)',
     aboutTitle:'About MPDGI Hub',
     aboutIntro:'Official NFC-ready digital hub for Ministerio Plenitud de Gracia, created to provide fast access to the church’s official services and resources.',
     version:'Version',website:'Official website',external:'External services',
-    externalText:'Tithe.ly, Square, ChMeetings, BibleGateway, YouTube, Facebook, and Instagram are subject to their respective terms and privacy policies.',
+    externalText:'Tithe.ly, Square, ChMeetings, BibleGateway, YouTube, Facebook, Instagram, and TikTok are subject to their respective terms and privacy policies.',
     privacy:'Privacy',privacyText:'This Hub does not store passwords, payment information, or sensitive personal information.',
     developerCredit:'Designed & Developed by Roberto S. Macfie for MPDGI',
     copyright:'© 2026 Ministerio Plenitud de Gracia. All Rights Reserved.',
@@ -57,7 +57,7 @@ const DEFAULT_CONFIG={
   sundayService:'10:00 AM',wednesdayBibleStudy:'7:00 PM',website:'https://mpdgi.org',
   memberPortal:'https://mpdgi.chmeetings.com',prayer:'https://mpdgi.org/oracion',
   ministries:'https://mpdgi.org/ministerios',youtube:'https://www.youtube.com/@ministerioplenituddegracia',
-  facebook:'https://www.facebook.com/mpdginc',instagram:'https://www.instagram.com/mpdginc/',
+  facebook:'https://www.facebook.com/mpdginc',instagram:'https://www.instagram.com/mpdginc/',tiktok:'https://www.tiktok.com/@mpdginc',
   tithely:'https://tithe.ly/give_new/www/#/tithely/give-one-time/6513581',square:'https://square.link/u/8veQoUxF',zelle:'mpdginc@gmail.com',
   bibleSpanish:'https://www.biblegateway.com/versions/Reina-Valera-1960-RVR1960-Biblia/',
   bibleEnglish:'https://www.biblegateway.com/versions/King-James-Version-KJV-Bible/',
@@ -70,7 +70,7 @@ const FALLBACK_LINKS=[
   {id:'prayer',order:3,title:{es:'Petición de Oración',en:'Prayer Request'},subtitle:{es:'Envíanos tu petición',en:'Send us your request'},url:'https://mpdgi.org/oracion',action:'direct',open:'new',theme:'purple',icon:'prayer'},
   {id:'bible',order:4,title:{es:'Biblia',en:'Bible'},subtitle:{es:'Español • English',en:'Español • English'},action:'modal',modal:'bible',theme:'gold',icon:'bible'},
   {id:'ministries',order:5,title:{es:'Ministerios',en:'Ministries'},subtitle:{es:'Sirve con nosotros',en:'Serve with us'},url:'https://mpdgi.org/ministerios',action:'direct',open:'new',theme:'teal',icon:'ministry'},
-  {id:'social',order:6,title:{es:'Redes Sociales',en:'Social Media'},subtitle:{es:'Facebook • Instagram • YouTube',en:'Facebook • Instagram • YouTube'},action:'modal',modal:'social',theme:'social',icon:'share'},
+  {id:'social',order:6,title:{es:'Redes Sociales',en:'Social Media'},subtitle:{es:'Facebook • Instagram • YouTube • TikTok',en:'Facebook • Instagram • YouTube • TikTok'},action:'modal',modal:'social',theme:'social',icon:'share'},
   {id:'website',order:7,title:{es:'Sitio Web',en:'Website'},subtitle:{es:'mpdgi.org',en:'mpdgi.org'},url:'https://mpdgi.org',action:'direct',open:'new',theme:'website',icon:'website'},
   {id:'about',order:8,title:{es:'Acerca de',en:'About'},subtitle:{es:'Información del Hub',en:'Hub information'},action:'modal',modal:'about',theme:'about',icon:'about'}
 ];
@@ -127,23 +127,15 @@ function createIcon(name){
   return svg;
 }
 
+const SOCIAL_BRAND_SVGS={
+  facebook:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#1877F2" d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/></svg>',
+  instagram:'<svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="igBrand" x1="2" y1="22" x2="22" y2="2"><stop stop-color="#FFDC80"/><stop offset=".32" stop-color="#F77737"/><stop offset=".58" stop-color="#E1306C"/><stop offset=".78" stop-color="#C13584"/><stop offset="1" stop-color="#833AB4"/></linearGradient></defs><path fill="url(#igBrand)" d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg>',
+  youtube:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#FF0000" d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814z"/><path fill="#fff" d="m9.545 15.568 6.273-3.568-6.273-3.568z"/></svg>',
+  tiktok:'<svg viewBox="0 0 26 26" aria-hidden="true"><path fill="#25F4EE" transform="translate(-.55 .35)" d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/><path fill="#FE2C55" transform="translate(.55 -.2)" d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/><path fill="#111" d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>'
+};
 function createBrandMark(name){
-  const wrap=document.createElement('span');wrap.className='brand-mark';wrap.setAttribute('aria-hidden','true');
-  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');
-  if(name==='facebook'){
-    const p=document.createElementNS('http://www.w3.org/2000/svg','path');
-    p.setAttribute('d','M13.6 8H17V4h-3.4C10 4 8 6.1 8 9.5V12H5v4h3v5h4v-5h3.6l.7-4H12V9.8c0-1.2.5-1.8 1.6-1.8Z');
-    p.setAttribute('fill','currentColor');svg.append(p);
-  }else if(name==='instagram'){
-    svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','1.8');
-    const r=document.createElementNS('http://www.w3.org/2000/svg','rect');r.setAttribute('x','3.5');r.setAttribute('y','3.5');r.setAttribute('width','17');r.setAttribute('height','17');r.setAttribute('rx','5');svg.append(r);
-    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('cx','12');c.setAttribute('cy','12');c.setAttribute('r','4');svg.append(c);
-    const d=document.createElementNS('http://www.w3.org/2000/svg','circle');d.setAttribute('cx','17.2');d.setAttribute('cy','6.8');d.setAttribute('r','1');d.setAttribute('fill','currentColor');d.setAttribute('stroke','none');svg.append(d);
-  }else{
-    const r=document.createElementNS('http://www.w3.org/2000/svg','rect');r.setAttribute('x','2');r.setAttribute('y','5');r.setAttribute('width','20');r.setAttribute('height','14');r.setAttribute('rx','4');r.setAttribute('fill','currentColor');svg.append(r);
-    const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d','m10 9 6 3-6 3Z');p.setAttribute('fill','#fff');svg.append(p);
-  }
-  wrap.append(svg);return wrap;
+  const wrap=document.createElement('span');wrap.className='brand-mark social-brand-'+name;wrap.setAttribute('aria-hidden','true');wrap.innerHTML=SOCIAL_BRAND_SVGS[name]||'';
+  return wrap;
 }
 
 function textElement(tag,className,value){const el=document.createElement(tag);if(className)el.className=className;el.textContent=value;return el;}
@@ -262,7 +254,8 @@ function renderSocialModal(trigger){
   b.append(textElement('p','modal-text',s.socialIntro),
     brandedLink('facebook',s.facebook,config.facebook,'social-facebook'),
     brandedLink('instagram',s.instagram,config.instagram,'social-instagram'),
-    brandedLink('youtube',s.youtube,config.youtube,'social-youtube'));
+    brandedLink('youtube',s.youtube,config.youtube,'social-youtube'),
+    brandedLink('tiktok',s.tiktok,config.tiktok,'social-tiktok'));
 }
 function renderBibleModal(trigger){
   const s=UI[currentLanguage],b=openModal(s.bibleTitle,trigger);b.append(textElement('p','modal-text',s.bibleIntro));

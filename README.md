@@ -1,8 +1,16 @@
-# MPDGI Hub — v1.4.3
+# MPDGI Hub — v1.4.4
 
 Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
+
+## v1.4.4 — TikTok & Social Brand Refresh
+
+The **Redes Sociales / Social Media** modal now includes the official MPDGI TikTok profile:
+
+`https://www.tiktok.com/@mpdginc`
+
+Facebook, Instagram, YouTube and TikTok now use recognizable platform logo shapes and brand colors inside clean, high-contrast social buttons.
 
 ## v1.4.3 — Giving UX & Digital Wallets
 
@@ -47,7 +55,7 @@ The legacy address remains documented as a fallback, but new NFC tags and public
 3. Petición de Oración / Prayer Request — `https://mpdgi.org/oracion`.
 4. Biblia / Bible — RVR1960 and KJV through BibleGateway.
 5. Ministerios / Ministries — `https://mpdgi.org/ministerios`.
-6. Redes Sociales / Social Media — Facebook, Instagram and YouTube.
+6. Redes Sociales / Social Media — Facebook, Instagram, YouTube and TikTok.
 7. Sitio Web / Website — `https://mpdgi.org`.
 8. Acerca de / About — Hub information, version, privacy, developer credit and install action when supported.
 

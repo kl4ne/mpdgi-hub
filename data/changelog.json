@@ -1,5 +1,16 @@
 [
   {
+    "version": "1.4.4",
+    "title": "TikTok & Social Brand Refresh",
+    "date": "2026-09-27",
+    "changes": [
+      "Added the official MPDGI TikTok profile to Redes Sociales / Social Media: https://www.tiktok.com/@mpdginc.",
+      "Updated Facebook, Instagram, YouTube and TikTok buttons with recognizable platform logo shapes and brand colors.",
+      "Changed the social modal to clean white brand buttons for clearer logo recognition and consistency with the polished giving experience.",
+      "Updated bilingual social labels, external-service disclosure, README, automated QA and release validation."
+    ]
+  },
+  {
     "version": "1.4.3",
     "title": "Giving UX & Digital Wallets",
     "date": "2026-09-27",

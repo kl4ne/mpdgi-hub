@@ -1,5 +1,5 @@
 {
-  "version": "1.4.3",
+  "version": "1.4.4",
   "churchName": "Ministerio Plenitud de Gracia",
   "tagline": "Yo no he venido a ser servido, sino a servir.",
   "taglineEn": "I did not come to be served, but to serve.",
@@ -31,5 +31,6 @@
   "nfcUrl": "https://hub.mpdgi.org/",
   "customDomain": "https://hub.mpdgi.org/",
   "legacyGitHubPagesUrl": "https://kl4ne.github.io/mpdgi-hub/",
-  "square": "https://square.link/u/8veQoUxF"
+  "square": "https://square.link/u/8veQoUxF",
+  "tiktok": "https://www.tiktok.com/@mpdginc"
 }

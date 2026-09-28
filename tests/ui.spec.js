@@ -110,3 +110,24 @@ test('English giving instructions translate correctly',async({page})=>{
   await expect(page.locator('.copy-button')).toHaveText('Copy email');
   await expect(page.locator('.payment-wallet-cashapp')).toContainText('Cash App Pay');
 });
+
+
+test('social modal includes Facebook, Instagram, YouTube and TikTok brand links',async({page})=>{
+  await page.goto('/',{waitUntil:'networkidle'});
+  await page.locator('[data-card-id="social"] .card-action').click();
+  await expect(page.locator('.social-facebook')).toHaveAttribute('href','https://www.facebook.com/mpdginc');
+  await expect(page.locator('.social-instagram')).toHaveAttribute('href','https://www.instagram.com/mpdginc/');
+  await expect(page.locator('.social-youtube')).toHaveAttribute('href','https://www.youtube.com/@ministerioplenituddegracia');
+  await expect(page.locator('.social-tiktok')).toHaveAttribute('href','https://www.tiktok.com/@mpdginc');
+  await expect(page.locator('.social-facebook .social-brand-facebook')).toHaveCount(1);
+  await expect(page.locator('.social-instagram .social-brand-instagram')).toHaveCount(1);
+  await expect(page.locator('.social-youtube .social-brand-youtube')).toHaveCount(1);
+  await expect(page.locator('.social-tiktok .social-brand-tiktok')).toHaveCount(1);
+});
+
+test('social card subtitle includes TikTok in both languages',async({page})=>{
+  await page.goto('/',{waitUntil:'networkidle'});
+  await expect(page.locator('[data-card-id="social"] .card-subtitle')).toContainText('TikTok');
+  await page.locator('#language-toggle').click();
+  await expect(page.locator('[data-card-id="social"] .card-subtitle')).toContainText('TikTok');
+});
