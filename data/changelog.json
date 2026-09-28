@@ -9,9 +9,10 @@
       "Removed unused icon-512.svg, dead primary-button CSS, unused Zelle SVG code and unused route metadata.",
       "Changed config and links caching to stale-while-revalidate for faster startup on slow connections.",
       "Added WebKit QA, Chromium offline reload coverage and bilingual accessibility-label tests.",
-      "Added a post-deployment production smoke workflow for hub.mpdgi.org.",
+      "Added a post-deployment production smoke check in the main QA pipeline for hub.mpdgi.org.",
       "Updated CI to Node 24, actions/checkout v7, actions/setup-node v7, Playwright 1.63.0 and Lighthouse 13.5.0.",
-      "Synchronized package, runtime and configuration release metadata to v1.4.5 without changing the approved visual layout."
+      "Synchronized package, runtime and configuration release metadata to v1.4.5 without changing the approved visual layout.",
+      "Scoped WebKit to a focused mobile smoke suite so cross-browser coverage remains fast and stable."
     ]
   },
   {

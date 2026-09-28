@@ -53,3 +53,29 @@ jobs:
           if(scores.accessibility < .90) throw Error('Lighthouse accessibility below 0.90');
           if(scores['best-practices'] < .90) throw Error('Lighthouse best-practices below 0.90');
           NODE
+
+      - name: Production smoke after Pages deployment
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          EXPECTED=$(node -e "require('./js/version.js'); process.stdout.write(globalThis.MPDGI_HUB_VERSION)")
+          echo "Expected production version: $EXPECTED"
+          for i in {1..20}; do
+            HTML=$(curl -fsSL https://hub.mpdgi.org/ 2>/dev/null || true)
+            APP=$(curl -fsSL https://hub.mpdgi.org/js/app.js 2>/dev/null || true)
+            VERSION=$(curl -fsSL https://hub.mpdgi.org/js/version.js 2>/dev/null || true)
+            CONFIG=$(curl -fsSL https://hub.mpdgi.org/data/config.json 2>/dev/null || true)
+            if grep -q "MPDGI Hub" <<<"$HTML" \
+              && grep -q "MPDGI_HUB_VERSION='$EXPECTED'" <<<"$VERSION" \
+              && grep -q "globalThis.MPDGI_HUB_VERSION" <<<"$APP" \
+              && grep -q "\"version\": \"$EXPECTED\"" <<<"$CONFIG"; then
+              FINAL_URL=$(curl -sS -L -o /dev/null -w '%{url_effective}' http://hub.mpdgi.org/)
+              [[ "$FINAL_URL" == https://hub.mpdgi.org/* ]] || { echo "HTTP did not redirect to HTTPS: $FINAL_URL"; exit 1; }
+              echo "Production smoke passed for v$EXPECTED"
+              exit 0
+            fi
+            echo "Production not ready yet (attempt $i/20); retrying..."
+            sleep 15
+          done
+          echo "Production did not reach expected version $EXPECTED within retry window."
+          exit 1

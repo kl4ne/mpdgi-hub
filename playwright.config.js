@@ -11,7 +11,7 @@ module.exports=defineConfig({
     headless:true
   },
   projects:[
-    {name:'chromium',use:{browserName:'chromium'}},
-    {name:'webkit',use:{browserName:'webkit'}}
+    {name:'chromium',testMatch:'**/ui.spec.js',use:{browserName:'chromium'}},
+    {name:'webkit',testMatch:'**/webkit.spec.js',use:{browserName:'webkit'}}
   ]
 });

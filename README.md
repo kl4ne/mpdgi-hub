@@ -14,7 +14,7 @@ This maintenance release keeps the approved visual design while improving the co
 - Changed config/link data caching to stale-while-revalidate so cached content appears immediately on slow connections while fresh data updates in the background.
 - Added WebKit/iPhone-oriented browser QA in addition to Chromium.
 - Added a real offline reload test and bilingual accessibility-label tests.
-- Added a post-deployment production smoke workflow for `https://hub.mpdgi.org/`.
+- Added a post-deployment production smoke check in the main QA pipeline for `https://hub.mpdgi.org/`.
 - Updated CI to Node 24, `actions/checkout@v7`, `actions/setup-node@v7`, Playwright 1.63.0 and Lighthouse 13.5.0.
 - Synchronized the package, runtime and configuration release version at 1.4.5.
 
@@ -89,7 +89,7 @@ The domain is church-owned and can remain stable even if the underlying hosting 
 
 ## Automated QA
 
-GitHub Actions validates version/config/PWA consistency, HTTPS routes, custom-domain configuration, recursive secret detection, Chromium and WebKit behavior, four mobile viewport sizes, offline reload, eight cards, ES/EN switching, modal flows, overflow, console errors and Lighthouse thresholds. A separate production smoke workflow verifies the deployed custom domain after GitHub Pages completes.
+GitHub Actions validates version/config/PWA consistency, HTTPS routes, custom-domain configuration, recursive secret detection, Chromium and WebKit behavior, four mobile viewport sizes, offline reload, eight cards, ES/EN switching, modal flows, overflow, console errors and Lighthouse thresholds. The main QA pipeline waits for GitHub Pages propagation and verifies the deployed custom domain before the release is considered complete.
 
 ## Security
 

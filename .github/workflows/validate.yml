@@ -55,15 +55,15 @@ jobs:
             'css/style.css','js/version.js','js/app.js','data/config.json','data/links.json','data/changelog.json',
             'assets/profile/logo-mpdg.png','assets/icons/icon-192.png','assets/icons/icon-512.png','assets/icons/apple-touch-icon.png',
             'assets/social/mpdgi-hub-share.svg','assets/qr/README.md',
-            'package.json','playwright.config.js','tests/ui.spec.js',
-            '.github/workflows/qa.yml','.github/workflows/production-smoke.yml',
+            'package.json','playwright.config.js','tests/ui.spec.js','tests/webkit.spec.js',
+            '.github/workflows/qa.yml',
             ...brandAssets
           ];
           for(const p of must)if(!fs.existsSync(p))throw Error('Missing: '+p);
           if(fs.existsSync('assets/icons/icon-512.svg'))throw Error('Unused icon-512.svg must remain removed');
 
           const index=read('index.html'),css=read('css/style.css'),app=read('js/app.js'),sw=read('sw.js');
-          const qa=read('.github/workflows/qa.yml'),smoke=read('.github/workflows/production-smoke.yml');
+          const qa=read('.github/workflows/qa.yml');
           const manifest=json('manifest.json'),config=json('data/config.json'),links=json('data/links.json'),changelog=json('data/changelog.json'),pkg=json('package.json');
 
           delete globalThis.MPDGI_HUB_VERSION;
@@ -142,11 +142,10 @@ jobs:
           if(!pw.includes("name:'chromium'")||!pw.includes("name:'webkit'"))throw Error('Cross-browser projects missing');
           const tests=read('tests/ui.spec.js');
           if(!tests.includes('cached shell reloads offline in Chromium')||!tests.includes('accessibility labels switch with language'))throw Error('Maintenance QA tests missing');
-          for(const workflow of [qa,smoke]){
-            if(!workflow.includes('actions/checkout@v7')||!workflow.includes('actions/setup-node@v7')||!workflow.includes("node-version: '24'"))throw Error('Modern GitHub Actions runtime missing');
-          }
+          if(!qa.includes('actions/checkout@v7')||!qa.includes('actions/setup-node@v7')||!qa.includes("node-version: '24'"))throw Error('Modern GitHub Actions runtime missing');
           if(!qa.includes('lighthouse@13.5.0')||!qa.includes('chromium webkit'))throw Error('QA dependency/runtime upgrade missing');
-          if(!smoke.includes('https://hub.mpdgi.org/')||!smoke.includes('workflow_run'))throw Error('Production smoke workflow mismatch');
+          if(!qa.includes('Production smoke after Pages deployment')||!qa.includes('https://hub.mpdgi.org/'))throw Error('Production smoke check missing');
+          if(!read('tests/webkit.spec.js').includes('WebKit mobile layout'))throw Error('Focused WebKit smoke suite missing');
 
           const qr=read('assets/qr/README.md');
           if(!qr.includes('https://hub.mpdgi.org/')||!qr.includes('NDEF URI/URL record'))throw Error('NFC documentation mismatch');
