@@ -16,6 +16,8 @@ const sample={
   browsers:[{key:'edge',value:22},{key:'chrome',value:40},{key:'safari',value:60},{key:'firefox',value:6},{key:'other',value:0}],
   languages:[{key:'es',value:103},{key:'en',value:25},{key:'other',value:0}],
   top_actions:[{key:'card_members',value:51},{key:'card_bible',value:34},{key:'give_square',value:12},{key:'directions',value:9}],
+  visitor_mix:[{key:'new',value:54},{key:'returning',value:30}],
+  campaigns:[{key:'credential-test',value:22},{key:'youth-campaign-2026',value:9}],
   health:{collector:'operational',database:'operational',last_event_at:'2026-09-29T18:58:00.000Z'}
 };
 
@@ -58,4 +60,25 @@ test('mobile Stats dashboard avoids horizontal overflow',async({page})=>{
   const dims=await page.evaluate(()=>({inner:innerWidth,scroll:document.documentElement.scrollWidth}));
   expect(dims.scroll).toBeLessThanOrEqual(dims.inner+1);
   await expect(page.locator('#source-donut')).toBeVisible();
+});
+
+
+test('custom report range drives dashboard request and keeps report controls professional',async({page})=>{
+  await page.route('**/api/auth/session',r=>r.fulfill({status:200,contentType:'application/json',body:'{"authenticated":true,"user":{"email":"owner@example.com","role":"owner"}}'}));
+  let requested='';
+  await page.route('**/api/dashboard**',r=>{
+    requested=r.request().url();
+    return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(sample)});
+  });
+  await page.goto('/',{waitUntil:'networkidle'});
+  await page.locator('#range-select').selectOption('custom');
+  await expect(page.locator('#custom-range')).toBeVisible();
+  await page.locator('#range-from').fill('2026-09-01');
+  await page.locator('#range-to').fill('2026-09-29');
+  await page.locator('#apply-range').click();
+  await expect.poll(()=>requested).toContain('preset=custom');
+  expect(requested).toContain('from=2026-09-01');
+  expect(requested).toContain('to=2026-09-29');
+  await expect(page.locator('#visitor-mix-list')).toContainText('Nuevos');
+  await expect(page.locator('#campaigns-list')).toContainText('credential-test');
 });
