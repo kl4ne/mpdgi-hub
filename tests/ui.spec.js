@@ -145,9 +145,9 @@ test('shared runtime version is loaded and matches config',async({page})=>{
       config:config.version
     };
   });
-  expect(values.runtime).toBe('1.4.7');
-  expect(values.source).toBe('1.4.7');
-  expect(values.config).toBe('1.4.7');
+  expect(values.runtime).toBe('1.5.0');
+  expect(values.source).toBe('1.5.0');
+  expect(values.config).toBe('1.5.0');
 });
 
 test('accessibility labels switch with language',async({page})=>{
@@ -191,9 +191,9 @@ test('payment logos use known-good inline SVG rendering',async({page})=>{
 
 test('release-pinned assets prevent mixed-version CSS and JS',async({page})=>{
   await page.goto('/',{waitUntil:'networkidle'});
-  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.4.7.css');
-  await expect(page.locator('script[src="js/version-v1.4.7.js"]')).toHaveCount(1);
-  await expect(page.locator('script[src="js/app-v1.4.7.js"]')).toHaveCount(1);
+  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.5.0.css');
+  await expect(page.locator('script[src="js/version-v1.5.0.js"]')).toHaveCount(1);
+  await expect(page.locator('script[src="js/app-v1.5.0.js"]')).toHaveCount(1);
 });
 
 test('church address opens directions and translates its accessibility label',async({page})=>{
@@ -233,7 +233,7 @@ test('stored version mismatch repairs old MPDGI caches',async({page})=>{
     return !keys.includes('mpdgi-hub-shell-1.4.5')&&!keys.includes('mpdgi-hub-runtime-1.4.6-stale');
   },null,{timeout:10000});
   const keys=await page.evaluate(()=>caches.keys());
-  expect(keys).toContain('mpdgi-hub-shell-1.4.7');
+  expect(keys).toContain('mpdgi-hub-shell-1.5.0');
 });
 
 test('payment logos remain stable across repeated Chromium reopen cycles',async({context})=>{
@@ -263,4 +263,89 @@ test('About modal renders automatic copyright instead of the year placeholder',a
   await page.locator('#language-toggle').click();
   await page.locator('[data-card-id="about"] .card-action').click();
   await expect(page.locator('#modal-body')).not.toContainText('{year}');
+});
+
+
+test('NFC source is captured, URL is cleaned and collector receives separated attribution fields',async({page})=>{
+  const events=[];
+  await page.addInitScript(()=>{globalThis.__MPDGI_ANALYTICS_FORCE__=true;});
+  await page.route('https://stats.mpdgi.org/api/collect',async route=>{
+    const body=route.request().postData();
+    if(body)events.push(JSON.parse(body));
+    await route.fulfill({status:204,headers:{'access-control-allow-origin':'*'}});
+  });
+  await page.goto('/?src=nfc&campaign=credential-test',{waitUntil:'networkidle'});
+  await expect(page).toHaveURL(/\/$/);
+  await expect.poll(()=>events.some(e=>e.event_type==='session_start')).toBeTruthy();
+  const session=events.find(e=>e.event_type==='session_start');
+  expect(session.acquisition_source).toBe('nfc');
+  expect(session.acquisition_campaign).toBe('credential-test');
+  expect(session.session_entry).toBe('nfc');
+  expect(session.display_mode).toBe('browser');
+  expect(session.visitor_id).toMatch(/^[0-9a-f-]{36}$/);
+  expect(session.session_id).toMatch(/^[0-9a-f-]{36}$/);
+});
+
+test('first acquisition source stays immutable when a later attributed entry uses another source',async({page})=>{
+  const events=[];
+  await page.addInitScript(()=>{globalThis.__MPDGI_ANALYTICS_FORCE__=true;});
+  await page.route('https://stats.mpdgi.org/api/collect',async route=>{
+    const body=route.request().postData();
+    if(body)events.push(JSON.parse(body));
+    await route.fulfill({status:204,headers:{'access-control-allow-origin':'*'}});
+  });
+  await page.goto('/?src=qr',{waitUntil:'networkidle'});
+  events.length=0;
+  await page.goto('/?src=nfc',{waitUntil:'networkidle'});
+  await expect.poll(()=>events.some(e=>e.event_type==='session_start')).toBeTruthy();
+  const session=events.find(e=>e.event_type==='session_start');
+  expect(session.acquisition_source).toBe('qr');
+  expect(session.session_entry).toBe('nfc');
+});
+
+test('cookie continuity restores anonymous acquisition after local storage is cleared for an installed-PWA style launch',async({page,context})=>{
+  const events=[];
+  await page.addInitScript(()=>{globalThis.__MPDGI_ANALYTICS_FORCE__=true;});
+  await page.route('https://stats.mpdgi.org/api/collect',async route=>{
+    const body=route.request().postData();
+    if(body)events.push(JSON.parse(body));
+    await route.fulfill({status:204,headers:{'access-control-allow-origin':'*'}});
+  });
+  await page.goto('/?src=nfc',{waitUntil:'networkidle'});
+  const firstVisitor=await page.evaluate(()=>localStorage.getItem('mpdgiAnalyticsVisitorId'));
+  await page.evaluate(()=>localStorage.clear());
+  await page.close();
+
+  const p=await context.newPage();
+  await p.addInitScript(()=>{
+    globalThis.__MPDGI_ANALYTICS_FORCE__=true;
+    const native=window.matchMedia.bind(window);
+    window.matchMedia=query=>query==='(display-mode: standalone)'
+      ? {matches:true,media:query,onchange:null,addListener(){},removeListener(){},addEventListener(){},removeEventListener(){},dispatchEvent(){return false;}}
+      : native(query);
+  });
+  await p.route('https://stats.mpdgi.org/api/collect',async route=>{
+    const body=route.request().postData();
+    if(body)events.push(JSON.parse(body));
+    await route.fulfill({status:204,headers:{'access-control-allow-origin':'*'}});
+  });
+  events.length=0;
+  await p.goto('/',{waitUntil:'networkidle'});
+  await expect.poll(()=>events.some(e=>e.event_type==='session_start')).toBeTruthy();
+  const session=events.find(e=>e.event_type==='session_start');
+  expect(session.visitor_id).toBe(firstVisitor);
+  expect(session.acquisition_source).toBe('nfc');
+  expect(session.session_entry).toBe('pwa');
+  expect(session.display_mode).toBe('pwa');
+});
+
+test('analytics action markers cover core navigation without exposing Stats in the public Hub UI',async({page})=>{
+  await page.goto('/',{waitUntil:'networkidle'});
+  await expect(page.locator('text=MPDGI Stats')).toHaveCount(0);
+  await expect(page.locator('[data-card-id="members"] .card-action')).toHaveAttribute('data-analytics-action','card_members');
+  await expect(page.locator('#address-link')).toHaveAttribute('data-analytics-action','directions');
+  await page.locator('[data-card-id="give"] .card-action').click();
+  await expect(page.locator('.tithely-button')).toHaveAttribute('data-analytics-action','give_tithely');
+  await expect(page.locator('.square-button')).toHaveAttribute('data-analytics-action','give_square');
+  await expect(page.locator('.copy-button')).toHaveAttribute('data-analytics-action','give_zelle_copy');
 });
