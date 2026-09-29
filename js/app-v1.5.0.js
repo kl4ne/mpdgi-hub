@@ -204,6 +204,8 @@ function randomId(){
   const h=[...bytes].map(v=>v.toString(16).padStart(2,'0')).join('');
   return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`;
 }
+const ANALYTICS_UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+function validAnalyticsId(value){return ANALYTICS_UUID_RE.test(String(value||''));}
 function normalizeSource(value){
   const v=String(value||'').trim().toLowerCase();
   return VALID_ACQUISITION_SOURCES.has(v)?v:null;
@@ -252,7 +254,7 @@ function captureEntryHint(){
 }
 function resolveAnalyticsIdentity(entry){
   let visitorId=storageGet(ANALYTICS_VISITOR_KEY)||cookieGet('mpdgi_visitor_id');
-  if(!visitorId){visitorId=randomId();}
+  if(!validAnalyticsId(visitorId))visitorId=randomId();
   storageSet(ANALYTICS_VISITOR_KEY,visitorId);cookieSet('mpdgi_visitor_id',visitorId);
 
   let firstSource=normalizeSource(storageGet(ANALYTICS_FIRST_SOURCE_KEY))||normalizeSource(cookieGet('mpdgi_first_source'));
@@ -266,27 +268,33 @@ function resolveAnalyticsIdentity(entry){
   return {visitorId,firstSource,firstCampaign};
 }
 function resolveAnalyticsSession(entry){
-  const now=Date.now(),last=Number(storageGet(ANALYTICS_SESSION_LAST_KEY)||0);
-  let sessionId=storageGet(ANALYTICS_SESSION_KEY),sessionEntry=storageGet(ANALYTICS_SESSION_ENTRY_KEY);
+  const now=Date.now();
+  const last=Number(storageGet(ANALYTICS_SESSION_LAST_KEY)||cookieGet('mpdgi_session_last')||0);
+  let sessionId=storageGet(ANALYTICS_SESSION_KEY)||cookieGet('mpdgi_session_id');
+  let sessionEntry=storageGet(ANALYTICS_SESSION_ENTRY_KEY)||cookieGet('mpdgi_session_entry');
+  if(!validAnalyticsId(sessionId))sessionId='';
   const attributedEntry=entry.source&&entry.source!=='unattributed'?entry.source:null;
   const standalone=isStandaloneMode();
-  const expired=!sessionId||!last||now-last>ANALYTICS_SESSION_TIMEOUT;
+  const age=Number.isFinite(last)?now-last:ANALYTICS_SESSION_TIMEOUT+1;
+  const expired=!sessionId||!last||age<0||age>ANALYTICS_SESSION_TIMEOUT;
   const contextChanged=(standalone&&sessionEntry!=='pwa')||(!standalone&&sessionEntry==='pwa');
   const forceNew=Boolean(attributedEntry)||contextChanged;
   const isNew=expired||forceNew;
   if(isNew){
     sessionId=randomId();
     sessionEntry=attributedEntry||(standalone?'pwa':'web');
-    storageSet(ANALYTICS_SESSION_KEY,sessionId);
-    storageSet(ANALYTICS_SESSION_ENTRY_KEY,sessionEntry);
   }
-  sessionEntry=VALID_SESSION_ENTRIES.has(sessionEntry)?sessionEntry:(isStandaloneMode()?'pwa':'web');
-  storageSet(ANALYTICS_SESSION_LAST_KEY,String(now));
+  sessionEntry=VALID_SESSION_ENTRIES.has(sessionEntry)?sessionEntry:(standalone?'pwa':'web');
+  storageSet(ANALYTICS_SESSION_KEY,sessionId);cookieSet('mpdgi_session_id',sessionId,1800);
+  storageSet(ANALYTICS_SESSION_ENTRY_KEY,sessionEntry);cookieSet('mpdgi_session_entry',sessionEntry,1800);
+  storageSet(ANALYTICS_SESSION_LAST_KEY,String(now));cookieSet('mpdgi_session_last',String(now),1800);
   return {sessionId,sessionEntry,isNew};
 }
 function analyticsContext(){
   if(!analyticsState)return null;
-  storageSet(ANALYTICS_SESSION_LAST_KEY,String(Date.now()));
+  const activityNow=Date.now();
+  storageSet(ANALYTICS_SESSION_LAST_KEY,String(activityNow));cookieSet('mpdgi_session_last',String(activityNow),1800);
+  cookieSet('mpdgi_session_id',analyticsState.sessionId,1800);cookieSet('mpdgi_session_entry',analyticsState.sessionEntry,1800);
   return {
     schema_version:ANALYTICS_SCHEMA_VERSION,
     visitor_id:analyticsState.visitorId,
@@ -310,16 +318,19 @@ function queueAnalyticsPayload(payload){
   }catch{}
 }
 async function postAnalyticsPayload(payload,urgent=false){
-  if(!analyticsIsEnabled())return true;
-  const endpoint=safeHttpsUrl(config.analyticsCollector);if(!endpoint)return true;
+  if(!analyticsIsEnabled())return 'sent';
+  if(!navigator.onLine)return 'retry';
+  const endpoint=safeHttpsUrl(config.analyticsCollector);if(!endpoint)return 'drop';
   const body=JSON.stringify(payload);
   if(urgent&&navigator.sendBeacon){
-    try{if(navigator.sendBeacon(endpoint,new Blob([body],{type:'text/plain;charset=UTF-8'})))return true;}catch{}
+    try{if(navigator.sendBeacon(endpoint,new Blob([body],{type:'text/plain;charset=UTF-8'})))return 'sent';}catch{}
   }
   try{
     const response=await fetch(endpoint,{method:'POST',mode:'cors',credentials:'omit',cache:'no-store',keepalive:urgent,headers:{'Content-Type':'text/plain;charset=UTF-8'},body});
-    return response.ok;
-  }catch{return false;}
+    if(response.ok)return 'sent';
+    if(response.status>=400&&response.status<500)return 'drop';
+    return 'retry';
+  }catch{return 'retry';}
 }
 async function flushAnalyticsQueue(){
   if(!analyticsIsEnabled()||!navigator.onLine)return;
@@ -328,15 +339,15 @@ async function flushAnalyticsQueue(){
   if(!queue.length)return;
   const remaining=[];
   for(let i=0;i<queue.length;i++){
-    const ok=await postAnalyticsPayload(queue[i],false);
-    if(!ok){remaining.push(...queue.slice(i));break;}
+    const status=await postAnalyticsPayload(queue[i],false);
+    if(status==='retry'){remaining.push(...queue.slice(i));break;}
   }
   storageSet(ANALYTICS_QUEUE_KEY,JSON.stringify(remaining.slice(-ANALYTICS_MAX_QUEUE)));
 }
 function trackAnalytics(eventType,actionName='',target='',urgent=false){
   const context=analyticsContext();if(!context||!analyticsIsEnabled())return;
   const payload={...context,event_id:randomId(),event_type:eventType,action_name:String(actionName||'').slice(0,80),target:String(target||'').slice(0,160),client_ts:new Date().toISOString()};
-  void postAnalyticsPayload(payload,urgent).then(ok=>{if(!ok)queueAnalyticsPayload(payload);});
+  void postAnalyticsPayload(payload,urgent).then(status=>{if(status==='retry')queueAnalyticsPayload(payload);});
 }
 function markAnalytics(element,action,target=''){
   if(!element)return element;
