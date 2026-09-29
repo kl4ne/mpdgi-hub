@@ -28,7 +28,7 @@
   "square": "https://square.link/u/8veQoUxF",
   "tiktok": "https://www.tiktok.com/@mpdginc",
   "analyticsEnabled": true,
-  "analyticsCollector": "https://stats.mpdgi.org/api/collect",
+  "analyticsCollector": "https://mpdgi-stats.pages.dev/api/collect",
   "analyticsSources": {
     "nfc": "https://hub.mpdgi.org/?src=nfc",
     "qr": "https://hub.mpdgi.org/?src=qr",
