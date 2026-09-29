@@ -35,6 +35,31 @@ CREATE TABLE IF NOT EXISTS collector_rate (
   event_count INTEGER NOT NULL DEFAULT 0
 );
 
+CREATE TABLE IF NOT EXISTS visitors (
+  visitor_id TEXT PRIMARY KEY,
+  acquisition_source TEXT NOT NULL,
+  acquisition_campaign TEXT NOT NULL DEFAULT '',
+  first_seen_at TEXT NOT NULL,
+  first_seen_day_et TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_visitors_first_day ON visitors(first_seen_day_et);
+CREATE INDEX IF NOT EXISTS idx_visitors_source ON visitors(acquisition_source);
+
+CREATE TABLE IF NOT EXISTS sessions (
+  session_id TEXT PRIMARY KEY,
+  visitor_id TEXT NOT NULL,
+  session_entry TEXT NOT NULL,
+  display_mode TEXT NOT NULL,
+  first_seen_at TEXT NOT NULL,
+  first_seen_day_et TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_sessions_visitor ON sessions(visitor_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_first_day ON sessions(first_seen_day_et);
+CREATE INDEX IF NOT EXISTS idx_sessions_entry ON sessions(session_entry);
+CREATE INDEX IF NOT EXISTS idx_sessions_display ON sessions(display_mode);
+
 CREATE TABLE IF NOT EXISTS events (
   event_id TEXT PRIMARY KEY,
   visitor_id TEXT NOT NULL,
