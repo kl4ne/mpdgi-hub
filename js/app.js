@@ -350,7 +350,7 @@ function setupAnalyticsInteractions(){
 }
 function initAnalytics(){
   if(!analyticsIsEnabled())return;
-  const entry=captureEntryHint();
+  const entry=INITIAL_ANALYTICS_ENTRY;
   const identity=resolveAnalyticsIdentity(entry);
   const session=resolveAnalyticsSession(entry);
   analyticsState={...identity,...session};
@@ -359,6 +359,8 @@ function initAnalytics(){
   if(session.isNew)trackAnalytics('session_start');
   trackAnalytics('page_view');
 }
+
+const INITIAL_ANALYTICS_ENTRY=captureEntryHint();
 
 let config={...DEFAULT_CONFIG},links=[...FALLBACK_LINKS],currentLanguage='es',installPrompt=null,lastModalTrigger=null,pendingUpdateReload=false,cacheRepairNeeded=detectStoredVersionMismatch(),analyticsState=null;
 
