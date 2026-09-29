@@ -78,7 +78,7 @@ const DEFAULT_CONFIG={
   bibleEnglish:'https://www.biblegateway.com/versions/King-James-Version-KJV-Bible/',
   defaultLanguage:'es',
   analyticsEnabled:true,
-  analyticsCollector:'https://stats.mpdgi.org/api/collect'
+  analyticsCollector:'https://mpdgi-stats.pages.dev/api/collect'
 };
 
 const FALLBACK_LINKS=[
