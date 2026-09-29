@@ -22,7 +22,7 @@
   "defaultLanguage": "es",
   "developer": "Roberto S. Macfie",
   "hubUrl": "https://hub.mpdgi.org/",
-  "nfcUrl": "https://hub.mpdgi.org/",
+  "nfcUrl": "https://hub.mpdgi.org/?src=nfc",
   "customDomain": "https://hub.mpdgi.org/",
   "legacyGitHubPagesUrl": "https://kl4ne.github.io/mpdgi-hub/",
   "square": "https://square.link/u/8veQoUxF",
@@ -33,5 +33,7 @@
     "nfc": "https://hub.mpdgi.org/?src=nfc",
     "qr": "https://hub.mpdgi.org/?src=qr",
     "link": "https://hub.mpdgi.org/?src=link"
-  }
+  },
+  "qrUrl": "https://hub.mpdgi.org/?src=qr",
+  "sharedLinkUrl": "https://hub.mpdgi.org/?src=link"
 }
