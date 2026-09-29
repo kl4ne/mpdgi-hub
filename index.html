@@ -2,121 +2,171 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
-  <title>MPDGI Hub • Ministerio Plenitud de Gracia</title>
-  <meta name="description" content="Hub digital oficial de Ministerio Plenitud de Gracia: miembros, ofrendas, oración, Biblia, ministerios, redes sociales y recursos oficiales.">
-  <meta name="application-name" content="MPDGI Hub">
-  <meta name="theme-color" content="#071A36">
-  <meta name="color-scheme" content="dark">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests;">
   <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#071A36">
+  <meta name="color-scheme" content="light">
+  <title>MPDGI Stats • Private Analytics Center</title>
+  <meta name="description" content="Private analytics center for Ministerio Plenitud de Gracia administrators.">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
   <link rel="apple-touch-icon" sizes="192x192" href="assets/icons/apple-touch-icon.png">
-  <link rel="canonical" href="https://hub.mpdgi.org/">
-  <link rel="stylesheet" href="css/style-v1.4.7.css">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="MPDGI Hub">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="MPDGI Hub • Ministerio Plenitud de Gracia">
-  <meta property="og:description" content="Acceso rápido a los recursos oficiales de Ministerio Plenitud de Gracia.">
-  <meta property="og:url" content="https://hub.mpdgi.org/">
-  <meta property="og:image" content="https://hub.mpdgi.org/assets/social/mpdgi-hub-share.svg">
-  <meta property="og:image:secure_url" content="https://hub.mpdgi.org/assets/social/mpdgi-hub-share.svg">
-  <meta property="og:image:type" content="image/svg+xml">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Ministerio Plenitud de Gracia — Conéctate con nosotros">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="MPDGI Hub • Ministerio Plenitud de Gracia">
-  <meta name="twitter:description" content="Acceso rápido a los recursos oficiales de Ministerio Plenitud de Gracia.">
-  <meta name="twitter:image" content="https://hub.mpdgi.org/assets/social/mpdgi-hub-share.svg">
+  <link rel="stylesheet" href="css/stats.css">
 </head>
 <body>
-  <a class="skip-link" href="#main-content">Saltar al contenido</a>
-  <div class="page-glow page-glow-left" aria-hidden="true"></div>
-  <div class="page-glow page-glow-right" aria-hidden="true"></div>
-
-  <main id="main-content" class="hub-shell">
-    <header class="hero" aria-labelledby="church-name">
-      <div class="hero-tools">
-        <div id="offline-badge" class="offline-badge" role="status" aria-live="polite" hidden></div>
-        <button type="button" id="language-toggle" class="language-toggle" aria-label="Cambiar idioma a inglés">
-          <span class="globe-mark" aria-hidden="true">◎</span>
-          <span id="language-code">ES</span>
-        </button>
+  <div id="login-view" class="login-view">
+    <aside class="login-brand-panel" aria-hidden="true">
+      <div class="login-brand-content">
+        <p class="gold-script">Personas · Discípulos · Impacto Global</p>
+        <div class="gold-rule"></div>
+        <div class="feature"><span>▥</span><div><strong>Reportes</strong><small>Información clara para decisiones ministeriales</small></div></div>
+        <div class="feature"><span>↗</span><div><strong>Fuentes</strong><small>NFC, QR, enlaces y web</small></div></div>
+        <div class="feature"><span>◎</span><div><strong>Uso</strong><small>Sesiones, PWA, dispositivos y acciones</small></div></div>
+        <div class="feature"><span>⇩</span><div><strong>Exportar</strong><small>CSV y reportes profesionales imprimibles</small></div></div>
       </div>
+    </aside>
 
-      <div class="hero-panel">
-        <div class="logo-stage">
-          <span class="logo-glow" aria-hidden="true"></span>
-          <img class="church-logo" src="assets/profile/logo-mpdg.png" width="192" height="192" alt="Logo oficial de Ministerio Plenitud de Gracia" fetchpriority="high">
-        </div>
-        <h1 id="church-name"><span>Ministerio</span><strong>Plenitud de Gracia</strong></h1>
-        <blockquote id="tagline" class="tagline">“Yo no he venido a ser servido, sino a servir.”</blockquote>
-        <p id="scripture" class="scripture">Mateo 20:28</p>
-      </div>
-    </header>
+    <main class="login-main">
+      <section class="login-card" aria-labelledby="login-title">
+        <img class="stats-logo" src="assets/profile/logo-mpdg.png" alt="Ministerio Plenitud de Gracia">
+        <p class="stats-wordmark">MPDGI <span>STATS</span></p>
+        <h1 id="login-title">MPDGI Stats</h1>
+        <p class="login-subtitle">Private Analytics Center</p>
+        <div class="mini-rule"></div>
+        <p class="authorized">🔒 <strong>Acceso autorizado solamente</strong></p>
+        <p class="login-help">Inicia sesión para ver las estadísticas privadas de MPDGI.</p>
 
-    <section class="links-section" aria-labelledby="links-heading">
-      <h2 id="links-heading" class="visually-hidden">Accesos principales</h2>
-      <div id="links-container" class="links-grid" aria-live="polite" aria-busy="true">
-        <div class="loading-card" aria-hidden="true"></div>
-        <div class="loading-card" aria-hidden="true"></div>
-        <div class="loading-card" aria-hidden="true"></div>
-        <div class="loading-card" aria-hidden="true"></div>
-      </div>
-      <noscript><p class="noscript-note">JavaScript es requerido para el Hub. Visita <a href="https://mpdgi.org">mpdgi.org</a>.</p></noscript>
-    </section>
+        <form id="login-form" novalidate>
+          <label for="login-email">Correo electrónico</label>
+          <input id="login-email" name="email" type="email" autocomplete="username" required maxlength="160">
+          <label for="login-password">Contraseña</label>
+          <input id="login-password" name="password" type="password" autocomplete="current-password" required minlength="12" maxlength="128">
+          <label class="remember-row"><input id="login-remember" type="checkbox"> <span>Recordarme en este dispositivo</span></label>
+          <button id="login-button" class="primary-button" type="submit">Entrar</button>
+          <p id="login-error" class="form-error" role="alert" hidden></p>
+        </form>
 
-    <div class="wave-separator" aria-hidden="true">
-      <svg viewBox="0 0 640 64" preserveAspectRatio="none">
-        <path class="wave-deep" d="M0 34C82 9 143 58 223 33c80-25 130 17 210 5 80-12 132-42 207-21v47H0Z"/>
-        <path class="wave-gold" d="M0 27c87-22 151 33 235 25 83-8 133-35 214-25 76 9 119-16 191-13v8c-76-2-117 23-190 14-81-10-132 18-214 25C151 69 83 14 0 36Z"/>
-        <path class="wave-blue" d="M0 41c82-19 140 22 217 17 82-5 136-28 220-16 77 11 127-8 203-9v31H0Z"/>
-      </svg>
-    </div>
-
-    <section class="visit-info" aria-label="Información de la iglesia">
-      <div class="visit-row visit-address">
-        <span class="visit-icon" data-info-icon="pin" aria-hidden="true"></span>
-        <a id="address-link" class="visit-address-link" href="https://www.google.com/maps/dir/?api=1&amp;destination=1045%20E%20Normandy%20Blvd%2C%20Deltona%2C%20FL%2032725" target="_blank" rel="noopener noreferrer" aria-label="Abrir indicaciones para llegar a Ministerio Plenitud de Gracia">
-          <p id="address-text">1045 E Normandy Blvd<br>Deltona, FL 32725</p>
-        </a>
-      </div>
-      <div class="visit-divider" aria-hidden="true"></div>
-      <div class="visit-row">
-        <span class="visit-icon" data-info-icon="clock" aria-hidden="true"></span>
-        <p><strong id="sunday-label">Domingos</strong><br><span id="sunday-time">10:00 AM</span></p>
-      </div>
-      <div class="visit-divider" aria-hidden="true"></div>
-      <div class="visit-row">
-        <span class="visit-icon" data-info-icon="book" aria-hidden="true"></span>
-        <p><strong id="wednesday-label">Miércoles</strong><br><span id="wednesday-time">7:00 PM</span></p>
-      </div>
-    </section>
-
-    <footer class="hub-footer">
-      <p id="developer-credit" class="developer-credit">Designed &amp; Developed by Roberto S. Macfie for MPDGI</p>
-      <p id="copyright-text">© 2026 Ministerio Plenitud de Gracia. Todos los derechos reservados.</p>
-    </footer>
-  </main>
-
-  <div id="modal-overlay" class="modal-overlay" hidden>
-    <section id="hub-modal" class="hub-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
-      <div class="modal-head">
-        <div>
-          <p class="modal-kicker">MPDGI</p>
-          <h2 id="modal-title" class="modal-title"></h2>
-        </div>
-        <button type="button" id="modal-close" class="modal-close" aria-label="Cerrar">×</button>
-      </div>
-      <div id="modal-body" class="modal-body"></div>
-    </section>
+        <p class="secure-note">🔒 Acceso privado para administradores aprobados de MPDGI.</p>
+      </section>
+    </main>
   </div>
 
-  <script src="js/version-v1.4.7.js"></script>
-  <script src="js/app-v1.4.7.js"></script>
+  <div id="app-view" class="app-view" hidden>
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="assets/profile/logo-mpdg.png" alt="">
+        <strong>MPDGI</strong><span>STATS</span>
+      </div>
+      <nav aria-label="Stats navigation">
+        <a class="nav-item active" href="#overview">⌂ <span>Dashboard</span></a>
+        <a class="nav-item" href="#reports">▥ <span>Reportes</span></a>
+        <a class="nav-item" href="#sources">↗ <span>Fuentes</span></a>
+        <a class="nav-item" href="#engagement">◎ <span>Uso</span></a>
+        <a class="nav-item" href="#devices">▣ <span>Dispositivos</span></a>
+        <a class="nav-item" href="#exports">⇩ <span>Exportar</span></a>
+      </nav>
+      <div class="sidebar-bottom">
+        <small>Ministerio Plenitud de Gracia</small>
+        <span>Solo administradores autorizados</span>
+      </div>
+    </aside>
+
+    <main class="dashboard">
+      <header class="dashboard-header">
+        <div>
+          <h1>MPDGI Stats</h1>
+          <p>Private Analytics Center</p>
+        </div>
+        <div class="header-actions">
+          <label class="range-control">Período
+            <select id="range-select">
+              <option value="7d">Últimos 7 días</option>
+              <option value="30d" selected>Últimos 30 días</option>
+              <option value="90d">Últimos 90 días</option>
+              <option value="365d">Últimos 12 meses</option>
+            </select>
+          </label>
+          <button id="print-button" class="secondary-button" type="button">🖨 Imprimir / PDF</button>
+          <button id="export-button" class="primary-button compact" type="button">⇩ CSV</button>
+          <button id="language-button" class="secondary-button compact" type="button" aria-label="Cambiar idioma">ES</button>
+          <button id="logout-button" class="secondary-button compact" type="button">Salir</button>
+        </div>
+      </header>
+
+      <section id="report-header" class="print-report-header">
+        <div>
+          <p class="report-org">MINISTERIO PLENITUD DE GRACIA</p>
+          <h2>MPDGI Stats <span>Analytics Report</span></h2>
+          <p id="print-range">—</p>
+        </div>
+        <img src="assets/profile/logo-mpdg.png" alt="">
+      </section>
+
+      <section id="overview" class="section">
+        <div class="section-heading">
+          <div><h2>Resumen</h2><p id="range-label">Cargando período…</p></div>
+          <span id="generated-label" class="generated-label"></span>
+        </div>
+
+        <div class="metrics-grid">
+          <article class="metric-card"><span class="metric-icon">◉</span><p>Visitas (sesiones)</p><strong id="metric-visits">—</strong><small id="metric-visits-change"></small></article>
+          <article class="metric-card"><span class="metric-icon">◎</span><p>Visitantes únicos estimados</p><strong id="metric-unique">—</strong><small id="metric-unique-change"></small></article>
+          <article class="metric-card"><span class="metric-icon">▣</span><p>Sesiones desde PWA</p><strong id="metric-pwa">—</strong><small id="metric-pwa-change"></small></article>
+          <article class="metric-card"><span class="metric-icon">▤</span><p>Page Views</p><strong id="metric-pageviews">—</strong><small id="metric-pageviews-change"></small></article>
+        </div>
+      </section>
+
+      <section id="reports" class="section grid-two">
+        <article class="panel">
+          <div class="panel-head"><h2>Visitas diarias</h2><span id="daily-total"></span></div>
+          <div id="daily-chart" class="daily-chart" role="img" aria-label="Visitas diarias"></div>
+        </article>
+        <article id="sources" class="panel">
+          <div class="panel-head"><h2>Fuente de adquisición</h2><span>Visitantes estimados</span></div>
+          <div class="donut-layout">
+            <div id="source-donut" class="donut"><div><strong id="source-total">0</strong><small>Total</small></div></div>
+            <div id="source-legend" class="legend-list"></div>
+          </div>
+        </article>
+      </section>
+
+      <section id="engagement" class="section grid-three">
+        <article class="panel"><div class="panel-head"><h2>Entrada de sesión</h2></div><div id="session-entry-list" class="bar-list"></div></article>
+        <article class="panel"><div class="panel-head"><h2>Acciones principales</h2></div><div id="actions-list" class="bar-list"></div></article>
+        <article class="panel"><div class="panel-head"><h2>Modo de uso</h2></div><div id="display-list" class="bar-list"></div></article>
+      </section>
+
+      <section id="devices" class="section grid-three">
+        <article class="panel"><div class="panel-head"><h2>Dispositivos</h2></div><div id="devices-list" class="bar-list"></div></article>
+        <article class="panel"><div class="panel-head"><h2>Navegadores</h2></div><div id="browsers-list" class="bar-list"></div></article>
+        <article class="panel"><div class="panel-head"><h2>Idiomas</h2></div><div id="languages-list" class="bar-list"></div></article>
+      </section>
+
+      <section class="section">
+        <article class="panel health-panel">
+          <div class="panel-head"><h2>Estado del sistema</h2><span id="health-overall" class="health-ok">● Verificando…</span></div>
+          <div class="health-grid">
+            <div><span>Collector</span><strong id="health-collector">—</strong></div>
+            <div><span>Base de datos</span><strong id="health-db">—</strong></div>
+            <div><span>Último evento</span><strong id="health-last-event">—</strong></div>
+          </div>
+        </article>
+      </section>
+
+      <section id="exports" class="section report-note">
+        <h2>Reportes</h2>
+        <p>El dashboard, la exportación CSV y el reporte impreso utilizan los mismos datos agregados del servidor. No se exportan identificadores anónimos individuales.</p>
+      </section>
+
+      <footer class="stats-footer">
+        <span>MPDGI Stats v<span id="stats-version">1.0.0</span></span>
+        <span>🔒 For authorized administrators only.</span>
+      </footer>
+    </main>
+  </div>
+
+  <script src="js/stats-version.js"></script>
+  <script src="js/stats.js"></script>
 </body>
 </html>
