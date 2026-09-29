@@ -18,10 +18,10 @@ Create one Cloudflare Pages project from this existing GitHub repository and sel
 - Repository: `kl4ne/mpdgi-hub`
 - Production branch: `mpdgi-stats-v1.0`
 - Framework preset: None
-- Build command: leave empty
-- Build output directory: `/` (repository root)
+- Build command: `exit 0`
+- Build output directory: `public`
 
-The Stats app uses Pages Functions. Static assets do not invoke Functions.
+The Stats app uses Pages Functions. Only the curated `public/` directory is deployed as static content; server code, migrations, tests and deployment notes remain outside the public web root.
 
 Create one D1 database named approximately:
 
