@@ -349,3 +349,39 @@ test('analytics action markers cover core navigation without exposing Stats in t
   await expect(page.locator('.square-button')).toHaveAttribute('data-analytics-action','give_square');
   await expect(page.locator('.copy-button')).toHaveAttribute('data-analytics-action','give_zelle_copy');
 });
+
+
+test('switching from browser use to installed-PWA mode starts a PWA session without changing acquisition',async({page,context})=>{
+  const events=[];
+  await page.addInitScript(()=>{globalThis.__MPDGI_ANALYTICS_FORCE__=true;});
+  await page.route('https://stats.mpdgi.org/api/collect',async route=>{
+    const body=route.request().postData();if(body)events.push(JSON.parse(body));
+    await route.fulfill({status:204,headers:{'access-control-allow-origin':'*'}});
+  });
+  await page.goto('/?src=link',{waitUntil:'networkidle'});
+  const visitor=await page.evaluate(()=>localStorage.getItem('mpdgiAnalyticsVisitorId'));
+  const saved=await page.evaluate(()=>Object.fromEntries(Object.entries(localStorage)));
+  await page.close();
+
+  const p=await context.newPage();
+  await p.addInitScript(state=>{
+    globalThis.__MPDGI_ANALYTICS_FORCE__=true;
+    for(const [key,value] of Object.entries(state))localStorage.setItem(key,value);
+    const native=window.matchMedia.bind(window);
+    window.matchMedia=query=>query==='(display-mode: standalone)'
+      ? {matches:true,media:query,onchange:null,addListener(){},removeListener(){},addEventListener(){},removeEventListener(){},dispatchEvent(){return false;}}
+      : native(query);
+  },saved);
+  await p.route('https://stats.mpdgi.org/api/collect',async route=>{
+    const body=route.request().postData();if(body)events.push(JSON.parse(body));
+    await route.fulfill({status:204,headers:{'access-control-allow-origin':'*'}});
+  });
+  events.length=0;
+  await p.goto('/',{waitUntil:'networkidle'});
+  await expect.poll(()=>events.some(e=>e.event_type==='session_start')).toBeTruthy();
+  const session=events.find(e=>e.event_type==='session_start');
+  expect(session.visitor_id).toBe(visitor);
+  expect(session.acquisition_source).toBe('link');
+  expect(session.session_entry).toBe('pwa');
+  expect(session.display_mode).toBe('pwa');
+});
