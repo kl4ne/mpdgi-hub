@@ -55,12 +55,21 @@ export async function onRequest(context){
   }
 
   try{
-    await context.env.STATS_DB.prepare(
-      'INSERT OR IGNORE INTO events(event_id,visitor_id,session_id,event_type,acquisition_source,acquisition_campaign,session_entry,display_mode,language,app_version,device_category,browser,action_name,target,client_ts,server_ts,server_day_et) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
-    ).bind(
-      event.event_id,event.visitor_id,event.session_id,event.event_type,event.acquisition_source,event.acquisition_campaign,event.session_entry,
-      event.display_mode,event.language,event.app_version,event.device_category,event.browser,event.action_name,event.target,event.client_ts||null,serverTs,day
-    ).run();
+    // Server-side canonical truth: first acquisition and session-entry values never mutate.
+    await context.env.STATS_DB.batch([
+      context.env.STATS_DB.prepare(
+        'INSERT OR IGNORE INTO visitors(visitor_id,acquisition_source,acquisition_campaign,first_seen_at,first_seen_day_et) VALUES(?,?,?,?,?)'
+      ).bind(event.visitor_id,event.acquisition_source,event.acquisition_campaign,serverTs,day),
+      context.env.STATS_DB.prepare(
+        'INSERT OR IGNORE INTO sessions(session_id,visitor_id,session_entry,display_mode,first_seen_at,first_seen_day_et) VALUES(?,?,?,?,?,?)'
+      ).bind(event.session_id,event.visitor_id,event.session_entry,event.display_mode,serverTs,day),
+      context.env.STATS_DB.prepare(
+        'INSERT OR IGNORE INTO events(event_id,visitor_id,session_id,event_type,acquisition_source,acquisition_campaign,session_entry,display_mode,language,app_version,device_category,browser,action_name,target,client_ts,server_ts,server_day_et) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+      ).bind(
+        event.event_id,event.visitor_id,event.session_id,event.event_type,event.acquisition_source,event.acquisition_campaign,event.session_entry,
+        event.display_mode,event.language,event.app_version,event.device_category,event.browser,event.action_name,event.target,event.client_ts||null,serverTs,day
+      )
+    ]);
     return new Response(null,{status:204,headers:corsHeaders(origin)});
   }catch(error){
     console.error('[MPDGI Stats] collector D1 failure',error);
