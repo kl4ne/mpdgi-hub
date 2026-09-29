@@ -7,6 +7,13 @@ function bytesToBase64Url(bytes){
   let binary='';for(const b of bytes)binary+=String.fromCharCode(b);
   return btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 }
+export function randomToken(size=32){
+  const bytes=new Uint8Array(size);crypto.getRandomValues(bytes);return bytesToBase64Url(bytes);
+}
+export async function sha256(value){
+  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(String(value)));
+  return bytesToBase64Url(new Uint8Array(digest));
+}
 export async function passwordVerifier(password,salt,pepper){
   const secret=new TextEncoder().encode(String(pepper||''));
   const key=await crypto.subtle.importKey('raw',secret,{name:'HMAC',hash:'SHA-256'},false,['sign']);
@@ -16,9 +23,9 @@ export async function passwordVerifier(password,salt,pepper){
 }
 export function passwordSalt(){return randomToken(18);}
 export function constantTimeEqual(a,b){
-  const x=String(a||''),y=String(b||'');let diff=x.length^y.length;
+  const x=new TextEncoder().encode(String(a||'')),y=new TextEncoder().encode(String(b||''));let diff=x.length^y.length;
   const len=Math.max(x.length,y.length);
-  for(let i=0;i<len;i++)diff|=(x.charCodeAt(i%x.length||0)||0)^(y.charCodeAt(i%y.length||0)||0);
+  for(let i=0;i<len;i++)diff|=(x[i]||0)^(y[i]||0);
   return diff===0;
 }
 export function sessionCookie(token,maxAge){
