@@ -84,9 +84,17 @@
               <option value="7d">Últimos 7 días</option>
               <option value="30d" selected>Últimos 30 días</option>
               <option value="90d">Últimos 90 días</option>
+              <option value="month">Este mes</option>
+              <option value="year">Este año</option>
               <option value="365d">Últimos 12 meses</option>
+              <option value="custom">Rango personalizado</option>
             </select>
           </label>
+          <div id="custom-range" class="custom-range" hidden>
+            <label>Desde<input id="range-from" type="date"></label>
+            <label>Hasta<input id="range-to" type="date"></label>
+            <button id="apply-range" class="secondary-button compact" type="button">Aplicar</button>
+          </div>
           <button id="print-button" class="secondary-button" type="button">🖨 Imprimir / PDF</button>
           <button id="export-button" class="primary-button compact" type="button">⇩ CSV</button>
           <button id="logout-button" class="secondary-button compact" type="button">Salir</button>
@@ -134,6 +142,11 @@
         <article class="panel"><div class="panel-head"><h2>Entrada de sesión</h2></div><div id="session-entry-list" class="bar-list"></div></article>
         <article class="panel"><div class="panel-head"><h2>Acciones principales</h2></div><div id="actions-list" class="bar-list"></div></article>
         <article class="panel"><div class="panel-head"><h2>Modo de uso</h2></div><div id="display-list" class="bar-list"></div></article>
+      </section>
+
+      <section class="section grid-two">
+        <article class="panel"><div class="panel-head"><h2>Visitantes nuevos vs recurrentes</h2><span>Estimación anónima</span></div><div id="visitor-mix-list" class="bar-list"></div></article>
+        <article class="panel"><div class="panel-head"><h2>Campañas</h2><span>Top fuentes etiquetadas</span></div><div id="campaigns-list" class="bar-list"></div></article>
       </section>
 
       <section id="devices" class="section grid-three">
