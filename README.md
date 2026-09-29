@@ -1,8 +1,16 @@
-# MPDGI Hub — v1.4.6
+# MPDGI Hub — v1.4.7
 
 Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
+
+## v1.4.7 — Cache Reliability & Smart Navigation
+
+This release hardens browser/PWA cache upgrades so CSS and JavaScript from different releases cannot be mixed. Runtime CSS/JS use release-pinned filenames, the Service Worker refreshes critical assets from the network during installation, old MPDGI caches are purged automatically, and cache lookups stay inside the intended release cache.
+
+The existing church address now opens turn-by-turn directions (Apple Maps on iPhone/iPad; Google Maps on Android and desktop), and the copyright year is generated automatically from the 2026 launch year with a defensive 2026 minimum.
+
+The approved v1.4.6 visual design and Giving presentation are unchanged.
 
 ## v1.4.6 — Payment Logo Rendering Hotfix
 

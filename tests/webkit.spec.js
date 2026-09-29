@@ -39,3 +39,10 @@ test('WebKit giving modal keeps Square wallets and Zelle instructions',async({pa
   await expect(page.locator('.payment-wallet-cashapp')).toContainText('Cash App Pay');
   await expect(page.locator('.zelle-email')).toHaveText('mpdginc@gmail.com');
 });
+
+
+test('WebKit production exposes directions and automatic copyright',async({page})=>{
+  await page.goto('/',{waitUntil:'networkidle'});
+  await expect(page.locator('#address-link')).toHaveAttribute('href',/maps/);
+  await expect(page.locator('#copyright-text')).toContainText('2026');
+});

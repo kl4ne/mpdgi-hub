@@ -145,9 +145,9 @@ test('shared runtime version is loaded and matches config',async({page})=>{
       config:config.version
     };
   });
-  expect(values.runtime).toBe('1.4.6');
-  expect(values.source).toBe('1.4.6');
-  expect(values.config).toBe('1.4.6');
+  expect(values.runtime).toBe('1.4.7');
+  expect(values.source).toBe('1.4.7');
+  expect(values.config).toBe('1.4.7');
 });
 
 test('accessibility labels switch with language',async({page})=>{
@@ -186,4 +186,68 @@ test('payment logos use known-good inline SVG rendering',async({page})=>{
   }));
   expect(boxes.length).toBeGreaterThanOrEqual(9);
   expect(boxes.every(b=>b.w>10&&b.h>10)).toBeTruthy();
+});
+
+
+test('release-pinned assets prevent mixed-version CSS and JS',async({page})=>{
+  await page.goto('/',{waitUntil:'networkidle'});
+  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.4.7.css');
+  await expect(page.locator('script[src="js/version-v1.4.7.js"]')).toHaveCount(1);
+  await expect(page.locator('script[src="js/app-v1.4.7.js"]')).toHaveCount(1);
+});
+
+test('church address opens directions and translates its accessibility label',async({page})=>{
+  await page.goto('/',{waitUntil:'networkidle'});
+  const address=page.locator('#address-link');
+  await expect(address).toHaveAttribute('href',/google\.com\/maps\/dir\/\?api=1/);
+  await expect(address).toHaveAttribute('href',/1045/);
+  await expect(address).toHaveAttribute('aria-label','Abrir indicaciones para llegar a Ministerio Plenitud de Gracia');
+  await page.locator('#language-toggle').click();
+  await expect(address).toHaveAttribute('aria-label','Get directions to Ministerio Plenitud de Gracia');
+});
+
+test('copyright year range never goes below the 2026 launch year',async({page})=>{
+  await page.goto('/',{waitUntil:'networkidle'});
+  const ranges=await page.evaluate(()=>[
+    window.__MPDGI_COPYRIGHT_RANGE__(2020),
+    window.__MPDGI_COPYRIGHT_RANGE__(2026),
+    window.__MPDGI_COPYRIGHT_RANGE__(2027),
+    window.__MPDGI_COPYRIGHT_RANGE__(2031),
+    window.__MPDGI_COPYRIGHT_RANGE__(Number.NaN)
+  ]);
+  expect(ranges).toEqual(['2026','2026','2026–2027','2026–2031','2026']);
+  await expect(page.locator('#copyright-text')).toContainText('2026');
+});
+
+test('stored version mismatch repairs old MPDGI caches',async({page})=>{
+  await page.goto('/',{waitUntil:'networkidle'});
+  await page.waitForFunction(()=>Boolean(navigator.serviceWorker?.controller),null,{timeout:10000});
+  await page.evaluate(async()=>{
+    localStorage.setItem('mpdgiHubVersion','1.4.5');
+    await caches.open('mpdgi-hub-shell-1.4.5');
+    await caches.open('mpdgi-hub-runtime-1.4.6-stale');
+  });
+  await page.reload({waitUntil:'networkidle'});
+  await page.waitForFunction(async()=>{
+    const keys=await caches.keys();
+    return !keys.includes('mpdgi-hub-shell-1.4.5')&&!keys.includes('mpdgi-hub-runtime-1.4.6-stale');
+  },null,{timeout:10000});
+  const keys=await page.evaluate(()=>caches.keys());
+  expect(keys).toContain('mpdgi-hub-shell-1.4.7');
+});
+
+test('payment logos remain stable across repeated Chromium reopen cycles',async({context})=>{
+  for(let i=0;i<5;i++){
+    const p=await context.newPage();
+    await p.goto('/',{waitUntil:'networkidle'});
+    await p.locator('[data-card-id="give"] .card-action').click();
+    await expect(p.locator('.payment-card-chip svg')).toHaveCount(6);
+    await expect(p.locator('.payment-wallet-applepay svg')).toHaveCount(1);
+    await expect(p.locator('.payment-wallet-googlepay svg')).toHaveCount(1);
+    const good=await p.locator('.payment-card-chip svg,.payment-wallet-chip svg').evaluateAll(nodes=>nodes.every(n=>{
+      const r=n.getBoundingClientRect();return r.width>10&&r.height>10;
+    }));
+    expect(good).toBeTruthy();
+    await p.close();
+  }
 });
