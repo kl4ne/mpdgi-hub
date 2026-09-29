@@ -11,17 +11,29 @@ function shiftDay(day,delta){
 function daysBetween(from,to){
   return Math.floor((Date.parse(to+'T12:00:00Z')-Date.parse(from+'T12:00:00Z'))/86400000)+1;
 }
+function monthStart(day){return day.slice(0,8)+'01';}
+function yearStart(day){return day.slice(0,4)+'-01-01';}
 export function resolveRange(urlString){
   const url=new URL(urlString);
-  const preset=PRESETS[url.searchParams.get('preset')]?url.searchParams.get('preset'):'30d';
+  const requested=url.searchParams.get('preset')||'30d';
+  const preset=(PRESETS[requested]||requested==='month'||requested==='year'||requested==='custom')?requested:'30d';
   const today=easternDay(new Date());
-  let from,to=today,days=PRESETS[preset];
+  let from,to=today,days=30;
   const customFrom=url.searchParams.get('from'),customTo=url.searchParams.get('to');
+
   if(DATE_RE.test(customFrom||'')&&DATE_RE.test(customTo||'')&&customFrom<=customTo){
     const count=daysBetween(customFrom,customTo);
     if(count>=1&&count<=366){from=customFrom;to=customTo;days=count;}
-    else from=shiftDay(to,-(days-1));
-  }else from=shiftDay(to,-(days-1));
+    else{days=30;from=shiftDay(to,-29);}
+  }else if(preset==='month'){
+    from=monthStart(today);days=daysBetween(from,to);
+  }else if(preset==='year'){
+    from=yearStart(today);days=daysBetween(from,to);
+  }else{
+    days=PRESETS[preset]||30;
+    from=shiftDay(to,-(days-1));
+  }
+
   const previousTo=shiftDay(from,-1),previousFrom=shiftDay(previousTo,-(days-1));
   return {preset,from,to,days,previous_from:previousFrom,previous_to:previousTo};
 }
@@ -63,10 +75,12 @@ export async function getDashboardData(env,urlString){
     db.prepare('SELECT browser AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? GROUP BY browser').bind(range.from,range.to),
     db.prepare('SELECT language AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? GROUP BY language').bind(range.from,range.to),
     db.prepare("SELECT action_name AS key,COUNT(*) AS value FROM events WHERE server_day_et BETWEEN ? AND ? AND event_type='action' AND action_name<>'' GROUP BY action_name ORDER BY value DESC LIMIT 12").bind(range.from,range.to),
+    db.prepare("SELECT CASE WHEN first_day BETWEEN ? AND ? THEN 'new' ELSE 'returning' END AS key,COUNT(*) AS value FROM (SELECT visitor_id,MIN(server_day_et) AS first_day FROM events GROUP BY visitor_id) WHERE visitor_id IN (SELECT DISTINCT visitor_id FROM events WHERE server_day_et BETWEEN ? AND ?) GROUP BY key").bind(range.from,range.to,range.from,range.to),
+    db.prepare("SELECT acquisition_campaign AS key,COUNT(DISTINCT visitor_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? AND acquisition_campaign<>'' GROUP BY acquisition_campaign ORDER BY value DESC LIMIT 12").bind(range.from,range.to),
     db.prepare('SELECT MAX(server_ts) AS last_event_at FROM events')
   ];
   const result=await db.batch(statements);
-  const current=one(result[0]),previous=one(result[1]),last=one(result[10]);
+  const current=one(result[0]),previous=one(result[1]),last=one(result[12]);
   const summary={
     visits:Number(current.visits)||0,
     unique_visitors:Number(current.unique_visitors)||0,
@@ -98,6 +112,8 @@ export async function getDashboardData(env,urlString){
     browsers:normalize(rows(result[7]),['edge','chrome','safari','firefox','other']),
     languages:normalize(rows(result[8]),['es','en','other']),
     top_actions:rows(result[9]).map(r=>({key:String(r.key),value:Number(r.value)||0})),
+    visitor_mix:normalize(rows(result[10]),['new','returning']),
+    campaigns:rows(result[11]).map(r=>({key:String(r.key),value:Number(r.value)||0})),
     health:{collector:'operational',database:'operational',last_event_at:last.last_event_at||null}
   };
 }
@@ -119,6 +135,8 @@ export function dashboardCsv(data){
   for(const item of data.browsers)lines.push(['Browsers',item.key,item.value]);
   for(const item of data.languages)lines.push(['Languages',item.key,item.value]);
   for(const item of data.top_actions)lines.push(['Top Actions',item.key,item.value]);
+  for(const item of data.visitor_mix)lines.push(['Visitor Mix',item.key,item.value]);
+  for(const item of data.campaigns)lines.push(['Campaigns',item.key,item.value]);
   for(const item of data.daily_visits)lines.push(['Daily Visits',item.day,item.value]);
   return lines.map(row=>row.map(csvCell).join(',')).join('\r\n')+'\r\n';
 }
