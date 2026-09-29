@@ -269,7 +269,7 @@ test('About modal renders automatic copyright instead of the year placeholder',a
 test('NFC source is captured, URL is cleaned and collector receives separated attribution fields',async({page})=>{
   const events=[];
   await page.addInitScript(()=>{globalThis.__MPDGI_ANALYTICS_FORCE__=true;});
-  await page.route('https://stats.mpdgi.org/api/collect',async route=>{
+  await page.route('https://mpdgi-stats.pages.dev/api/collect',async route=>{
     const body=route.request().postData();
     if(body)events.push(JSON.parse(body));
     await route.fulfill({status:204,headers:{'access-control-allow-origin':'*'}});
@@ -289,7 +289,7 @@ test('NFC source is captured, URL is cleaned and collector receives separated at
 test('first acquisition source stays immutable when a later attributed entry uses another source',async({page})=>{
   const events=[];
   await page.addInitScript(()=>{globalThis.__MPDGI_ANALYTICS_FORCE__=true;});
-  await page.route('https://stats.mpdgi.org/api/collect',async route=>{
+  await page.route('https://mpdgi-stats.pages.dev/api/collect',async route=>{
     const body=route.request().postData();
     if(body)events.push(JSON.parse(body));
     await route.fulfill({status:204,headers:{'access-control-allow-origin':'*'}});
@@ -306,7 +306,7 @@ test('first acquisition source stays immutable when a later attributed entry use
 test('cookie continuity restores anonymous acquisition after local storage is cleared for an installed-PWA style launch',async({page,context})=>{
   const events=[];
   await page.addInitScript(()=>{globalThis.__MPDGI_ANALYTICS_FORCE__=true;});
-  await page.route('https://stats.mpdgi.org/api/collect',async route=>{
+  await page.route('https://mpdgi-stats.pages.dev/api/collect',async route=>{
     const body=route.request().postData();
     if(body)events.push(JSON.parse(body));
     await route.fulfill({status:204,headers:{'access-control-allow-origin':'*'}});
@@ -324,7 +324,7 @@ test('cookie continuity restores anonymous acquisition after local storage is cl
       ? {matches:true,media:query,onchange:null,addListener(){},removeListener(){},addEventListener(){},removeEventListener(){},dispatchEvent(){return false;}}
       : native(query);
   });
-  await p.route('https://stats.mpdgi.org/api/collect',async route=>{
+  await p.route('https://mpdgi-stats.pages.dev/api/collect',async route=>{
     const body=route.request().postData();
     if(body)events.push(JSON.parse(body));
     await route.fulfill({status:204,headers:{'access-control-allow-origin':'*'}});
@@ -354,7 +354,7 @@ test('analytics action markers cover core navigation without exposing Stats in t
 test('switching from browser use to installed-PWA mode starts a PWA session without changing acquisition',async({page,context})=>{
   const events=[];
   await page.addInitScript(()=>{globalThis.__MPDGI_ANALYTICS_FORCE__=true;});
-  await page.route('https://stats.mpdgi.org/api/collect',async route=>{
+  await page.route('https://mpdgi-stats.pages.dev/api/collect',async route=>{
     const body=route.request().postData();if(body)events.push(JSON.parse(body));
     await route.fulfill({status:204,headers:{'access-control-allow-origin':'*'}});
   });
@@ -372,7 +372,7 @@ test('switching from browser use to installed-PWA mode starts a PWA session with
       ? {matches:true,media:query,onchange:null,addListener(){},removeListener(){},addEventListener(){},removeEventListener(){},dispatchEvent(){return false;}}
       : native(query);
   },saved);
-  await p.route('https://stats.mpdgi.org/api/collect',async route=>{
+  await p.route('https://mpdgi-stats.pages.dev/api/collect',async route=>{
     const body=route.request().postData();if(body)events.push(JSON.parse(body));
     await route.fulfill({status:204,headers:{'access-control-allow-origin':'*'}});
   });
