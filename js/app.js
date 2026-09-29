@@ -191,10 +191,12 @@ function cookieGet(name){
   return part?decodeURIComponent(part.slice(prefix.length)):'';
 }
 function cookieSet(name,value,maxAge=ANALYTICS_COOKIE_MAX_AGE){
-  document.cookie=`${name}=${encodeURIComponent(value)}; Max-Age=${maxAge}; Path=/; SameSite=Lax; Secure`;
+  const secure=location.protocol==='https:'?'; Secure':'';
+  document.cookie=`${name}=${encodeURIComponent(value)}; Max-Age=${maxAge}; Path=/; SameSite=Lax${secure}`;
 }
 function cookieDelete(name){
-  document.cookie=`${name}=; Max-Age=0; Path=/; SameSite=Lax; Secure`;
+  const secure=location.protocol==='https:'?'; Secure':'';
+  document.cookie=`${name}=; Max-Age=0; Path=/; SameSite=Lax${secure}`;
 }
 function randomId(){
   if(crypto?.randomUUID)return crypto.randomUUID();
