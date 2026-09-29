@@ -1,17 +1,15 @@
 {
   "id": "./",
-  "name": "MPDGI Hub • Ministerio Plenitud de Gracia",
-  "short_name": "MPDGI Hub",
-  "description": "Hub digital oficial preparado para NFC de Ministerio Plenitud de Gracia.",
+  "name": "MPDGI Stats • Private Analytics Center",
+  "short_name": "MPDGI Stats",
+  "description": "Private analytics center for Ministerio Plenitud de Gracia administrators.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#071A36",
+  "background_color": "#f4f8fc",
   "theme_color": "#071A36",
-  "categories": [
-    "lifestyle",
-    "social"
-  ],
+  "lang": "es",
+  "dir": "ltr",
   "icons": [
     {
       "src": "assets/icons/icon-192.png",
@@ -25,7 +23,5 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ],
-  "lang": "es",
-  "dir": "ltr"
+  ]
 }
