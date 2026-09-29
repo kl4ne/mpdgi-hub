@@ -29,6 +29,12 @@ CREATE TABLE IF NOT EXISTS login_rate (
   attempts INTEGER NOT NULL DEFAULT 0
 );
 
+CREATE TABLE IF NOT EXISTS collector_rate (
+  rate_key TEXT PRIMARY KEY,
+  window_started INTEGER NOT NULL,
+  event_count INTEGER NOT NULL DEFAULT 0
+);
+
 CREATE TABLE IF NOT EXISTS events (
   event_id TEXT PRIMARY KEY,
   visitor_id TEXT NOT NULL,
