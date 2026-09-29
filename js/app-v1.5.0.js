@@ -362,12 +362,12 @@ function setupAnalyticsInteractions(){
   },{capture:true});
 }
 function initAnalytics(){
+  markAnalytics(document.getElementById('address-link'),'directions',config.address);
   if(!analyticsIsEnabled())return;
   const entry=INITIAL_ANALYTICS_ENTRY;
   const identity=resolveAnalyticsIdentity(entry);
   const session=resolveAnalyticsSession(entry);
   analyticsState={...identity,...session};
-  markAnalytics(document.getElementById('address-link'),'directions',config.address);
   void flushAnalyticsQueue();
   if(session.isNew)trackAnalytics('session_start');
   trackAnalytics('page_view');
