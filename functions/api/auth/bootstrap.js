@@ -1,5 +1,5 @@
 import {json,readJson,methodNotAllowed} from '../../_lib/http.js';
-import {PASSWORD_ITERATIONS,passwordSalt,hashPassword,randomToken,constantTimeEqual} from '../../_lib/auth.js';
+import {PASSWORD_SCHEME,passwordSalt,passwordVerifier,randomToken,constantTimeEqual} from '../../_lib/auth.js';
 
 export async function onRequest(context){
   if(context.request.method!=='POST')return methodNotAllowed('POST');
@@ -14,12 +14,12 @@ export async function onRequest(context){
   const email=String(body.email||'').trim().toLowerCase();
   const password=String(body.password||'');
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return json({error:'invalid_email'},400);
-  if(password.length<14||password.length>128)return json({error:'password_must_be_14_to_128_characters'},400);
+  if(password.length<16||password.length>128)return json({error:'password_must_be_16_to_128_characters'},400);
 
   const salt=passwordSalt();
-  const passwordHash=await hashPassword(password,salt,PASSWORD_ITERATIONS,context.env.AUTH_PEPPER);
+  const passwordHash=await passwordVerifier(password,salt,context.env.AUTH_PEPPER);
   const id=randomToken(18);
-  await context.env.STATS_DB.prepare('INSERT INTO admin_users(id,email,password_hash,password_salt,password_iterations,role,active) VALUES(?,?,?,?,?,?,1)')
-    .bind(id,email,passwordHash,salt,PASSWORD_ITERATIONS,'owner').run();
+  await context.env.STATS_DB.prepare('INSERT INTO admin_users(id,email,password_hash,password_salt,password_scheme,role,active) VALUES(?,?,?,?,?,?,1)')
+    .bind(id,email,passwordHash,salt,PASSWORD_SCHEME,'owner').run();
   return json({ok:true,email,role:'owner'},201);
 }
