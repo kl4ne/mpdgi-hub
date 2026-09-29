@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests;">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#071A36">
+  <meta name="color-scheme" content="light">
+  <title>MPDGI Stats • Private Analytics Center</title>
+  <meta name="description" content="Private analytics center for Ministerio Plenitud de Gracia administrators.">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="assets/icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/stats.css">
+</head>
+<body>
+  <div id="login-view" class="login-view">
+    <aside class="login-brand-panel" aria-hidden="true">
+      <div class="login-brand-content">
+        <p class="gold-script">Personas · Discípulos · Impacto Global</p>
+        <div class="gold-rule"></div>
+        <div class="feature"><span>▥</span><div><strong>Reportes</strong><small>Información clara para decisiones ministeriales</small></div></div>
+        <div class="feature"><span>↗</span><div><strong>Fuentes</strong><small>NFC, QR, enlaces y web</small></div></div>
+        <div class="feature"><span>◎</span><div><strong>Uso</strong><small>Sesiones, PWA, dispositivos y acciones</small></div></div>
+        <div class="feature"><span>⇩</span><div><strong>Exportar</strong><small>CSV y reportes profesionales imprimibles</small></div></div>
+      </div>
+    </aside>
+
+    <main class="login-main">
+      <section class="login-card" aria-labelledby="login-title">
+        <img class="stats-logo" src="assets/profile/logo-mpdg.png" alt="Ministerio Plenitud de Gracia">
+        <p class="stats-wordmark">MPDGI <span>STATS</span></p>
+        <h1 id="login-title">MPDGI Stats</h1>
+        <p class="login-subtitle">Private Analytics Center</p>
+        <div class="mini-rule"></div>
+        <p class="authorized">🔒 <strong>Acceso autorizado solamente</strong></p>
+        <p class="login-help">Inicia sesión para ver las estadísticas privadas de MPDGI.</p>
+
+        <form id="login-form" novalidate>
+          <label for="login-email">Correo electrónico</label>
+          <input id="login-email" name="email" type="email" autocomplete="username" required maxlength="160">
+          <label for="login-password">Contraseña</label>
+          <input id="login-password" name="password" type="password" autocomplete="current-password" required minlength="12" maxlength="128">
+          <label class="remember-row"><input id="login-remember" type="checkbox"> <span>Recordarme en este dispositivo</span></label>
+          <button id="login-button" class="primary-button" type="submit">Entrar</button>
+          <p id="login-error" class="form-error" role="alert" hidden></p>
+        </form>
+
+        <p class="secure-note">🔒 Acceso privado para administradores aprobados de MPDGI.</p>
+      </section>
+    </main>
+  </div>
+
+  <div id="app-view" class="app-view" hidden>
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="assets/profile/logo-mpdg.png" alt="">
+        <strong>MPDGI</strong><span>STATS</span>
+      </div>
+      <nav aria-label="Stats navigation">
+        <a class="nav-item active" href="#overview">⌂ <span>Dashboard</span></a>
+        <a class="nav-item" href="#reports">▥ <span>Reportes</span></a>
+        <a class="nav-item" href="#sources">↗ <span>Fuentes</span></a>
+        <a class="nav-item" href="#engagement">◎ <span>Uso</span></a>
+        <a class="nav-item" href="#devices">▣ <span>Dispositivos</span></a>
+        <a class="nav-item" href="#exports">⇩ <span>Exportar</span></a>
+      </nav>
+      <div class="sidebar-bottom">
+        <small>Ministerio Plenitud de Gracia</small>
+        <span>Solo administradores autorizados</span>
+      </div>
+    </aside>
+
+    <main class="dashboard">
+      <header class="dashboard-header">
+        <div>
+          <h1>MPDGI Stats</h1>
+          <p>Private Analytics Center</p>
+        </div>
+        <div class="header-actions">
+          <label class="range-control">Período
+            <select id="range-select">
+              <option value="7d">Últimos 7 días</option>
+              <option value="30d" selected>Últimos 30 días</option>
+              <option value="90d">Últimos 90 días</option>
+              <option value="month">Este mes</option>
+              <option value="year">Este año</option>
+              <option value="365d">Últimos 12 meses</option>
+              <option value="custom">Rango personalizado</option>
+            </select>
+          </label>
+          <div id="custom-range" class="custom-range" hidden>
+            <label>Desde<input id="range-from" type="date"></label>
+            <label>Hasta<input id="range-to" type="date"></label>
+            <button id="apply-range" class="secondary-button compact" type="button">Aplicar</button>
+          </div>
+          <button id="print-button" class="secondary-button" type="button">🖨 Imprimir / PDF</button>
+          <button id="export-button" class="primary-button compact" type="button">⇩ CSV</button>
+          <button id="logout-button" class="secondary-button compact" type="button">Salir</button>
+        </div>
+      </header>
+
+      <section id="report-header" class="print-report-header">
+        <div>
+          <p class="report-org">MINISTERIO PLENITUD DE GRACIA</p>
+          <h2>MPDGI Stats <span>Analytics Report</span></h2>
+          <p id="print-range">—</p>
+        </div>
+        <img src="assets/profile/logo-mpdg.png" alt="">
+      </section>
+
+      <section id="overview" class="section">
+        <div class="section-heading">
+          <div><h2>Resumen</h2><p id="range-label">Cargando período…</p></div>
+          <span id="generated-label" class="generated-label"></span>
+        </div>
+
+        <div class="metrics-grid">
+          <article class="metric-card"><span class="metric-icon">◉</span><p>Visitas (sesiones)</p><strong id="metric-visits">—</strong><small id="metric-visits-change"></small></article>
+          <article class="metric-card"><span class="metric-icon">◎</span><p>Visitantes únicos estimados</p><strong id="metric-unique">—</strong><small id="metric-unique-change"></small></article>
+          <article class="metric-card"><span class="metric-icon">▣</span><p>Sesiones desde PWA</p><strong id="metric-pwa">—</strong><small id="metric-pwa-change"></small></article>
+          <article class="metric-card"><span class="metric-icon">▤</span><p>Page Views</p><strong id="metric-pageviews">—</strong><small id="metric-pageviews-change"></small></article>
+        </div>
+      </section>
+
+      <section id="reports" class="section grid-two">
+        <article class="panel">
+          <div class="panel-head"><h2>Visitas diarias</h2><span id="daily-total"></span></div>
+          <div id="daily-chart" class="daily-chart" role="img" aria-label="Visitas diarias"></div>
+        </article>
+        <article id="sources" class="panel">
+          <div class="panel-head"><h2>Fuente de adquisición</h2><span>Visitantes estimados</span></div>
+          <div class="donut-layout">
+            <div id="source-donut" class="donut"><div><strong id="source-total">0</strong><small>Total</small></div></div>
+            <div id="source-legend" class="legend-list"></div>
+          </div>
+        </article>
+      </section>
+
+      <section id="engagement" class="section grid-three">
+        <article class="panel"><div class="panel-head"><h2>Entrada de sesión</h2></div><div id="session-entry-list" class="bar-list"></div></article>
+        <article class="panel"><div class="panel-head"><h2>Acciones principales</h2></div><div id="actions-list" class="bar-list"></div></article>
+        <article class="panel"><div class="panel-head"><h2>Modo de uso</h2></div><div id="display-list" class="bar-list"></div></article>
+      </section>
+
+      <section class="section grid-two">
+        <article class="panel"><div class="panel-head"><h2>Visitantes nuevos vs recurrentes</h2><span>Estimación anónima</span></div><div id="visitor-mix-list" class="bar-list"></div></article>
+        <article class="panel"><div class="panel-head"><h2>Campañas</h2><span>Top fuentes etiquetadas</span></div><div id="campaigns-list" class="bar-list"></div></article>
+      </section>
+
+      <section id="devices" class="section grid-three">
+        <article class="panel"><div class="panel-head"><h2>Dispositivos</h2></div><div id="devices-list" class="bar-list"></div></article>
+        <article class="panel"><div class="panel-head"><h2>Navegadores</h2></div><div id="browsers-list" class="bar-list"></div></article>
+        <article class="panel"><div class="panel-head"><h2>Idiomas</h2></div><div id="languages-list" class="bar-list"></div></article>
+      </section>
+
+      <section class="section">
+        <article class="panel health-panel">
+          <div class="panel-head"><h2>Estado del sistema</h2><span id="health-overall" class="health-ok">● Verificando…</span></div>
+          <div class="health-grid">
+            <div><span>Collector</span><strong id="health-collector">—</strong></div>
+            <div><span>Base de datos</span><strong id="health-db">—</strong></div>
+            <div><span>Último evento</span><strong id="health-last-event">—</strong></div>
+          </div>
+        </article>
+      </section>
+
+      <section id="exports" class="section report-note">
+        <h2>Reportes</h2>
+        <p>El dashboard, la exportación CSV y el reporte impreso utilizan los mismos datos agregados del servidor. No se exportan identificadores anónimos individuales.</p>
+      </section>
+
+      <footer class="stats-footer">
+        <span>MPDGI Stats v<span id="stats-version">1.0.0</span></span>
+        <span>🔒 For authorized administrators only.</span>
+      </footer>
+    </main>
+  </div>
+
+  <script src="js/stats-version.js"></script>
+  <script src="js/stats.js"></script>
+</body>
+</html>
