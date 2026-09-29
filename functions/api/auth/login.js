@@ -1,5 +1,5 @@
 import {json,readJson,isSameOrigin,methodNotAllowed} from '../../_lib/http.js';
-import {hashPassword,sha256,constantTimeEqual,randomToken,sessionCookie} from '../../_lib/auth.js';
+import {PASSWORD_SCHEME,passwordVerifier,sha256,constantTimeEqual,randomToken,sessionCookie} from '../../_lib/auth.js';
 
 const WINDOW_SECONDS=600;
 const MAX_ATTEMPTS=8;
@@ -24,9 +24,10 @@ export async function onRequest(context){
     await context.env.STATS_DB.prepare('UPDATE login_rate SET attempts=attempts+1 WHERE rate_key=?').bind(rateKey).run();
   }
 
-  const user=await context.env.STATS_DB.prepare('SELECT id,email,password_hash,password_salt,password_iterations,role,active FROM admin_users WHERE email=? LIMIT 1').bind(email).first();
+  const user=await context.env.STATS_DB.prepare('SELECT id,email,password_hash,password_salt,password_scheme,role,active FROM admin_users WHERE email=? LIMIT 1').bind(email).first();
   if(!user||Number(user.active)!==1)return json({error:'invalid_credentials'},401);
-  const calculated=await hashPassword(password,user.password_salt,Number(user.password_iterations),context.env.AUTH_PEPPER);
+  if(user.password_scheme!==PASSWORD_SCHEME)return json({error:'unsupported_password_scheme'},503);
+  const calculated=await passwordVerifier(password,user.password_salt,context.env.AUTH_PEPPER);
   if(!constantTimeEqual(calculated,user.password_hash))return json({error:'invalid_credentials'},401);
 
   await context.env.STATS_DB.prepare('DELETE FROM login_rate WHERE rate_key=?').bind(rateKey).run();
