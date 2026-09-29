@@ -1,31 +1,18 @@
 import {getCookie,json} from './http.js';
 
 const SESSION_COOKIE='mpdgi_stats_session';
-export const PASSWORD_ITERATIONS=60000;
+export const PASSWORD_SCHEME='hmac-sha256-v1';
 
 function bytesToBase64Url(bytes){
   let binary='';for(const b of bytes)binary+=String.fromCharCode(b);
   return btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 }
-function base64UrlToBytes(value){
-  const normalized=value.replace(/-/g,'+').replace(/_/g,'/');
-  const pad='='.repeat((4-normalized.length%4)%4);
-  const binary=atob(normalized+pad),bytes=new Uint8Array(binary.length);
-  for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
-  return bytes;
-}
-export function randomToken(size=32){
-  const bytes=new Uint8Array(size);crypto.getRandomValues(bytes);return bytesToBase64Url(bytes);
-}
-export async function sha256(value){
-  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(String(value)));
-  return bytesToBase64Url(new Uint8Array(digest));
-}
-export async function hashPassword(password,salt,iterations,pepper){
-  const material=new TextEncoder().encode(String(password)+'\u0000'+String(pepper||''));
-  const key=await crypto.subtle.importKey('raw',material,'PBKDF2',false,['deriveBits']);
-  const bits=await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:base64UrlToBytes(salt),iterations},key,256);
-  return bytesToBase64Url(new Uint8Array(bits));
+export async function passwordVerifier(password,salt,pepper){
+  const secret=new TextEncoder().encode(String(pepper||''));
+  const key=await crypto.subtle.importKey('raw',secret,{name:'HMAC',hash:'SHA-256'},false,['sign']);
+  const message=new TextEncoder().encode(String(salt)+'\u0000'+String(password));
+  const signature=await crypto.subtle.sign('HMAC',key,message);
+  return bytesToBase64Url(new Uint8Array(signature));
 }
 export function passwordSalt(){return randomToken(18);}
 export function constantTimeEqual(a,b){
