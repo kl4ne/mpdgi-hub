@@ -34,6 +34,14 @@ assert.equal(range.to,'2026-09-29');
 assert.equal(range.days,29);
 assert.equal(range.previous_to,'2026-08-31');
 
+const monthRange=resolveRange('https://stats.mpdgi.org/api/dashboard?preset=month');
+assert.match(monthRange.from,/^\d{4}-\d{2}-01$/);
+assert.ok(monthRange.days>=1&&monthRange.days<=31);
+
+const yearRange=resolveRange('https://stats.mpdgi.org/api/dashboard?preset=year');
+assert.match(yearRange.from,/^\d{4}-01-01$/);
+assert.ok(yearRange.days>=1&&yearRange.days<=366);
+
 const token=randomToken(32),salt=passwordSalt();
 assert.ok(token.length>30&&salt.length>15);
 const verifier=await passwordVerifier('A-very-long-demo-password!',salt,'server-side-test-pepper');
