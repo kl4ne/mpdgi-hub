@@ -1,0 +1,11 @@
+# Example only. Do not commit real database IDs or secrets.
+# Cloudflare Pages can also be configured entirely in the dashboard.
+
+name = "mpdgi-stats"
+compatibility_date = "2026-09-29"
+pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "STATS_DB"
+database_name = "mpdgi-stats"
+database_id = "REPLACE_IN_CLOUDFLARE_ONLY"
