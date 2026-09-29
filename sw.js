@@ -1,8 +1,8 @@
 'use strict';
 
 const SCRIPT_VERSION=new URL(self.location.href).searchParams.get('v')||'dev';
-const BUILD_ID='2026-09-28-about-copyright-fix';
-importScripts('./js/version-v1.4.7.js');
+const BUILD_ID='2026-09-29-v1.5.0-analytics';
+importScripts('./js/version-v1.5.0.js');
 const VERSION=self.MPDGI_HUB_VERSION||SCRIPT_VERSION;
 const CACHE_PREFIX='mpdgi-hub';
 const SHELL_CACHE=`${CACHE_PREFIX}-shell-${VERSION}`;
@@ -11,9 +11,9 @@ const RUNTIME_CACHE=`${CACHE_PREFIX}-runtime-${VERSION}`;
 const CRITICAL_ASSETS=[
   './',
   './index.html',
-  './css/style-v1.4.7.css',
-  './js/version-v1.4.7.js',
-  './js/app-v1.4.7.js',
+  './css/style-v1.5.0.css',
+  './js/version-v1.5.0.js',
+  './js/app-v1.5.0.js',
   './manifest.json',
   './data/config.json',
   './data/links.json',

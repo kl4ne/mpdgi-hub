@@ -2,7 +2,7 @@ name: QA MPDGI Hub
 
 on:
   push:
-    branches: [main]
+    branches: [main, v1.5.0-analytics]
   pull_request:
 
 permissions:
@@ -55,7 +55,7 @@ jobs:
           NODE
 
       - name: Production smoke after Pages deployment
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: bash
         run: |
           EXPECTED=$(node -e "require('./js/version.js'); process.stdout.write(globalThis.MPDGI_HUB_VERSION)")
@@ -79,7 +79,7 @@ jobs:
           exit 1
 
       - name: Playwright WebKit production smoke
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           BASE_URL: https://hub.mpdgi.org
         run: npm run test:ui:webkit
