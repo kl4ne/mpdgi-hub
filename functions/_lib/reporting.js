@@ -58,25 +58,26 @@ export async function getDashboardData(env,urlString){
   if(!env.STATS_DB)throw Object.assign(new Error('database_not_configured'),{status:503});
   const range=resolveRange(urlString);
   const summarySql=`SELECT
-    COUNT(DISTINCT session_id) AS visits,
-    COUNT(DISTINCT visitor_id) AS unique_visitors,
-    COUNT(DISTINCT CASE WHEN display_mode='pwa' THEN session_id END) AS pwa_sessions,
-    SUM(CASE WHEN event_type='page_view' THEN 1 ELSE 0 END) AS page_views
-    FROM events WHERE server_day_et BETWEEN ? AND ?`;
+    COUNT(DISTINCT e.session_id) AS visits,
+    COUNT(DISTINCT e.visitor_id) AS unique_visitors,
+    COUNT(DISTINCT CASE WHEN s.display_mode='pwa' THEN e.session_id END) AS pwa_sessions,
+    SUM(CASE WHEN e.event_type='page_view' THEN 1 ELSE 0 END) AS page_views
+    FROM events e LEFT JOIN sessions s ON s.session_id=e.session_id
+    WHERE e.server_day_et BETWEEN ? AND ?`;
   const db=env.STATS_DB;
   const statements=[
     db.prepare(summarySql).bind(range.from,range.to),
     db.prepare(summarySql).bind(range.previous_from,range.previous_to),
     db.prepare('SELECT server_day_et AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? GROUP BY server_day_et ORDER BY server_day_et').bind(range.from,range.to),
-    db.prepare('SELECT acquisition_source AS key,COUNT(DISTINCT visitor_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? GROUP BY acquisition_source').bind(range.from,range.to),
-    db.prepare('SELECT session_entry AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? GROUP BY session_entry').bind(range.from,range.to),
-    db.prepare('SELECT display_mode AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? GROUP BY display_mode').bind(range.from,range.to),
+    db.prepare('SELECT v.acquisition_source AS key,COUNT(DISTINCT e.visitor_id) AS value FROM events e JOIN visitors v ON v.visitor_id=e.visitor_id WHERE e.server_day_et BETWEEN ? AND ? GROUP BY v.acquisition_source').bind(range.from,range.to),
+    db.prepare('SELECT s.session_entry AS key,COUNT(DISTINCT e.session_id) AS value FROM events e JOIN sessions s ON s.session_id=e.session_id WHERE e.server_day_et BETWEEN ? AND ? GROUP BY s.session_entry').bind(range.from,range.to),
+    db.prepare('SELECT s.display_mode AS key,COUNT(DISTINCT e.session_id) AS value FROM events e JOIN sessions s ON s.session_id=e.session_id WHERE e.server_day_et BETWEEN ? AND ? GROUP BY s.display_mode').bind(range.from,range.to),
     db.prepare('SELECT device_category AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? GROUP BY device_category').bind(range.from,range.to),
     db.prepare('SELECT browser AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? GROUP BY browser').bind(range.from,range.to),
     db.prepare('SELECT language AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? GROUP BY language').bind(range.from,range.to),
     db.prepare("SELECT action_name AS key,COUNT(*) AS value FROM events WHERE server_day_et BETWEEN ? AND ? AND event_type='action' AND action_name<>'' GROUP BY action_name ORDER BY value DESC LIMIT 12").bind(range.from,range.to),
-    db.prepare("SELECT CASE WHEN first_day BETWEEN ? AND ? THEN 'new' ELSE 'returning' END AS key,COUNT(*) AS value FROM (SELECT visitor_id,MIN(server_day_et) AS first_day FROM events GROUP BY visitor_id) WHERE visitor_id IN (SELECT DISTINCT visitor_id FROM events WHERE server_day_et BETWEEN ? AND ?) GROUP BY key").bind(range.from,range.to,range.from,range.to),
-    db.prepare("SELECT acquisition_campaign AS key,COUNT(DISTINCT visitor_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? AND acquisition_campaign<>'' GROUP BY acquisition_campaign ORDER BY value DESC LIMIT 12").bind(range.from,range.to),
+    db.prepare("SELECT CASE WHEN v.first_seen_day_et BETWEEN ? AND ? THEN 'new' ELSE 'returning' END AS key,COUNT(DISTINCT e.visitor_id) AS value FROM events e JOIN visitors v ON v.visitor_id=e.visitor_id WHERE e.server_day_et BETWEEN ? AND ? GROUP BY key").bind(range.from,range.to,range.from,range.to),
+    db.prepare("SELECT v.acquisition_campaign AS key,COUNT(DISTINCT e.visitor_id) AS value FROM events e JOIN visitors v ON v.visitor_id=e.visitor_id WHERE e.server_day_et BETWEEN ? AND ? AND v.acquisition_campaign<>'' GROUP BY v.acquisition_campaign ORDER BY value DESC LIMIT 12").bind(range.from,range.to),
     db.prepare('SELECT MAX(server_ts) AS last_event_at FROM events')
   ];
   const result=await db.batch(statements);
