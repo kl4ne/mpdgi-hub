@@ -191,12 +191,10 @@ function cookieGet(name){
   return part?decodeURIComponent(part.slice(prefix.length)):'';
 }
 function cookieSet(name,value,maxAge=ANALYTICS_COOKIE_MAX_AGE){
-  const domain=(location.hostname==='hub.mpdgi.org'||location.hostname.endsWith('.mpdgi.org'))?'; Domain=.mpdgi.org':'';
-  document.cookie=`${name}=${encodeURIComponent(value)}; Max-Age=${maxAge}; Path=/; SameSite=Lax; Secure${domain}`;
+  document.cookie=`${name}=${encodeURIComponent(value)}; Max-Age=${maxAge}; Path=/; SameSite=Lax; Secure`;
 }
 function cookieDelete(name){
-  const domain=(location.hostname==='hub.mpdgi.org'||location.hostname.endsWith('.mpdgi.org'))?'; Domain=.mpdgi.org':'';
-  document.cookie=`${name}=; Max-Age=0; Path=/; SameSite=Lax; Secure${domain}`;
+  document.cookie=`${name}=; Max-Age=0; Path=/; SameSite=Lax; Secure`;
 }
 function randomId(){
   if(crypto?.randomUUID)return crypto.randomUUID();
@@ -269,12 +267,14 @@ function resolveAnalyticsSession(entry){
   const now=Date.now(),last=Number(storageGet(ANALYTICS_SESSION_LAST_KEY)||0);
   let sessionId=storageGet(ANALYTICS_SESSION_KEY),sessionEntry=storageGet(ANALYTICS_SESSION_ENTRY_KEY);
   const attributedEntry=entry.source&&entry.source!=='unattributed'?entry.source:null;
+  const standalone=isStandaloneMode();
   const expired=!sessionId||!last||now-last>ANALYTICS_SESSION_TIMEOUT;
-  const forceNew=Boolean(attributedEntry);
+  const contextChanged=(standalone&&sessionEntry!=='pwa')||(!standalone&&sessionEntry==='pwa');
+  const forceNew=Boolean(attributedEntry)||contextChanged;
   const isNew=expired||forceNew;
   if(isNew){
     sessionId=randomId();
-    sessionEntry=attributedEntry||(isStandaloneMode()?'pwa':'web');
+    sessionEntry=attributedEntry||(standalone?'pwa':'web');
     storageSet(ANALYTICS_SESSION_KEY,sessionId);
     storageSet(ANALYTICS_SESSION_ENTRY_KEY,sessionEntry);
   }
