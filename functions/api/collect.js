@@ -1,5 +1,6 @@
 import {json,NO_STORE_HEADERS,methodNotAllowed} from '../_lib/http.js';
 import {validateEvent,isLikelyBot,easternDay} from '../_lib/validation.js';
+import {sha256} from '../_lib/auth.js';
 
 function corsHeaders(origin){
   return {
@@ -38,6 +39,21 @@ export async function onRequest(context){
 
   const event=checked.event;
   const now=new Date(),serverTs=now.toISOString(),day=easternDay(now);
+
+  // Anonymous rate control: raw IP is never persisted.
+  if(context.env.AUTH_PEPPER){
+    const ip=context.request.headers.get('CF-Connecting-IP')||'unknown';
+    const nowSeconds=Math.floor(now.getTime()/1000);
+    const windowStarted=Math.floor(nowSeconds/600)*600;
+    const rateKey=await sha256('collector-rate|'+ip+'|'+windowStarted+'|'+context.env.AUTH_PEPPER);
+    const rate=await context.env.STATS_DB.prepare('SELECT event_count FROM collector_rate WHERE rate_key=?').bind(rateKey).first();
+    if(Number(rate?.event_count||0)>=200)return new Response(null,{status:204,headers:corsHeaders(origin)});
+    await context.env.STATS_DB.prepare(
+      'INSERT INTO collector_rate(rate_key,window_started,event_count) VALUES(?,?,1) ON CONFLICT(rate_key) DO UPDATE SET event_count=event_count+1'
+    ).bind(rateKey,windowStarted).run();
+    if(Math.random()<0.01)await context.env.STATS_DB.prepare('DELETE FROM collector_rate WHERE window_started<?').bind(windowStarted-7200).run();
+  }
+
   try{
     await context.env.STATS_DB.prepare(
       'INSERT OR IGNORE INTO events(event_id,visitor_id,session_id,event_type,acquisition_source,acquisition_campaign,session_entry,display_mode,language,app_version,device_category,browser,action_name,target,client_ts,server_ts,server_day_et) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
