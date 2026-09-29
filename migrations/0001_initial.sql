@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS admin_users (
   email TEXT NOT NULL UNIQUE,
   password_hash TEXT NOT NULL,
   password_salt TEXT NOT NULL,
-  password_iterations INTEGER NOT NULL,
+  password_scheme TEXT NOT NULL DEFAULT 'hmac-sha256-v1',
   role TEXT NOT NULL DEFAULT 'admin',
   active INTEGER NOT NULL DEFAULT 1,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
