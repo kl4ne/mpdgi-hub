@@ -1,5 +1,18 @@
 [
   {
+    "version": "1.5.0",
+    "title": "Private Analytics Foundation",
+    "date": "2026-09-29",
+    "changes": [
+      "Adds privacy-preserving anonymous analytics for sessions, page views, acquisition source, installed-PWA usage and key Hub actions.",
+      "Separates acquisition source from session entry so NFC, QR, shared links, browser visits and later PWA launches are not mixed together.",
+      "Uses first-party anonymous identifiers only; no names, payment details, precise location or sensitive personal information are collected.",
+      "Adds resilient local event queuing and unique event IDs so temporary network failures do not break the Hub or double-count retries.",
+      "Cleans source/campaign query parameters after attribution to reduce accidental source contamination when users share the Hub URL.",
+      "Prepares the Hub to send analytics only to the private MPDGI Stats collector while preserving the approved v1.4.7 visual design."
+    ]
+  },
+  {
     "version": "1.4.7",
     "title": "Cache Reliability & Smart Navigation",
     "date": "2026-09-28",
