@@ -198,10 +198,6 @@ function setupDashboard(){
     try{await api('/api/auth/logout',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});}catch{}
     setView(false);
   });
-  $('language-button').addEventListener('click',()=>{
-    const next=document.documentElement.lang==='es'?'en':'es';document.documentElement.lang=next;
-    $('language-button').textContent=next.toUpperCase();
-  });
   document.querySelectorAll('.nav-item').forEach(item=>item.addEventListener('click',()=>{
     document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));item.classList.add('active');
   }));
