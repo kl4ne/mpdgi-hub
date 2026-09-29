@@ -11,7 +11,7 @@ export async function onRequest(context){
   let body;try{body=await readJson(context.request,4096);}catch(error){return json({error:error.message},error.status||400);}
   const email=String(body.email||'').trim().toLowerCase();
   const password=String(body.password||'');
-  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)||password.length<12||password.length>128)return json({error:'invalid_credentials'},401);
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)||password.length<16||password.length>128)return json({error:'invalid_credentials'},401);
 
   const ip=context.request.headers.get('CF-Connecting-IP')||'unknown';
   const rateKey=await sha256(ip+'|'+email+'|'+context.env.AUTH_PEPPER);
