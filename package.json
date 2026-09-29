@@ -1,11 +1,13 @@
 {
-  "name": "mpdgi-hub",
-  "version": "1.4.7",
+  "name": "mpdgi-stats",
+  "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "test:ui": "playwright test",
-    "test:ui:chromium": "playwright test --project=chromium",
-    "test:ui:webkit": "playwright test --project=webkit"
+    "validate:stats": "node tests/stats-unit.mjs",
+    "test:stats": "playwright test -c playwright.stats.config.cjs",
+    "test:stats:chromium": "playwright test -c playwright.stats.config.cjs --project=chromium",
+    "test:stats:webkit": "playwright test -c playwright.stats.config.cjs --project=webkit"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0"
