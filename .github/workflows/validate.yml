@@ -99,7 +99,7 @@ jobs:
           if(!sw.includes("cache:'reload'")||!sw.includes('purgeOldCaches')||!sw.includes("type==='REPAIR_CACHES'"))throw Error('Cache reliability/repair strategy missing');
           if(!app.includes("STORAGE_VERSION_KEY='mpdgiHubVersion'")||!app.includes("type:'REPAIR_CACHES'"))throw Error('Stored-version cache repair trigger missing');
           if(!index.includes('id="address-link"')||!app.includes('directionsUrl(address)')||!app.includes("directionsLabel:'Abrir indicaciones"))throw Error('Smart directions behavior missing');
-          if(!app.includes('COPYRIGHT_START_YEAR=2026')||!app.includes('__MPDGI_COPYRIGHT_RANGE__'))throw Error('Automatic copyright guard missing');
+          if(!app.includes('COPYRIGHT_START_YEAR=2026')||!app.includes('__MPDGI_COPYRIGHT_RANGE__')||!app.includes("textElement('p','modal-text',copyrightText(currentLanguage))"))throw Error('Automatic copyright guard missing from footer/About');
           if('organization' in config||'verifiedRoutes' in config)throw Error('Unused config metadata returned');
           if(links.some(x=>'routeVerified' in x))throw Error('Unused routeVerified metadata returned');
           if(sw.includes('data/changelog.json'))throw Error('Changelog must not be runtime-cached');
@@ -153,7 +153,7 @@ jobs:
           const pw=read('playwright.config.js');
           if(!pw.includes("name:'chromium'")||!pw.includes("name:'webkit'"))throw Error('Cross-browser projects missing');
           const tests=read('tests/ui.spec.js');
-          if(!tests.includes('cached shell reloads offline in Chromium')||!tests.includes('payment logos remain stable across repeated Chromium reopen cycles')||!tests.includes('stored version mismatch repairs old MPDGI caches')||!tests.includes('copyright year range never goes below')||!tests.includes('church address opens directions'))throw Error('v1.4.7 reliability/navigation QA tests missing');
+          if(!tests.includes('cached shell reloads offline in Chromium')||!tests.includes('payment logos remain stable across repeated Chromium reopen cycles')||!tests.includes('stored version mismatch repairs old MPDGI caches')||!tests.includes('copyright year range never goes below')||!tests.includes('About modal renders automatic copyright')||!tests.includes('church address opens directions'))throw Error('v1.4.7 reliability/navigation QA tests missing');
           if(!qa.includes('actions/checkout@v7')||!qa.includes('actions/setup-node@v7')||!qa.includes("node-version: '24'"))throw Error('Modern GitHub Actions runtime missing');
           if(!qa.includes('lighthouse@13.5.0')||!qa.includes('chromium webkit'))throw Error('QA dependency/runtime upgrade missing');
           if(!qa.includes('Production smoke after Pages deployment')||!qa.includes('https://hub.mpdgi.org/'))throw Error('Production smoke check missing');

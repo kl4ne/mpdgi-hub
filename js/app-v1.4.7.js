@@ -303,7 +303,7 @@ function renderAboutModal(trigger){
   const s=UI[currentLanguage],b=openModal(s.aboutTitle,trigger);b.append(textElement('p','modal-text',s.aboutIntro));
   const meta=document.createElement('div');meta.className='about-meta';const v=document.createElement('div');v.append(textElement('span','',s.version),textElement('strong','', 'v'+(config.version||HUB_VERSION)));const w=document.createElement('div');w.append(textElement('span','',s.website),textElement('strong','','mpdgi.org'));meta.append(v,w);b.append(meta);
   const install=createInstallAction();if(install)b.append(install);
-  b.append(textElement('p','modal-text',s.external+': '+s.externalText),textElement('p','modal-text',s.privacy+': '+s.privacyText),textElement('p','modal-text about-credit',s.developerCredit),textElement('p','modal-text',s.copyright),externalLink(s.officialWebsite,config.website));
+  b.append(textElement('p','modal-text',s.external+': '+s.externalText),textElement('p','modal-text',s.privacy+': '+s.privacyText),textElement('p','modal-text about-credit',s.developerCredit),textElement('p','modal-text',copyrightText(currentLanguage)),externalLink(s.officialWebsite,config.website));
 }
 function openNamedModal(type,trigger){if(type==='give')renderGiveModal(trigger);if(type==='social')renderSocialModal(trigger);if(type==='bible')renderBibleModal(trigger);if(type==='about')renderAboutModal(trigger);}
 function setupModal(){

@@ -1,6 +1,7 @@
 'use strict';
 
 const SCRIPT_VERSION=new URL(self.location.href).searchParams.get('v')||'dev';
+const BUILD_ID='2026-09-28-about-copyright-fix';
 importScripts('./js/version-v1.4.7.js');
 const VERSION=self.MPDGI_HUB_VERSION||SCRIPT_VERSION;
 const CACHE_PREFIX='mpdgi-hub';

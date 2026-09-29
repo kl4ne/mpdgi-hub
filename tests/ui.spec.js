@@ -251,3 +251,16 @@ test('payment logos remain stable across repeated Chromium reopen cycles',async(
     await p.close();
   }
 });
+
+
+test('About modal renders automatic copyright instead of the year placeholder',async({page})=>{
+  await page.goto('/',{waitUntil:'networkidle'});
+  await page.locator('[data-card-id="about"] .card-action').click();
+  const modal=page.locator('#modal-body');
+  await expect(modal).toContainText('© 2026 Ministerio Plenitud de Gracia');
+  await expect(modal).not.toContainText('{year}');
+  await page.locator('#modal-close').click();
+  await page.locator('#language-toggle').click();
+  await page.locator('[data-card-id="about"] .card-action').click();
+  await expect(page.locator('#modal-body')).not.toContainText('{year}');
+});

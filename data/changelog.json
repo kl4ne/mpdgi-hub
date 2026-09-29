@@ -8,7 +8,8 @@
       "Service Worker cache reads are isolated by cache and release; old MPDGI caches are purged automatically and critical assets are rebuilt from fresh network responses.",
       "The church address is now tappable: Apple Maps is used on iPhone/iPad and Google Maps directions on Android and desktop.",
       "Copyright automatically grows from 2026 to 2026–current year and safely stays at 2026 if the device clock reports an earlier or invalid year.",
-      "No visual redesign: the approved v1.4.6 layout, cards and Giving presentation are preserved."
+      "No visual redesign: the approved v1.4.6 layout, cards and Giving presentation are preserved.",
+      "Fixed the About modal so its copyright uses the same automatic year-range formatter as the footer."
     ]
   },
   {
