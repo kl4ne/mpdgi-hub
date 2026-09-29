@@ -2,7 +2,7 @@ name: Validate MPDGI Hub
 
 on:
   push:
-    branches: [main]
+    branches: [main, v1.5.0-analytics]
   pull_request:
 
 permissions:
@@ -21,7 +21,7 @@ jobs:
           node-version: '24'
           package-manager-cache: false
 
-      - name: Validate v1.4.7
+      - name: Validate v1.5.0
         run: |
           node --check js/version.js
           node --check js/app.js
@@ -52,7 +52,7 @@ jobs:
           ];
           const must=[
             'index.html','sw.js','manifest.json','README.md','.nojekyll','CNAME',
-            'css/style.css','css/style-v1.4.7.css','js/version.js','js/version-v1.4.7.js','js/app.js','js/app-v1.4.7.js','data/config.json','data/links.json','data/changelog.json',
+            'css/style.css','css/style-v1.5.0.css','js/version.js','js/version-v1.5.0.js','js/app.js','js/app-v1.5.0.js','data/config.json','data/links.json','data/changelog.json',
             'assets/profile/logo-mpdg.png','assets/icons/icon-192.png','assets/icons/icon-512.png','assets/icons/apple-touch-icon.png',
             'assets/social/mpdgi-hub-share.svg','assets/qr/README.md',
             'package.json','playwright.config.js','tests/ui.spec.js','tests/webkit.spec.js',
@@ -69,14 +69,18 @@ jobs:
           delete globalThis.MPDGI_HUB_VERSION;
           require('./js/version.js');
           const release=globalThis.MPDGI_HUB_VERSION;
-          if(release!=='1.4.7')throw Error('Runtime version source mismatch');
+          if(release!=='1.5.0')throw Error('Runtime version source mismatch');
           if(pkg.version!==release||config.version!==release||changelog[0]?.version!==release)throw Error('Release metadata mismatch');
-          if(changelog[0]?.title!=='Cache Reliability & Smart Navigation')throw Error('Changelog title mismatch');
+          if(changelog[0]?.title!=='Private Analytics Foundation')throw Error('Changelog title mismatch');
           if(!app.includes("globalThis.MPDGI_HUB_VERSION||'dev'"))throw Error('App does not consume shared version');
-          if(!sw.includes("importScripts('./js/version-v1.4.7.js')")||!sw.includes("self.MPDGI_HUB_VERSION||SCRIPT_VERSION"))throw Error('Service Worker does not consume release-pinned shared version');
-          if(!index.includes('<script src="js/version-v1.4.7.js"></script>')||index.indexOf('js/version-v1.4.7.js')>index.indexOf('js/app-v1.4.7.js'))throw Error('Version script ordering mismatch');
+          if(!sw.includes("importScripts('./js/version-v1.5.0.js')")||!sw.includes("self.MPDGI_HUB_VERSION||SCRIPT_VERSION"))throw Error('Service Worker does not consume release-pinned shared version');
+          if(!index.includes('<script src="js/version-v1.5.0.js"></script>')||index.indexOf('js/version-v1.5.0.js')>index.indexOf('js/app-v1.5.0.js'))throw Error('Version script ordering mismatch');
 
-          if(app.length>=40000)throw Error('app.js unexpectedly large: '+app.length);
+          if(app.length>=52000)throw Error('app.js unexpectedly large: '+app.length);
+          if(!app.includes('ANALYTICS_SCHEMA_VERSION=1')||!app.includes("VALID_ACQUISITION_SOURCES=new Set(['nfc','qr','link','unattributed'])")||!app.includes("VALID_SESSION_ENTRIES=new Set(['nfc','qr','link','web','pwa'])"))throw Error('Analytics source/session model missing');
+          if(!app.includes('history.replaceState')||!app.includes('ANALYTICS_SESSION_TIMEOUT=30*60*1000')||!app.includes('navigator.sendBeacon')||!app.includes('ANALYTICS_MAX_QUEUE=100'))throw Error('Analytics reliability controls missing');
+          if(!app.includes("analyticsCollector:'https://stats.mpdgi.org/api/collect'")||!app.includes("location.hostname==='hub.mpdgi.org'"))throw Error('Analytics production guard missing');
+          if(!app.includes('mpdgi_visitor_id')||!app.includes('mpdgi_first_source')||!app.includes("display_mode:isStandaloneMode()?'pwa':'browser'"))throw Error('Anonymous acquisition/PWA continuity missing');
           if(app.includes('SOCIAL_BRAND_SVGS'))throw Error('Inline social SVG bundle returned');
           if(!app.includes('SOCIAL_BRAND_ASSETS'))throw Error('Local social brand asset map missing');
           if(!app.includes('PAYMENT_BRAND_SVGS')||app.includes('PAYMENT_BRAND_ASSETS'))throw Error('Known-good inline payment SVG rendering missing');
@@ -93,8 +97,8 @@ jobs:
 
           if(css.includes('.modal-action.primary'))throw Error('Dead primary-button CSS returned');
           if(!css.includes('.payment-brand-logo svg')||!css.includes('.social-facebook .brand-mark img'))throw Error('Brand rendering CSS mismatch');
-          if(read('css/style-v1.4.7.css')!==css||read('js/app-v1.4.7.js')!==app||read('js/version-v1.4.7.js')!==read('js/version.js'))throw Error('Release-pinned runtime assets drifted from canonical sources');
-          if(!index.includes('css/style-v1.4.7.css')||!index.includes('js/app-v1.4.7.js'))throw Error('Release-pinned runtime assets missing from index');
+          if(read('css/style-v1.5.0.css')!==css||read('js/app-v1.5.0.js')!==app||read('js/version-v1.5.0.js')!==read('js/version.js'))throw Error('Release-pinned runtime assets drifted from canonical sources');
+          if(!index.includes('css/style-v1.5.0.css')||!index.includes('js/app-v1.5.0.js'))throw Error('Release-pinned runtime assets missing from index');
           if(sw.includes('caches.match(')||sw.includes('ignoreSearch'))throw Error('Global/ignoreSearch cache lookup returned');
           if(!sw.includes("cache:'reload'")||!sw.includes('purgeOldCaches')||!sw.includes("type==='REPAIR_CACHES'"))throw Error('Cache reliability/repair strategy missing');
           if(!app.includes("STORAGE_VERSION_KEY='mpdgiHubVersion'")||!app.includes("type:'REPAIR_CACHES'"))throw Error('Stored-version cache repair trigger missing');
@@ -105,7 +109,7 @@ jobs:
           if(sw.includes('data/changelog.json'))throw Error('Changelog must not be runtime-cached');
           if(!sw.includes('dataStaleWhileRevalidate')||!sw.includes('event.waitUntil(network.then'))throw Error('Fast data refresh strategy missing');
 
-          for(const t of ["default-src 'self'","script-src 'self'","style-src 'self'","img-src 'self' data:","connect-src 'self'","worker-src 'self'","object-src 'none'","base-uri 'self'"])if(!index.includes(t))throw Error('Missing CSP: '+t);
+          for(const t of ["default-src 'self'","script-src 'self'","style-src 'self'","img-src 'self' data:","connect-src 'self' https://stats.mpdgi.org","worker-src 'self'","object-src 'none'","base-uri 'self'"])if(!index.includes(t))throw Error('Missing CSP: '+t);
           if(manifest.start_url!=='./'||manifest.scope!=='./'||manifest.id!=='./'||manifest.display!=='standalone'||manifest.lang!=='es'||manifest.dir!=='ltr')throw Error('Manifest mismatch');
           if(manifest.shortcuts)throw Error('Manifest shortcuts must remain disabled');
           if(!manifest.description.startsWith('Hub digital oficial'))throw Error('Manifest description language mismatch');
@@ -120,7 +124,9 @@ jobs:
           if(config.bibleSpanish!=='https://www.biblegateway.com/versions/Reina-Valera-1960-RVR1960-Biblia/')throw Error('RVR1960 route mismatch');
           if(config.bibleEnglish!=='https://www.biblegateway.com/versions/King-James-Version-KJV-Bible/')throw Error('KJV route mismatch');
           if(config.defaultLanguage!=='es'||config.developer!=='Roberto S. Macfie')throw Error('Config identity/default mismatch');
-          if(config.customDomain!=='https://hub.mpdgi.org/'||config.nfcUrl!==config.customDomain||config.hubUrl!==config.customDomain)throw Error('Production custom-domain mismatch');
+          if(config.customDomain!=='https://hub.mpdgi.org/'||config.hubUrl!==config.customDomain)throw Error('Production custom-domain mismatch');
+          if(config.nfcUrl!=='https://hub.mpdgi.org/?src=nfc'||config.qrUrl!=='https://hub.mpdgi.org/?src=qr'||config.sharedLinkUrl!=='https://hub.mpdgi.org/?src=link')throw Error('Analytics entry URL mismatch');
+          if(config.analyticsEnabled!==true||config.analyticsCollector!=='https://stats.mpdgi.org/api/collect')throw Error('Analytics collector configuration mismatch');
           if(config.legacyGitHubPagesUrl!=='https://kl4ne.github.io/mpdgi-hub/')throw Error('Legacy fallback mismatch');
           if(read('CNAME').trim()!=='hub.mpdgi.org')throw Error('CNAME mismatch');
           if(!index.includes('<link rel="canonical" href="https://hub.mpdgi.org/">'))throw Error('Canonical URL mismatch');
@@ -147,7 +153,7 @@ jobs:
           if(!css.includes('min-height:100svh')||!css.includes('min-height:100dvh'))throw Error('Dynamic viewport support missing');
           if(!css.includes('@media(max-height:680px)'))throw Error('Short-screen readability rule missing');
           if(!sw.includes('self.skipWaiting()')||!sw.includes('self.clients.claim()'))throw Error('Service Worker immediate activation missing');
-          for(const p of ['./index.html','./css/style-v1.4.7.css','./js/version-v1.4.7.js','./js/app-v1.4.7.js','./manifest.json','./data/config.json','./data/links.json','./assets/profile/logo-mpdg.png','./assets/icons/icon-192.png','./assets/icons/icon-512.png','./assets/icons/apple-touch-icon.png'])if(!sw.includes("'"+p+"'"))throw Error('SW missing critical asset: '+p);
+          for(const p of ['./index.html','./css/style-v1.5.0.css','./js/version-v1.5.0.js','./js/app-v1.5.0.js','./manifest.json','./data/config.json','./data/links.json','./assets/profile/logo-mpdg.png','./assets/icons/icon-192.png','./assets/icons/icon-512.png','./assets/icons/apple-touch-icon.png'])if(!sw.includes("'"+p+"'"))throw Error('SW missing critical asset: '+p);
 
           if(pkg.devDependencies?.['@playwright/test']!=='1.63.0')throw Error('Playwright version mismatch');
           const pw=read('playwright.config.js');
@@ -189,5 +195,5 @@ jobs:
             for(const re of secretPatterns)if(re.test(body))throw Error('Potential secret detected in '+p+': '+re);
           }
 
-          console.log('MPDGI Hub v1.4.7 validated');
+          console.log('MPDGI Hub v1.5.0 validated');
           NODE
