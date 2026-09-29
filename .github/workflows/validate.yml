@@ -79,7 +79,7 @@ jobs:
           if(app.length>=52000)throw Error('app.js unexpectedly large: '+app.length);
           if(!app.includes('ANALYTICS_SCHEMA_VERSION=1')||!app.includes("VALID_ACQUISITION_SOURCES=new Set(['nfc','qr','link','unattributed'])")||!app.includes("VALID_SESSION_ENTRIES=new Set(['nfc','qr','link','web','pwa'])"))throw Error('Analytics source/session model missing');
           if(!app.includes('history.replaceState')||!app.includes('ANALYTICS_SESSION_TIMEOUT=30*60*1000')||!app.includes('navigator.sendBeacon')||!app.includes('ANALYTICS_MAX_QUEUE=100'))throw Error('Analytics reliability controls missing');
-          if(!app.includes("analyticsCollector:'https://stats.mpdgi.org/api/collect'")||!app.includes("location.hostname==='hub.mpdgi.org'"))throw Error('Analytics production guard missing');
+          if(!app.includes("analyticsCollector:'https://mpdgi-stats.pages.dev/api/collect'")||!app.includes("location.hostname==='hub.mpdgi.org'"))throw Error('Analytics production guard missing');
           if(!app.includes('mpdgi_visitor_id')||!app.includes('mpdgi_first_source')||!app.includes("display_mode:isStandaloneMode()?'pwa':'browser'"))throw Error('Anonymous acquisition/PWA continuity missing');
           if(app.includes('SOCIAL_BRAND_SVGS'))throw Error('Inline social SVG bundle returned');
           if(!app.includes('SOCIAL_BRAND_ASSETS'))throw Error('Local social brand asset map missing');
@@ -109,7 +109,7 @@ jobs:
           if(sw.includes('data/changelog.json'))throw Error('Changelog must not be runtime-cached');
           if(!sw.includes('dataStaleWhileRevalidate')||!sw.includes('event.waitUntil(network.then'))throw Error('Fast data refresh strategy missing');
 
-          for(const t of ["default-src 'self'","script-src 'self'","style-src 'self'","img-src 'self' data:","connect-src 'self' https://stats.mpdgi.org","worker-src 'self'","object-src 'none'","base-uri 'self'"])if(!index.includes(t))throw Error('Missing CSP: '+t);
+          for(const t of ["default-src 'self'","script-src 'self'","style-src 'self'","img-src 'self' data:","connect-src 'self' https://mpdgi-stats.pages.dev","worker-src 'self'","object-src 'none'","base-uri 'self'"])if(!index.includes(t))throw Error('Missing CSP: '+t);
           if(manifest.start_url!=='./'||manifest.scope!=='./'||manifest.id!=='./'||manifest.display!=='standalone'||manifest.lang!=='es'||manifest.dir!=='ltr')throw Error('Manifest mismatch');
           if(manifest.shortcuts)throw Error('Manifest shortcuts must remain disabled');
           if(!manifest.description.startsWith('Hub digital oficial'))throw Error('Manifest description language mismatch');
@@ -126,7 +126,7 @@ jobs:
           if(config.defaultLanguage!=='es'||config.developer!=='Roberto S. Macfie')throw Error('Config identity/default mismatch');
           if(config.customDomain!=='https://hub.mpdgi.org/'||config.hubUrl!==config.customDomain)throw Error('Production custom-domain mismatch');
           if(config.nfcUrl!=='https://hub.mpdgi.org/?src=nfc'||config.qrUrl!=='https://hub.mpdgi.org/?src=qr'||config.sharedLinkUrl!=='https://hub.mpdgi.org/?src=link')throw Error('Analytics entry URL mismatch');
-          if(config.analyticsEnabled!==true||config.analyticsCollector!=='https://stats.mpdgi.org/api/collect')throw Error('Analytics collector configuration mismatch');
+          if(config.analyticsEnabled!==true||config.analyticsCollector!=='https://mpdgi-stats.pages.dev/api/collect')throw Error('Analytics collector configuration mismatch');
           if(config.legacyGitHubPagesUrl!=='https://kl4ne.github.io/mpdgi-hub/')throw Error('Legacy fallback mismatch');
           if(read('CNAME').trim()!=='hub.mpdgi.org')throw Error('CNAME mismatch');
           if(!index.includes('<link rel="canonical" href="https://hub.mpdgi.org/">'))throw Error('Canonical URL mismatch');
