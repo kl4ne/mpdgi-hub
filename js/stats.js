@@ -8,6 +8,7 @@ const DISPLAY_LABELS={pwa:'PWA instalada',browser:'Navegador'};
 const DEVICE_LABELS={mobile:'Móvil',desktop:'Computadora',tablet:'Tableta',other:'Otro'};
 const BROWSER_LABELS={edge:'Edge',chrome:'Chrome',safari:'Safari',firefox:'Firefox',other:'Otro'};
 const LANGUAGE_LABELS={es:'ES — Español',en:'EN — English',other:'Otro'};
+const VISITOR_MIX_LABELS={new:'Nuevos',returning:'Recurrentes'};
 const ACTION_LABELS={
   card_members:'Portal de Miembros',card_give:'Ofrendar',card_prayer:'Petición de Oración',card_bible:'Biblia',
   card_ministries:'Ministerios',card_social:'Redes Sociales',card_website:'Sitio Web',card_about:'Acerca de',
@@ -133,12 +134,23 @@ function renderDashboard(data){
   renderBars('devices-list',data.devices||[],DEVICE_LABELS);
   renderBars('browsers-list',data.browsers||[],BROWSER_LABELS);
   renderBars('languages-list',data.languages||[],LANGUAGE_LABELS);
+  renderBars('visitor-mix-list',data.visitor_mix||[],VISITOR_MIX_LABELS);
+  renderBars('campaigns-list',data.campaigns||[],{});
   renderHealth(data.health||{});
+}
+
+function dashboardQuery(){
+  if(currentPreset==='custom'){
+    const from=$('range-from').value,to=$('range-to').value;
+    if(from&&to&&from<=to)return '?preset=custom&from='+encodeURIComponent(from)+'&to='+encodeURIComponent(to);
+    return '?preset=30d';
+  }
+  return '?preset='+encodeURIComponent(currentPreset);
 }
 
 async function loadDashboard(){
   try{
-    const data=await api('/api/dashboard?preset='+encodeURIComponent(currentPreset));
+    const data=await api('/api/dashboard'+dashboardQuery());
     renderDashboard(data);
   }catch(error){
     if(error.status===401){setView(false);return;}
@@ -181,12 +193,21 @@ function setupLogin(){
 }
 
 function setupDashboard(){
-  $('range-select').addEventListener('change',async event=>{currentPreset=event.target.value;await loadDashboard();});
+  $('range-select').addEventListener('change',async event=>{
+    currentPreset=event.target.value;
+    $('custom-range').hidden=currentPreset!=='custom';
+    if(currentPreset!=='custom')await loadDashboard();
+  });
+  $('apply-range').addEventListener('click',async()=>{
+    const from=$('range-from').value,to=$('range-to').value;
+    if(!from||!to||from>to){alert('Selecciona un rango de fechas válido.');return;}
+    await loadDashboard();
+  });
   $('print-button').addEventListener('click',()=>window.print());
   $('export-button').addEventListener('click',async()=>{
     const button=$('export-button');button.disabled=true;
     try{
-      const response=await fetch('/api/export?preset='+encodeURIComponent(currentPreset),{credentials:'same-origin',cache:'no-store'});
+      const response=await fetch('/api/export'+dashboardQuery(),{credentials:'same-origin',cache:'no-store'});
       if(response.status===401){setView(false);return;}
       if(!response.ok)throw new Error('export failed');
       const blob=await response.blob();const url=URL.createObjectURL(blob);
