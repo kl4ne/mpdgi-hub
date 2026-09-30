@@ -400,10 +400,9 @@ function setupDashboard(){
   $('campaign-name').addEventListener('input',updateCampaignUrl);
   $('campaign-source').addEventListener('change',updateCampaignUrl);
   $('campaign-create').addEventListener('click',()=>void saveCampaign());
-  $('campaign-copy').addEventListener('click',()=>{
-    const url=$('campaign-url').value;
-    void copyValue(url,'campaign-feedback');
-    void saveCampaign();
+  $('campaign-copy').addEventListener('click',async()=>{
+    const saved=await saveCampaign();
+    if(saved)await copyValue(saved.url||$('campaign-url').value,'campaign-feedback');
   });
   $('campaign-open').addEventListener('click',async()=>{
     const url=$('campaign-url').value;
