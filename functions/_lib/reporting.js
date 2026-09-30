@@ -123,7 +123,11 @@ export async function getDashboardData(env,urlString){
     languages:normalize(rows(result[8]),['es','en','other']),
     top_actions:rows(result[9]).map(r=>({key:String(r.key),value:Number(r.value)||0})),
     visitor_mix:normalize(rows(result[10]),['new','returning']),
-    campaigns:rows(result[11]).map(r=>({key:String(r.key),value:Number(r.value)||0})),
+    campaigns:rows(result[11]).map(r=>({
+      id:String(r.id||''),name:String(r.name||r.slug||''),slug:String(r.slug||''),source:String(r.source||''),
+      created_at:r.created_at||null,sessions:Number(r.sessions)||0,visitors:Number(r.visitors)||0,
+      acquired_visitors:Number(r.acquired_visitors)||0,last_activity_at:r.last_activity_at||null
+    })),
     health:{collector:'operational',database:'operational',last_event_at:last.last_event_at||null}
   };
 }
