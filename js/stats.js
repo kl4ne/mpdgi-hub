@@ -286,7 +286,7 @@ async function checkSession(){
   try{
     const session=await api('/api/auth/session');
     setView(true);showPanel(currentView);await loadDashboard();return session;
-  }catch(error){setView(false);return null;}
+  }catch(error){globalThis.__MPDGI_STATS_SESSION_ERROR__=String(error?.message||error);console.warn('[MPDGI Stats] session check failed',error);setView(false);return null;}
 }
 
 function showPanel(view){
