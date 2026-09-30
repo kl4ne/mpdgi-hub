@@ -1,4 +1,5 @@
 import {easternDay} from './validation.js';
+import {ensureCampaignSchema} from './schema.js';
 
 const PRESETS={ '7d':7,'30d':30,'90d':90,'365d':365 };
 const DATE_RE=/^\d{4}-\d{2}-\d{2}$/;
@@ -56,6 +57,7 @@ function fillDaily(input,from,to){
 
 export async function getDashboardData(env,urlString){
   if(!env.STATS_DB)throw Object.assign(new Error('database_not_configured'),{status:503});
+  await ensureCampaignSchema(env);
   const range=resolveRange(urlString);
   const summarySql=`SELECT
     COUNT(DISTINCT e.session_id) AS visits,
