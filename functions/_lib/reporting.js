@@ -79,7 +79,14 @@ export async function getDashboardData(env,urlString){
     db.prepare('SELECT language AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? GROUP BY language').bind(range.from,range.to),
     db.prepare("SELECT action_name AS key,COUNT(*) AS value FROM events WHERE server_day_et BETWEEN ? AND ? AND event_type='action' AND action_name<>'' GROUP BY action_name ORDER BY value DESC LIMIT 12").bind(range.from,range.to),
     db.prepare("SELECT CASE WHEN v.first_seen_day_et BETWEEN ? AND ? THEN 'new' ELSE 'returning' END AS key,COUNT(DISTINCT e.visitor_id) AS value FROM events e JOIN visitors v ON v.visitor_id=e.visitor_id WHERE e.server_day_et BETWEEN ? AND ? GROUP BY key").bind(range.from,range.to,range.from,range.to),
-    db.prepare("SELECT v.acquisition_campaign AS key,COUNT(DISTINCT e.visitor_id) AS value FROM events e JOIN visitors v ON v.visitor_id=e.visitor_id WHERE e.server_day_et BETWEEN ? AND ? AND v.acquisition_campaign<>'' GROUP BY v.acquisition_campaign ORDER BY value DESC LIMIT 12").bind(range.from,range.to),
+    db.prepare(`SELECT c.id,c.name,c.slug,c.source,c.created_at,
+      (SELECT COUNT(DISTINCT s.session_id) FROM sessions s WHERE s.session_campaign=c.slug AND s.session_entry=c.source AND s.first_seen_day_et BETWEEN ? AND ?) AS sessions,
+      (SELECT COUNT(DISTINCT s.visitor_id) FROM sessions s WHERE s.session_campaign=c.slug AND s.session_entry=c.source AND s.first_seen_day_et BETWEEN ? AND ?) AS visitors,
+      (SELECT COUNT(DISTINCT v.visitor_id) FROM visitors v WHERE v.acquisition_campaign=c.slug AND v.acquisition_source=c.source AND v.first_seen_day_et BETWEEN ? AND ?) AS acquired_visitors,
+      (SELECT MAX(s.first_seen_at) FROM sessions s WHERE s.session_campaign=c.slug AND s.session_entry=c.source AND s.first_seen_day_et BETWEEN ? AND ?) AS last_activity_at
+      FROM campaigns c WHERE c.active=1 ORDER BY c.created_at DESC LIMIT 100`).bind(
+        range.from,range.to,range.from,range.to,range.from,range.to,range.from,range.to
+      ),
     db.prepare('SELECT MAX(server_ts) AS last_event_at FROM events')
   ];
   const result=await db.batch(statements);
