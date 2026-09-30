@@ -217,7 +217,10 @@ function normalizeCampaign(value){
 function isStandaloneMode(){return Boolean(window.matchMedia?.('(display-mode: standalone)').matches||navigator.standalone===true);}
 function deviceCategory(){
   const ua=navigator.userAgent||'';
-  if(/iPad|Tablet|Android(?!.*Mobile)/i.test(ua))return 'tablet';
+  const platform=navigator.platform||'';
+  const touchPoints=Number(navigator.maxTouchPoints)||0;
+  const ipadDesktopMode=/iPad/i.test(ua)||((/Macintosh|Mac OS X/i.test(ua)||/MacIntel/i.test(platform))&&touchPoints>1);
+  if(ipadDesktopMode||/Tablet|Android(?!.*Mobile)/i.test(ua))return 'tablet';
   if(/Mobi|iPhone|iPod|Android/i.test(ua))return 'mobile';
   return 'desktop';
 }
