@@ -407,8 +407,8 @@ function setupDashboard(){
   });
   $('campaign-open').addEventListener('click',()=>{
     const url=$('campaign-url').value;
-    window.open(url,'_blank','noopener,noreferrer');
     void saveCampaign();
+    window.open(url,'_blank','noopener,noreferrer');
   });
   $('general-link-copy').addEventListener('click',()=>copyValue($('general-link-url').value,'campaign-feedback'));
 }
