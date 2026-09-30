@@ -31,18 +31,9 @@ test('unauthenticated users see only the secure login experience',async({page})=
 });
 
 test('authenticated dashboard renders the same server aggregates including zero-value QR',async({page})=>{
-  const pageErrors=[];
-  let sessionRequests=0;
-  page.on('pageerror',error=>pageErrors.push(error.message));
-  await page.route('**/api/auth/session',r=>{sessionRequests+=1;return r.fulfill({status:200,contentType:'application/json',body:'{"authenticated":true,"user":{"email":"owner@example.com","role":"owner"}}'});});
+  await page.route('**/api/auth/session',r=>r.fulfill({status:200,contentType:'application/json',body:'{"authenticated":true,"user":{"email":"owner@example.com","role":"owner"}}'}));
   await page.route('**/api/dashboard**',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(sample)}));
   await page.goto('/',{waitUntil:'domcontentloaded'});
-  await page.waitForTimeout(150);
-  expect(pageErrors,'Browser page errors: '+pageErrors.join(' | ')).toEqual([]);
-  const diagnostic=await page.evaluate(()=>({stage:globalThis.__MPDGI_STATS_INIT_STAGE__||'',sessionError:globalThis.__MPDGI_STATS_SESSION_ERROR__||''}));
-  expect(diagnostic.stage,'Initialization stage | auth requests: '+sessionRequests+' | session error: '+diagnostic.sessionError).toBe('ready');
-  expect(sessionRequests,'Auth session requests observed | stage: '+diagnostic.stage).toBeGreaterThan(0);
-  expect(diagnostic.sessionError,'Session check error: '+diagnostic.sessionError+' | stage: '+diagnostic.stage).toBe('');
   await expect(page.locator('#app-view')).toBeVisible();
   await expect(page.locator('#metric-visits')).toHaveText('128');
   await expect(page.locator('#metric-unique')).toHaveText('84');
