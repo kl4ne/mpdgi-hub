@@ -13,12 +13,12 @@ const I18N={
     summary:'Resumen',loadingPeriod:'Cargando período…',visits:'Visitas (sesiones)',uniqueVisitors:'Visitantes únicos estimados',pwaSessions:'Sesiones desde PWA',pageViews:'Page Views',currentPeriod:'Período actual',lastUpdated:'Última actualización',
     reportsTitle:'Reportes',reportsIntro:'Resumen visual e imprimible del período seleccionado.',dailyVisits:'Visitas diarias',newReturning:'Visitantes nuevos vs recurrentes',anonymousEstimate:'Estimación anónima',reportNoteTitle:'Acerca del reporte',reportNote:'El dashboard, el CSV y el reporte impreso utilizan los mismos datos agregados del servidor. No se exportan identificadores anónimos individuales.',
     sourcesTitle:'Fuentes',sourcesIntro:'Cómo llegaron los visitantes y cómo comenzó cada sesión.',acquisitionSource:'Fuente de adquisición',estimatedVisitors:'Visitantes estimados',total:'Total',source:'Fuente',visitorsShort:'Visitantes',sessionEntry:'Entrada de sesión',usageMode:'Modo de uso',
-    campaignsTitle:'Campañas',campaignsIntro:'Crea enlaces etiquetados para saber cuándo una visita llega por Link, QR o NFC.',createCampaign:'Crear campaña',noCost:'Sin servicios adicionales',campaignName:'Nombre de campaña',campaignSource:'Tipo de acceso',sharedLink:'Enlace compartido',generatedUrl:'URL generada',copyUrl:'Copiar URL',openUrl:'Abrir URL',campaignResults:'Resultados de campañas',firstTouch:'Adquisición inicial etiquetada',generalShareLink:'Enlace general para compartir',generalShareHelp:'Usa este enlace cuando envíes el Hub por WhatsApp, Messages, correo o redes y quieras que Stats lo clasifique como Enlace.',copy:'Copiar',
+    campaignsTitle:'Campañas',campaignsIntro:'Crea enlaces etiquetados para saber cuándo una visita llega por Link, QR o NFC.',createCampaign:'Crear campaña',noCost:'Sin servicios adicionales',campaignName:'Nombre de campaña',campaignSource:'Tipo de acceso',sharedLink:'Enlace compartido',generatedUrl:'URL generada',copyUrl:'Copiar URL',openUrl:'Abrir URL',campaignResults:'Resultados de campañas',firstTouch:'Sesiones atribuidas y adquisición inicial',generalShareLink:'Enlace general para compartir',generalShareHelp:'Usa este enlace cuando envíes el Hub por WhatsApp, Messages, correo o redes y quieras que Stats lo clasifique como Enlace.',copy:'Copiar',
     engagementTitle:'Interacción',engagementIntro:'Qué acciones realizan los visitantes dentro del Hub.',topActions:'Acciones principales',
     technologyTitle:'Tecnología',technologyIntro:'Dispositivos, navegadores e idioma observado.',devices:'Dispositivos',browsers:'Navegadores',languages:'Idiomas',
     systemTitle:'Estado del sistema',systemIntro:'Comprobación de los componentes principales de MPDGI Stats.',systemHealth:'Salud del sistema',database:'Base de datos',lastEvent:'Último evento',authorizedFooter:'🔒 Solo administradores autorizados.',
     noData:'Sin datos para este período.',sessions:'sesiones',generated:'Generado',previousPeriod:'vs. período anterior',allOperational:'● Todos los sistemas operacionales',attentionRequired:'● Atención requerida',operational:'Operacional',review:'Revisar',noEvents:'Sin eventos',
-    loginError:'Correo o contraseña incorrectos.',rateError:'Demasiados intentos. Intenta nuevamente en unos minutos.',validRange:'Selecciona un rango de fechas válido.',exportError:'No fue posible generar el CSV.',copied:'URL copiada.',copyFailed:'No fue posible copiar automáticamente. Selecciona y copia la URL.',campaignPlaceholder:'reunion-lideres-octubre',
+    loginError:'Correo o contraseña incorrectos.',rateError:'Demasiados intentos. Intenta nuevamente en unos minutos.',validRange:'Selecciona un rango de fechas válido.',exportError:'No fue posible generar el CSV.',copied:'URL copiada.',copyFailed:'No fue posible copiar automáticamente. Selecciona y copia la URL.',campaignPlaceholder:'reunion-lideres-octubre',createCampaignButton:'Crear campaña',campaignCreated:'Campaña creada y guardada.',campaignExists:'La campaña ya existía; se usará el registro existente.',campaignCreateError:'No fue posible guardar la campaña.',campaignNameRequired:'Escribe un nombre de campaña.',campaignSessions:'Sesiones',campaignVisitors:'Visitantes estimados',campaignFirstTouch:'Adquisición inicial',campaignCreatedOn:'Creada',campaignLastActivity:'Última actividad',campaignNoActivity:'Sin actividad en este período',
     dashboardSummary:(visits,users)=>visits+' sesiones · '+users+' visitantes estimados',
     tipVisits:'Número de sesiones observadas durante el período seleccionado. Una misma persona o dispositivo puede iniciar más de una sesión.',
     tipUnique:'Estimación anónima de navegadores o dispositivos únicos observados. No identifica personas por nombre.',
@@ -32,7 +32,7 @@ const I18N={
     tipSessionEntry:'Cómo comenzó cada sesión específica: NFC, QR, Link, Web o PWA instalada.',
     tipDisplayMode:'Indica si la sesión se utilizó en navegador o desde la PWA instalada.',
     tipCampaignBuilder:'Genera URLs etiquetadas para que MPDGI Stats pueda distinguir enlaces compartidos, QR y NFC.',
-    tipCampaignResults:'Campañas registradas como parte de la adquisición inicial de visitantes anónimos.',
+    tipCampaignResults:'Campañas guardadas y resultados del período: sesiones atribuidas, visitantes estimados y adquisición inicial.',
     tipGeneralLink:'Enlace listo para compartir. El parámetro src=link permite clasificar la entrada como Enlace.',
     tipActions:'Acciones más utilizadas dentro del Hub, como Portal de Miembros, Ofrendar, Biblia, redes o GPS.',
     tipDevices:'Categoría del dispositivo reportada por el Hub: móvil, computadora, tableta u otro.',
@@ -47,12 +47,12 @@ const I18N={
     summary:'Summary',loadingPeriod:'Loading period…',visits:'Visits (sessions)',uniqueVisitors:'Estimated unique visitors',pwaSessions:'PWA sessions',pageViews:'Page Views',currentPeriod:'Current period',lastUpdated:'Last updated',
     reportsTitle:'Reports',reportsIntro:'Visual and printable summary for the selected period.',dailyVisits:'Daily visits',newReturning:'New vs returning visitors',anonymousEstimate:'Anonymous estimate',reportNoteTitle:'About this report',reportNote:'The dashboard, CSV export and printed report use the same aggregated server data. Individual anonymous identifiers are not exported.',
     sourcesTitle:'Sources',sourcesIntro:'How visitors arrived and how each session started.',acquisitionSource:'Acquisition source',estimatedVisitors:'Estimated visitors',total:'Total',source:'Source',visitorsShort:'Visitors',sessionEntry:'Session entry',usageMode:'Usage mode',
-    campaignsTitle:'Campaigns',campaignsIntro:'Create tagged URLs to identify visits arriving through Link, QR or NFC.',createCampaign:'Create campaign',noCost:'No additional services',campaignName:'Campaign name',campaignSource:'Access type',sharedLink:'Shared link',generatedUrl:'Generated URL',copyUrl:'Copy URL',openUrl:'Open URL',campaignResults:'Campaign results',firstTouch:'Tagged initial acquisition',generalShareLink:'General share link',generalShareHelp:'Use this link when sharing the Hub through WhatsApp, Messages, email or social media and you want Stats to classify it as Link.',copy:'Copy',
+    campaignsTitle:'Campaigns',campaignsIntro:'Create tagged URLs to identify visits arriving through Link, QR or NFC.',createCampaign:'Create campaign',noCost:'No additional services',campaignName:'Campaign name',campaignSource:'Access type',sharedLink:'Shared link',generatedUrl:'Generated URL',copyUrl:'Copy URL',openUrl:'Open URL',campaignResults:'Campaign results',firstTouch:'Attributed sessions and initial acquisition',generalShareLink:'General share link',generalShareHelp:'Use this link when sharing the Hub through WhatsApp, Messages, email or social media and you want Stats to classify it as Link.',copy:'Copy',
     engagementTitle:'Engagement',engagementIntro:'What visitors do inside the Hub.',topActions:'Top actions',
     technologyTitle:'Technology',technologyIntro:'Observed devices, browsers and Hub language.',devices:'Devices',browsers:'Browsers',languages:'Languages',
     systemTitle:'System status',systemIntro:'Status of the main MPDGI Stats components.',systemHealth:'System Health',database:'Database',lastEvent:'Last event',authorizedFooter:'🔒 For authorized administrators only.',
     noData:'No data for this period.',sessions:'sessions',generated:'Generated',previousPeriod:'vs. previous period',allOperational:'● All systems operational',attentionRequired:'● Attention required',operational:'Operational',review:'Review',noEvents:'No events',
-    loginError:'Incorrect email or password.',rateError:'Too many attempts. Try again in a few minutes.',validRange:'Select a valid date range.',exportError:'The CSV could not be generated.',copied:'URL copied.',copyFailed:'Automatic copy failed. Select and copy the URL.',campaignPlaceholder:'leaders-meeting-october',
+    loginError:'Incorrect email or password.',rateError:'Too many attempts. Try again in a few minutes.',validRange:'Select a valid date range.',exportError:'The CSV could not be generated.',copied:'URL copied.',copyFailed:'Automatic copy failed. Select and copy the URL.',campaignPlaceholder:'leaders-meeting-october',createCampaignButton:'Create campaign',campaignCreated:'Campaign created and saved.',campaignExists:'This campaign already existed; the existing record will be used.',campaignCreateError:'The campaign could not be saved.',campaignNameRequired:'Enter a campaign name.',campaignSessions:'Sessions',campaignVisitors:'Estimated visitors',campaignFirstTouch:'Initial acquisition',campaignCreatedOn:'Created',campaignLastActivity:'Last activity',campaignNoActivity:'No activity in this period',
     dashboardSummary:(visits,users)=>visits+' sessions · '+users+' estimated visitors',
     tipVisits:'Number of observed sessions during the selected period. The same person or device can start more than one session.',
     tipUnique:'Anonymous estimate of unique browsers or devices observed. It does not identify people by name.',
@@ -66,7 +66,7 @@ const I18N={
     tipSessionEntry:'How each specific session started: NFC, QR, Link, Web or installed PWA.',
     tipDisplayMode:'Whether the session was used in a browser or from the installed PWA.',
     tipCampaignBuilder:'Creates tagged URLs so MPDGI Stats can distinguish shared links, QR and NFC.',
-    tipCampaignResults:'Campaigns recorded as part of anonymous visitors’ initial acquisition.',
+    tipCampaignResults:'Saved campaigns and period results: attributed sessions, estimated visitors and initial acquisition.',
     tipGeneralLink:'Ready-to-share URL. The src=link parameter classifies the entry as Link.',
     tipActions:'Most-used Hub actions, such as Member Portal, Give, Bible, social media or GPS.',
     tipDevices:'Device category reported by the Hub: mobile, desktop, tablet or other.',
@@ -213,6 +213,26 @@ function renderDaily(items){
   changeText('daily-total',number(total)+' '+t('sessions'));
 }
 
+function renderCampaigns(items){
+  const root=$('campaigns-list');if(!root)return;root.replaceChildren();
+  if(!items.length){root.textContent=t('noData');return;}
+  for(const item of items){
+    const card=document.createElement('div');card.className='campaign-result';
+    const head=document.createElement('div');head.className='campaign-result-head';
+    const title=document.createElement('strong');title.textContent=item.name||item.slug||'—';
+    const badge=document.createElement('span');badge.className='campaign-source-badge';badge.textContent=String(item.source||'').toUpperCase();
+    head.append(title,badge);
+    const metrics=document.createElement('div');metrics.className='campaign-result-metrics';
+    const metric=(label,value)=>{const box=document.createElement('span');const k=document.createElement('small');k.textContent=label;const v=document.createElement('b');v.textContent=number(value);box.append(k,v);return box;};
+    metrics.append(metric(t('campaignSessions'),item.sessions),metric(t('campaignVisitors'),item.visitors),metric(t('campaignFirstTouch'),item.acquired_visitors));
+    const meta=document.createElement('div');meta.className='campaign-result-meta';
+    const created=document.createElement('span');created.textContent=t('campaignCreatedOn')+': '+(item.created_at?dateTime(item.created_at):'—');
+    const last=document.createElement('span');last.textContent=t('campaignLastActivity')+': '+(item.last_activity_at?dateTime(item.last_activity_at):t('campaignNoActivity'));
+    meta.append(created,last);
+    card.append(head,metrics,meta);root.append(card);
+  }
+}
+
 function setStatusLight(id,status){
   const el=$(id);if(!el)return;
   el.className='status-light '+(status==='ok'?'status-green':status==='bad'?'status-red':'status-neutral');
@@ -256,7 +276,7 @@ function renderDashboard(data){
   renderBars('languages-list',data.languages||[],LABELS[currentLang].language);
   renderBars('visitor-mix-list',data.visitor_mix||[],LABELS[currentLang].mix);
   renderBars('visitor-mix-list-secondary',data.visitor_mix||[],LABELS[currentLang].mix);
-  renderBars('campaigns-list',data.campaigns||[],{});
+  renderCampaigns(data.campaigns||[]);
   renderHealth(data.health||{});
 }
 
@@ -310,6 +330,23 @@ function updateCampaignUrl(){
   if(slug)url.searchParams.set('campaign',slug);
   output.value=url.toString();
 }
+async function saveCampaign(){
+  const name=$('campaign-name').value.trim(),source=$('campaign-source').value,slug=slugify(name);
+  const feedback=$('campaign-feedback');
+  if(!name||!slug){feedback.textContent=t('campaignNameRequired');feedback.style.color='#b42318';return null;}
+  const button=$('campaign-create');if(button)button.disabled=true;
+  try{
+    const result=await api('/api/campaigns',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,source,slug})});
+    if(result?.campaign?.url)$('campaign-url').value=result.campaign.url;
+    feedback.textContent=result?.created===false?t('campaignExists'):t('campaignCreated');
+    feedback.style.color='#147a32';
+    await loadDashboard();
+    return result?.campaign||{url:$('campaign-url').value};
+  }catch(error){
+    feedback.textContent=t('campaignCreateError');feedback.style.color='#b42318';
+    console.error('[MPDGI Stats] campaign save failed',error);return null;
+  }finally{if(button)button.disabled=false;}
+}
 async function copyValue(value,feedbackId){
   try{
     await navigator.clipboard.writeText(value);
@@ -362,8 +399,23 @@ function setupDashboard(){
 
   $('campaign-name').addEventListener('input',updateCampaignUrl);
   $('campaign-source').addEventListener('change',updateCampaignUrl);
-  $('campaign-copy').addEventListener('click',()=>copyValue($('campaign-url').value,'campaign-feedback'));
-  $('campaign-open').addEventListener('click',()=>window.open($('campaign-url').value,'_blank','noopener,noreferrer'));
+  $('campaign-create').addEventListener('click',()=>void saveCampaign());
+  $('campaign-copy').addEventListener('click',async()=>{
+    const saved=await saveCampaign();
+    if(saved)await copyValue(saved.url||$('campaign-url').value,'campaign-feedback');
+  });
+  $('campaign-open').addEventListener('click',async()=>{
+    const url=$('campaign-url').value;
+    const popup=window.open('about:blank','_blank');
+    if(popup){try{popup.opener=null;}catch{}}
+    const saved=await saveCampaign();
+    const target=saved?.url||url;
+    if(popup){
+      try{popup.location.replace(target);}catch{try{popup.location.href=target;}catch{}}
+    }else if(saved){
+      window.open(target,'_blank','noopener,noreferrer');
+    }
+  });
   $('general-link-copy').addEventListener('click',()=>copyValue($('general-link-url').value,'campaign-feedback'));
 }
 

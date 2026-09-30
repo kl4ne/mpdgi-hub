@@ -23,6 +23,7 @@ export function validateEvent(input){
     event_type:clean(input.event_type,32),
     acquisition_source:clean(input.acquisition_source,32),
     acquisition_campaign:campaign(input.acquisition_campaign),
+    session_campaign:campaign(input.session_campaign),
     session_entry:clean(input.session_entry,32),
     display_mode:clean(input.display_mode,32),
     language:clean(input.language,16),

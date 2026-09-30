@@ -1,4 +1,5 @@
 import {easternDay} from './validation.js';
+import {ensureCampaignSchema} from './schema.js';
 
 const PRESETS={ '7d':7,'30d':30,'90d':90,'365d':365 };
 const DATE_RE=/^\d{4}-\d{2}-\d{2}$/;
@@ -56,6 +57,7 @@ function fillDaily(input,from,to){
 
 export async function getDashboardData(env,urlString){
   if(!env.STATS_DB)throw Object.assign(new Error('database_not_configured'),{status:503});
+  await ensureCampaignSchema(env);
   const range=resolveRange(urlString);
   const summarySql=`SELECT
     COUNT(DISTINCT e.session_id) AS visits,
@@ -77,7 +79,14 @@ export async function getDashboardData(env,urlString){
     db.prepare('SELECT language AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? GROUP BY language').bind(range.from,range.to),
     db.prepare("SELECT action_name AS key,COUNT(*) AS value FROM events WHERE server_day_et BETWEEN ? AND ? AND event_type='action' AND action_name<>'' GROUP BY action_name ORDER BY value DESC LIMIT 12").bind(range.from,range.to),
     db.prepare("SELECT CASE WHEN v.first_seen_day_et BETWEEN ? AND ? THEN 'new' ELSE 'returning' END AS key,COUNT(DISTINCT e.visitor_id) AS value FROM events e JOIN visitors v ON v.visitor_id=e.visitor_id WHERE e.server_day_et BETWEEN ? AND ? GROUP BY key").bind(range.from,range.to,range.from,range.to),
-    db.prepare("SELECT v.acquisition_campaign AS key,COUNT(DISTINCT e.visitor_id) AS value FROM events e JOIN visitors v ON v.visitor_id=e.visitor_id WHERE e.server_day_et BETWEEN ? AND ? AND v.acquisition_campaign<>'' GROUP BY v.acquisition_campaign ORDER BY value DESC LIMIT 12").bind(range.from,range.to),
+    db.prepare(`SELECT c.id,c.name,c.slug,c.source,c.created_at,
+      (SELECT COUNT(DISTINCT s.session_id) FROM sessions s WHERE s.session_campaign=c.slug AND s.session_entry=c.source AND s.first_seen_day_et BETWEEN ? AND ?) AS sessions,
+      (SELECT COUNT(DISTINCT s.visitor_id) FROM sessions s WHERE s.session_campaign=c.slug AND s.session_entry=c.source AND s.first_seen_day_et BETWEEN ? AND ?) AS visitors,
+      (SELECT COUNT(DISTINCT v.visitor_id) FROM visitors v WHERE v.acquisition_campaign=c.slug AND v.acquisition_source=c.source AND v.first_seen_day_et BETWEEN ? AND ?) AS acquired_visitors,
+      (SELECT MAX(s.first_seen_at) FROM sessions s WHERE s.session_campaign=c.slug AND s.session_entry=c.source AND s.first_seen_day_et BETWEEN ? AND ?) AS last_activity_at
+      FROM campaigns c WHERE c.active=1 ORDER BY c.created_at DESC LIMIT 100`).bind(
+        range.from,range.to,range.from,range.to,range.from,range.to,range.from,range.to
+      ),
     db.prepare('SELECT MAX(server_ts) AS last_event_at FROM events')
   ];
   const result=await db.batch(statements);
@@ -114,7 +123,11 @@ export async function getDashboardData(env,urlString){
     languages:normalize(rows(result[8]),['es','en','other']),
     top_actions:rows(result[9]).map(r=>({key:String(r.key),value:Number(r.value)||0})),
     visitor_mix:normalize(rows(result[10]),['new','returning']),
-    campaigns:rows(result[11]).map(r=>({key:String(r.key),value:Number(r.value)||0})),
+    campaigns:rows(result[11]).map(r=>({
+      id:String(r.id||''),name:String(r.name||r.slug||''),slug:String(r.slug||''),source:String(r.source||''),
+      created_at:r.created_at||null,sessions:Number(r.sessions)||0,visitors:Number(r.visitors)||0,
+      acquired_visitors:Number(r.acquired_visitors)||0,last_activity_at:r.last_activity_at||null
+    })),
     health:{collector:'operational',database:'operational',last_event_at:last.last_event_at||null}
   };
 }
@@ -137,7 +150,12 @@ export function dashboardCsv(data){
   for(const item of data.languages)lines.push(['Languages',item.key,item.value]);
   for(const item of data.top_actions)lines.push(['Top Actions',item.key,item.value]);
   for(const item of data.visitor_mix)lines.push(['Visitor Mix',item.key,item.value]);
-  for(const item of data.campaigns)lines.push(['Campaigns',item.key,item.value]);
+  for(const item of data.campaigns){
+    const label=item.name+' ['+item.source+']';
+    lines.push(['Campaign Sessions',label,item.sessions]);
+    lines.push(['Campaign Estimated Visitors',label,item.visitors]);
+    lines.push(['Campaign First-touch Visitors',label,item.acquired_visitors]);
+  }
   for(const item of data.daily_visits)lines.push(['Daily Visits',item.day,item.value]);
   return lines.map(row=>row.map(csvCell).join(',')).join('\r\n')+'\r\n';
 }

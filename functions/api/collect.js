@@ -1,6 +1,7 @@
 import {json,NO_STORE_HEADERS,methodNotAllowed} from '../_lib/http.js';
 import {validateEvent,isLikelyBot,easternDay} from '../_lib/validation.js';
 import {sha256} from '../_lib/auth.js';
+import {ensureCampaignSchema} from '../_lib/schema.js';
 
 function corsHeaders(origin){
   return {
@@ -38,6 +39,7 @@ export async function onRequest(context){
   if(!checked.ok)return json({error:checked.error},400,corsHeaders(origin));
 
   const event=checked.event;
+  try{await ensureCampaignSchema(context.env);}catch(error){console.error('[MPDGI Stats] schema upgrade failed',error);return json({error:'collector_unavailable'},503,corsHeaders(origin));}
   const now=new Date(),serverTs=now.toISOString(),day=easternDay(now);
 
   // Anonymous rate control: raw IP is never persisted.
@@ -61,12 +63,12 @@ export async function onRequest(context){
         'INSERT OR IGNORE INTO visitors(visitor_id,acquisition_source,acquisition_campaign,first_seen_at,first_seen_day_et) VALUES(?,?,?,?,?)'
       ).bind(event.visitor_id,event.acquisition_source,event.acquisition_campaign,serverTs,day),
       context.env.STATS_DB.prepare(
-        'INSERT OR IGNORE INTO sessions(session_id,visitor_id,session_entry,display_mode,first_seen_at,first_seen_day_et) VALUES(?,?,?,?,?,?)'
-      ).bind(event.session_id,event.visitor_id,event.session_entry,event.display_mode,serverTs,day),
+        'INSERT OR IGNORE INTO sessions(session_id,visitor_id,session_entry,session_campaign,display_mode,first_seen_at,first_seen_day_et) VALUES(?,?,?,?,?,?,?)'
+      ).bind(event.session_id,event.visitor_id,event.session_entry,event.session_campaign,event.display_mode,serverTs,day),
       context.env.STATS_DB.prepare(
-        'INSERT OR IGNORE INTO events(event_id,visitor_id,session_id,event_type,acquisition_source,acquisition_campaign,session_entry,display_mode,language,app_version,device_category,browser,action_name,target,client_ts,server_ts,server_day_et) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+        'INSERT OR IGNORE INTO events(event_id,visitor_id,session_id,event_type,acquisition_source,acquisition_campaign,session_entry,session_campaign,display_mode,language,app_version,device_category,browser,action_name,target,client_ts,server_ts,server_day_et) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
       ).bind(
-        event.event_id,event.visitor_id,event.session_id,event.event_type,event.acquisition_source,event.acquisition_campaign,event.session_entry,
+        event.event_id,event.visitor_id,event.session_id,event.event_type,event.acquisition_source,event.acquisition_campaign,event.session_entry,event.session_campaign,
         event.display_mode,event.language,event.app_version,event.device_category,event.browser,event.action_name,event.target,event.client_ts||null,serverTs,day
       )
     ]);

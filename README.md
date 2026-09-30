@@ -17,7 +17,7 @@ MPDGI Stats provides private, authenticated reporting for anonymous Hub usage:
 - NFC / QR / Link / Web attribution
 - Session Entry
 - New vs Returning anonymous visitors
-- Campaigns
+- Saved campaigns with Link / QR / NFC URLs and per-session results
 - Top Hub actions
 - Devices, browsers and languages
 - Professional Print / Save PDF reports

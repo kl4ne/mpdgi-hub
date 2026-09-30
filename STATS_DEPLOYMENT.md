@@ -1,6 +1,6 @@
 # MPDGI Stats — zero-cost deployment plan
 
-This branch is the private **MPDGI Stats** application that supports MPDGI Hub v1.5.0.
+This branch is the private **MPDGI Stats** application that supports MPDGI Hub v1.5.2.
 
 ## Non-negotiable project rules
 
@@ -31,9 +31,12 @@ Bind it to the Pages project with the binding name:
 
 `STATS_DB`
 
-Apply:
+Apply for a fresh/manual setup:
 
-`migrations/0001_initial.sql`
+- `migrations/0001_initial.sql`
+- `migrations/0002_campaigns.sql`
+
+Stats v1.1.1 also checks and applies the campaign/session columns safely at runtime so the existing production D1 database can upgrade without losing analytics data.
 
 ## Required server-side secrets
 
@@ -84,6 +87,8 @@ The Hub immediately removes `src` and `campaign` from the visible address after 
 - **Page Views**: page-view events.
 - **Acquisition Source**: the first known source for the anonymous visitor and remains immutable.
 - **Session Entry**: how the current session began (NFC, QR, Link, Web or PWA).
+- **Session Campaign**: the tagged campaign for that specific session; it can change on a later visit without changing the visitor's original acquisition.
+- **Saved Campaign**: a record created in Stats before or when Copy/Open is used, so it appears immediately even with zero activity.
 - **QR** always appears in reports even when the value is zero.
 
 ## Privacy and reliability

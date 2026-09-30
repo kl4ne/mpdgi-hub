@@ -199,13 +199,14 @@
             </label>
             <label><span data-i18n="generatedUrl">URL generada</span><input id="campaign-url" type="text" readonly></label>
             <div class="campaign-actions">
-              <button id="campaign-copy" class="primary-button compact" type="button" data-i18n="copyUrl">Copiar URL</button>
+              <button id="campaign-create" class="primary-button compact" type="button" data-i18n="createCampaignButton">Crear campaña</button>
+              <button id="campaign-copy" class="secondary-button compact" type="button" data-i18n="copyUrl">Copiar URL</button>
               <button id="campaign-open" class="secondary-button compact" type="button" data-i18n="openUrl">Abrir URL</button>
             </div>
             <p id="campaign-feedback" class="campaign-feedback" aria-live="polite"></p>
           </article>
           <article class="panel" data-tooltip-key="tipCampaignResults">
-            <div class="panel-head"><h2 data-i18n="campaignResults">Resultados de campañas</h2><span data-i18n="firstTouch">Adquisición inicial etiquetada</span></div>
+            <div class="panel-head"><h2 data-i18n="campaignResults">Resultados de campañas</h2><span data-i18n="firstTouch">Sesiones atribuidas y adquisición inicial</span></div>
             <div id="campaigns-list" class="bar-list"></div>
           </article>
         </div>
@@ -257,7 +258,7 @@
       </section>
 
       <footer class="stats-footer">
-        <span>MPDGI Stats v<span id="stats-version">1.1.0</span></span>
+        <span>MPDGI Stats v<span id="stats-version">1.1.1</span></span>
         <span class="developer-credit">Designed &amp; Developed by Roberto S. Macfie for MPDGI</span>
         <span data-i18n="authorizedFooter">🔒 For authorized administrators only.</span>
       </footer>
