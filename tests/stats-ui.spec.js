@@ -40,9 +40,9 @@ test('authenticated dashboard renders the same server aggregates including zero-
   await page.waitForTimeout(150);
   expect(pageErrors,'Browser page errors: '+pageErrors.join(' | ')).toEqual([]);
   const diagnostic=await page.evaluate(()=>({stage:globalThis.__MPDGI_STATS_INIT_STAGE__||'',sessionError:globalThis.__MPDGI_STATS_SESSION_ERROR__||''}));
-  expect(sessionRequests,'Auth session requests observed').toBeGreaterThan(0);
+  expect(diagnostic.stage,'Initialization stage | auth requests: '+sessionRequests+' | session error: '+diagnostic.sessionError).toBe('ready');
+  expect(sessionRequests,'Auth session requests observed | stage: '+diagnostic.stage).toBeGreaterThan(0);
   expect(diagnostic.sessionError,'Session check error: '+diagnostic.sessionError+' | stage: '+diagnostic.stage).toBe('');
-  expect(diagnostic.stage,'Initialization stage').toBe('ready');
   await expect(page.locator('#app-view')).toBeVisible();
   await expect(page.locator('#metric-visits')).toHaveText('128');
   await expect(page.locator('#metric-unique')).toHaveText('84');
