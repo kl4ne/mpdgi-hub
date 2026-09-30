@@ -75,9 +75,9 @@ test('mobile Stats dashboard avoids horizontal overflow',async({page})=>{
 
 test('custom report range drives dashboard request and keeps report controls professional',async({page})=>{
   await page.route('**/api/auth/session',r=>r.fulfill({status:200,contentType:'application/json',body:'{"authenticated":true,"user":{"email":"owner@example.com","role":"owner"}}'}));
-  let requested='';
+  const requested=[];
   await page.route('**/api/dashboard**',r=>{
-    requested=r.request().url();
+    requested.push(r.request().url());
     return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(sample)});
   });
   await page.goto('/',{waitUntil:'domcontentloaded'});
@@ -86,9 +86,10 @@ test('custom report range drives dashboard request and keeps report controls pro
   await page.locator('#range-from').evaluate(el=>{el.type='text';el.value='2026-09-01';});
   await page.locator('#range-to').evaluate(el=>{el.type='text';el.value='2026-09-29';});
   await page.locator('#apply-range').click();
-  await expect.poll(()=>requested).toContain('preset=custom');
-  expect(requested).toContain('from=2026-09-01');
-  expect(requested).toContain('to=2026-09-29');
+  await expect.poll(()=>requested.some(url=>url.includes('preset=custom'))).toBeTruthy();
+  const customRequest=requested.find(url=>url.includes('preset=custom'))||'';
+  expect(customRequest).toContain('from=2026-09-01');
+  expect(customRequest).toContain('to=2026-09-29');
   await expect(page.locator('#visitor-mix-list')).toContainText('Nuevos');
   await expect(page.locator('#campaigns-list')).toContainText('Credential Test');
 });
@@ -132,11 +133,14 @@ test('campaign builder saves records and open URL also saves before opening',asy
   await expect(page.locator('#campaign-url')).toHaveValue(/src=link.*campaign=reunion-lideres-octubre/);
   await page.locator('#campaign-source').selectOption('qr');
   await expect(page.locator('#campaign-url')).toHaveValue(/src=qr.*campaign=reunion-lideres-octubre/);
-  await page.evaluate(()=>{Object.defineProperty(window,'open',{configurable:true,value:url=>{window.__openedCampaignUrl=url;return null;}});});
+  await page.route('https://hub.mpdgi.org/**',r=>r.fulfill({status:200,contentType:'text/html',body:'<!doctype html><title>Hub test</title>'}));
+  const popupPromise=page.waitForEvent('popup');
   await page.locator('#campaign-open').click();
+  const popup=await popupPromise;
   await expect.poll(()=>saves).toBe(1);
   expect(lastBody).toEqual({name:'Reunión Líderes Octubre',source:'qr',slug:'reunion-lideres-octubre'});
-  await expect.poll(()=>page.evaluate(()=>window.__openedCampaignUrl||'')).toContain('src=qr');
+  expect(popup.url()).toContain('src=qr');
+  await popup.close();
   await expect(page.locator('#campaign-feedback')).toContainText('Campaña creada');
   await expect(page.locator('#campaigns-list')).toContainText('Credential Test');
   await expect(page.locator('#general-link-url')).toHaveValue('https://hub.mpdgi.org/?src=link');
