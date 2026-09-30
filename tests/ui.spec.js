@@ -145,9 +145,9 @@ test('shared runtime version is loaded and matches config',async({page})=>{
       config:config.version
     };
   });
-  expect(values.runtime).toBe('1.5.1');
-  expect(values.source).toBe('1.5.1');
-  expect(values.config).toBe('1.5.1');
+  expect(values.runtime).toBe('1.5.2');
+  expect(values.source).toBe('1.5.2');
+  expect(values.config).toBe('1.5.2');
 });
 
 test('accessibility labels switch with language',async({page})=>{
@@ -191,9 +191,9 @@ test('payment logos use known-good inline SVG rendering',async({page})=>{
 
 test('release-pinned assets prevent mixed-version CSS and JS',async({page})=>{
   await page.goto('/',{waitUntil:'networkidle'});
-  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.5.1.css');
-  await expect(page.locator('script[src="js/version-v1.5.1.js"]')).toHaveCount(1);
-  await expect(page.locator('script[src="js/app-v1.5.1.js"]')).toHaveCount(1);
+  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.5.2.css');
+  await expect(page.locator('script[src="js/version-v1.5.2.js"]')).toHaveCount(1);
+  await expect(page.locator('script[src="js/app-v1.5.2.js"]')).toHaveCount(1);
 });
 
 test('church address opens directions and translates its accessibility label',async({page})=>{
@@ -233,7 +233,7 @@ test('stored version mismatch repairs old MPDGI caches',async({page})=>{
     return !keys.includes('mpdgi-hub-shell-1.4.5')&&!keys.includes('mpdgi-hub-runtime-1.4.6-stale');
   },null,{timeout:10000});
   const keys=await page.evaluate(()=>caches.keys());
-  expect(keys).toContain('mpdgi-hub-shell-1.5.1');
+  expect(keys).toContain('mpdgi-hub-shell-1.5.2');
 });
 
 test('payment logos remain stable across repeated Chromium reopen cycles',async({context})=>{
@@ -281,6 +281,7 @@ test('NFC source is captured, URL is cleaned and collector receives separated at
   expect(session.acquisition_source).toBe('nfc');
   expect(session.acquisition_campaign).toBe('credential-test');
   expect(session.session_entry).toBe('nfc');
+  expect(session.session_campaign).toBe('credential-test');
   expect(session.display_mode).toBe('browser');
   expect(session.visitor_id).toMatch(/^[0-9a-f-]{36}$/);
   expect(session.session_id).toMatch(/^[0-9a-f-]{36}$/);
@@ -296,11 +297,13 @@ test('first acquisition source stays immutable when a later attributed entry use
   });
   await page.goto('/?src=qr',{waitUntil:'networkidle'});
   events.length=0;
-  await page.goto('/?src=nfc',{waitUntil:'networkidle'});
+  await page.goto('/?src=nfc&campaign=leaders-meeting',{waitUntil:'networkidle'});
   await expect.poll(()=>events.some(e=>e.event_type==='session_start')).toBeTruthy();
   const session=events.find(e=>e.event_type==='session_start');
   expect(session.acquisition_source).toBe('qr');
+  expect(session.acquisition_campaign).toBe('');
   expect(session.session_entry).toBe('nfc');
+  expect(session.session_campaign).toBe('leaders-meeting');
 });
 
 test('cookie continuity restores anonymous acquisition after local storage is cleared for an installed-PWA style launch',async({page,context})=>{
@@ -336,6 +339,7 @@ test('cookie continuity restores anonymous acquisition after local storage is cl
   expect(session.visitor_id).toBe(firstVisitor);
   expect(session.acquisition_source).toBe('nfc');
   expect(session.session_entry).toBe('pwa');
+  expect(session.session_campaign).toBe('');
   expect(session.display_mode).toBe('pwa');
 });
 
