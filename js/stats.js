@@ -369,8 +369,16 @@ async function setupServiceWorker(){
 }
 
 async function init(){
+  globalThis.__MPDGI_STATS_INIT_STAGE__='start';
   changeText('stats-version',STATS_VERSION);
-  applyTranslations();setupLogin();setupDashboard();updateCampaignUrl();void setupServiceWorker();
+  globalThis.__MPDGI_STATS_INIT_STAGE__='version';
+  applyTranslations();
+  globalThis.__MPDGI_STATS_INIT_STAGE__='translated';
+  setupLogin();setupDashboard();updateCampaignUrl();
+  globalThis.__MPDGI_STATS_INIT_STAGE__='wired';
+  void setupServiceWorker();
+  globalThis.__MPDGI_STATS_INIT_STAGE__='session-check';
   await checkSession();
+  globalThis.__MPDGI_STATS_INIT_STAGE__='ready';
 }
 init();
