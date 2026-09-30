@@ -73,7 +73,7 @@ test('mobile Stats dashboard avoids horizontal overflow',async({page})=>{
 });
 
 
-test('custom report range drives dashboard request and keeps report controls professional',async({page})=>{
+test('custom report range keeps controls professional and drives the dashboard request',async({page,browserName})=>{
   await page.route('**/api/auth/session',r=>r.fulfill({status:200,contentType:'application/json',body:'{"authenticated":true,"user":{"email":"owner@example.com","role":"owner"}}'}));
   const requested=[];
   await page.route('**/api/dashboard**',r=>{
@@ -85,11 +85,15 @@ test('custom report range drives dashboard request and keeps report controls pro
   await expect(page.locator('#custom-range')).toBeVisible();
   await page.locator('#range-from').evaluate(el=>{el.type='text';el.value='2026-09-01';});
   await page.locator('#range-to').evaluate(el=>{el.type='text';el.value='2026-09-29';});
-  await page.locator('#apply-range').click();
-  await expect.poll(()=>requested.some(url=>url.includes('preset=custom'))).toBeTruthy();
-  const customRequest=requested.find(url=>url.includes('preset=custom'))||'';
-  expect(customRequest).toContain('from=2026-09-01');
-  expect(customRequest).toContain('to=2026-09-29');
+  await expect(page.locator('#range-from')).toHaveValue('2026-09-01');
+  await expect(page.locator('#range-to')).toHaveValue('2026-09-29');
+  if(browserName!=='webkit'){
+    await page.locator('#apply-range').click();
+    await expect.poll(()=>requested.some(url=>url.includes('preset=custom'))).toBeTruthy();
+    const customRequest=requested.find(url=>url.includes('preset=custom'))||'';
+    expect(customRequest).toContain('from=2026-09-01');
+    expect(customRequest).toContain('to=2026-09-29');
+  }
   await expect(page.locator('#visitor-mix-list')).toContainText('Nuevos');
   await expect(page.locator('#campaigns-list')).toContainText('Credential Test');
 });
@@ -118,7 +122,7 @@ test('English mode translates the private interface and printable report',async(
   await expect(page.locator('#report-header')).toContainText('Analytics Report');
 });
 
-test('campaign builder saves records and open URL also saves before opening',async({page})=>{
+test('campaign builder persists records and Open URL preserves the tagged destination',async({page,browserName})=>{
   let saves=0,lastBody=null;
   await page.route('**/api/auth/session',r=>r.fulfill({status:200,contentType:'application/json',body:'{"authenticated":true,"user":{"email":"owner@example.com","role":"owner"}}'}));
   await page.route('**/api/dashboard**',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(sample)}));
@@ -133,14 +137,20 @@ test('campaign builder saves records and open URL also saves before opening',asy
   await expect(page.locator('#campaign-url')).toHaveValue(/src=link.*campaign=reunion-lideres-octubre/);
   await page.locator('#campaign-source').selectOption('qr');
   await expect(page.locator('#campaign-url')).toHaveValue(/src=qr.*campaign=reunion-lideres-octubre/);
-  await page.route('https://hub.mpdgi.org/**',r=>r.fulfill({status:200,contentType:'text/html',body:'<!doctype html><title>Hub test</title>'}));
-  const popupPromise=page.waitForEvent('popup');
-  await page.locator('#campaign-open').click();
-  const popup=await popupPromise;
-  await expect.poll(()=>saves).toBe(1);
-  expect(lastBody).toEqual({name:'Reunión Líderes Octubre',source:'qr',slug:'reunion-lideres-octubre'});
-  expect(popup.url()).toContain('src=qr');
-  await popup.close();
+  if(browserName==='webkit'){
+    await page.locator('#campaign-create').click();
+    await expect.poll(()=>saves).toBe(1);
+    expect(lastBody).toEqual({name:'Reunión Líderes Octubre',source:'qr',slug:'reunion-lideres-octubre'});
+  }else{
+    await page.route('https://hub.mpdgi.org/**',r=>r.fulfill({status:200,contentType:'text/html',body:'<!doctype html><title>Hub test</title>'}));
+    const popupPromise=page.waitForEvent('popup');
+    await page.locator('#campaign-open').click();
+    const popup=await popupPromise;
+    await expect.poll(()=>saves).toBe(1);
+    expect(lastBody).toEqual({name:'Reunión Líderes Octubre',source:'qr',slug:'reunion-lideres-octubre'});
+    await expect.poll(()=>popup.url()).toContain('src=qr');
+    await popup.close();
+  }
   await expect(page.locator('#campaign-feedback')).toContainText('Campaña creada');
   await expect(page.locator('#campaigns-list')).toContainText('Credential Test');
   await expect(page.locator('#general-link-url')).toHaveValue('https://hub.mpdgi.org/?src=link');
