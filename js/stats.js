@@ -288,7 +288,7 @@ async function checkSession(){
   try{
     const session=await api('/api/auth/session');
     setView(true);showPanel(currentView);await loadDashboard();return session;
-  }catch(error){globalThis.__MPDGI_STATS_SESSION_ERROR__=String(error?.message||error);console.warn('[MPDGI Stats] session check failed',error);setView(false);return null;}
+  }catch(error){console.warn('[MPDGI Stats] session check failed',error);setView(false);return null;}
 }
 
 function showPanel(view){
@@ -373,16 +373,8 @@ async function setupServiceWorker(){
 }
 
 async function init(){
-  globalThis.__MPDGI_STATS_INIT_STAGE__='start';
   changeText('stats-version',STATS_VERSION);
-  globalThis.__MPDGI_STATS_INIT_STAGE__='version';
-  applyTranslations();
-  globalThis.__MPDGI_STATS_INIT_STAGE__='translated';
-  setupLogin();setupDashboard();updateCampaignUrl();
-  globalThis.__MPDGI_STATS_INIT_STAGE__='wired';
-  void setupServiceWorker();
-  globalThis.__MPDGI_STATS_INIT_STAGE__='session-check';
+  applyTranslations();setupLogin();setupDashboard();updateCampaignUrl();void setupServiceWorker();
   await checkSession();
-  globalThis.__MPDGI_STATS_INIT_STAGE__='ready';
 }
 init();
