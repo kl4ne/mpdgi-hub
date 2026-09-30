@@ -90,7 +90,9 @@ export async function getDashboardData(env,urlString){
     db.prepare('SELECT MAX(server_ts) AS last_event_at FROM events'),
     db.prepare('SELECT session_id,first_seen_at FROM sessions WHERE first_seen_day_et BETWEEN ? AND ?').bind(range.from,range.to),
     db.prepare('SELECT COALESCE(SUM(received),0) AS received,COALESCE(SUM(accepted),0) AS accepted,COALESCE(SUM(duplicates),0) AS duplicates,COALESCE(SUM(rejected),0) AS rejected,COALESCE(SUM(delayed),0) AS delayed,MAX(last_received_at) AS last_received_at FROM collector_metrics WHERE day_et BETWEEN ? AND ?').bind(range.from,range.to),
-    db.prepare('SELECT COUNT(*) AS stored,COUNT(DISTINCT event_id) AS unique_event_ids,COALESCE(SUM(CASE WHEN client_ts<>'' AND julianday(server_ts)-julianday(client_ts)>0.0013888889 THEN 1 ELSE 0 END),0) AS delayed_events FROM events WHERE server_day_et BETWEEN ? AND ?').bind(range.from,range.to)
+    db.prepare(`SELECT COUNT(*) AS stored,COUNT(DISTINCT event_id) AS unique_event_ids,
+      COALESCE(SUM(CASE WHEN client_ts<>'' AND julianday(server_ts)-julianday(client_ts)>0.0013888889 THEN 1 ELSE 0 END),0) AS delayed_events
+      FROM events WHERE server_day_et BETWEEN ? AND ?`).bind(range.from,range.to)
   ];
   const result=await db.batch(statements);
   const current=one(result[0]),previous=one(result[1]),last=one(result[12]);
