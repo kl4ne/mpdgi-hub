@@ -17,7 +17,10 @@ const sample={
   languages:[{key:'es',value:103},{key:'en',value:25},{key:'other',value:0}],
   top_actions:[{key:'card_members',value:51},{key:'card_bible',value:34},{key:'give_square',value:12},{key:'directions',value:9}],
   visitor_mix:[{key:'new',value:54},{key:'returning',value:30}],
-  campaigns:[{key:'credential-test',value:22},{key:'youth-campaign-2026',value:9}],
+  campaigns:[
+    {id:'c1',name:'Credential Test',slug:'credential-test',source:'nfc',created_at:'2026-09-20T14:00:00.000Z',sessions:22,visitors:18,acquired_visitors:16,last_activity_at:'2026-09-29T18:40:00.000Z'},
+    {id:'c2',name:'Youth Campaign 2026',slug:'youth-campaign-2026',source:'link',created_at:'2026-09-24T14:00:00.000Z',sessions:9,visitors:8,acquired_visitors:6,last_activity_at:'2026-09-28T18:40:00.000Z'}
+  ],
   health:{collector:'operational',database:'operational',last_event_at:'2026-09-29T18:58:00.000Z'}
 };
 
@@ -114,16 +117,27 @@ test('English mode translates the private interface and printable report',async(
   await expect(page.locator('#report-header')).toContainText('Analytics Report');
 });
 
-test('campaign builder creates tagged Link QR and NFC URLs without external services',async({page})=>{
+test('campaign builder saves records and open URL also saves before opening',async({page})=>{
+  let saves=0,lastBody=null;
+  await page.addInitScript(()=>{window.open=url=>{window.__openedCampaignUrl=url;return null;};});
   await page.route('**/api/auth/session',r=>r.fulfill({status:200,contentType:'application/json',body:'{"authenticated":true,"user":{"email":"owner@example.com","role":"owner"}}'}));
   await page.route('**/api/dashboard**',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(sample)}));
+  await page.route('**/api/campaigns',async r=>{
+    saves++;lastBody=JSON.parse(r.request().postData()||'{}');
+    const url='https://hub.mpdgi.org/?src='+lastBody.source+'&campaign='+lastBody.slug;
+    await r.fulfill({status:201,contentType:'application/json',body:JSON.stringify({created:true,campaign:{id:'new',...lastBody,url}})});
+  });
   await page.goto('/',{waitUntil:'domcontentloaded'});
   await page.locator('.nav-item[data-view="campaigns"]').click();
   await page.locator('#campaign-name').fill('Reunión Líderes Octubre');
   await expect(page.locator('#campaign-url')).toHaveValue(/src=link.*campaign=reunion-lideres-octubre/);
   await page.locator('#campaign-source').selectOption('qr');
   await expect(page.locator('#campaign-url')).toHaveValue(/src=qr.*campaign=reunion-lideres-octubre/);
-  await page.locator('#campaign-source').selectOption('nfc');
-  await expect(page.locator('#campaign-url')).toHaveValue(/src=nfc.*campaign=reunion-lideres-octubre/);
+  await page.locator('#campaign-open').click();
+  await expect.poll(()=>saves).toBe(1);
+  expect(lastBody).toEqual({name:'Reunión Líderes Octubre',source:'qr',slug:'reunion-lideres-octubre'});
+  await expect.poll(()=>page.evaluate(()=>window.__openedCampaignUrl||'')).toContain('src=qr');
+  await expect(page.locator('#campaign-feedback')).toContainText('Campaña creada');
+  await expect(page.locator('#campaigns-list')).toContainText('Credential Test');
   await expect(page.locator('#general-link-url')).toHaveValue('https://hub.mpdgi.org/?src=link');
 });
