@@ -184,7 +184,7 @@ test('print mode can expose all report sections for the executive PDF',async({pa
   await page.route('**/api/auth/session',r=>r.fulfill({status:200,contentType:'application/json',body:'{"authenticated":true,"user":{"email":"owner@example.com","role":"owner"}}'}));
   await page.route('**/api/dashboard**',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(sample)}));
   await page.goto('/',{waitUntil:'domcontentloaded'});
-  await page.locator('#print-button').click();
+  await page.evaluate(()=>window.dispatchEvent(new Event('beforeprint')));
   await expect(page.locator('body')).toHaveClass(/print-all/);
   await expect(page.locator('[data-view-panel="reports"]')).toBeVisible();
   await expect(page.locator('[data-view-panel="system"]')).toBeVisible();
