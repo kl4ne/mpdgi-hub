@@ -150,7 +150,12 @@ export function dashboardCsv(data){
   for(const item of data.languages)lines.push(['Languages',item.key,item.value]);
   for(const item of data.top_actions)lines.push(['Top Actions',item.key,item.value]);
   for(const item of data.visitor_mix)lines.push(['Visitor Mix',item.key,item.value]);
-  for(const item of data.campaigns)lines.push(['Campaigns',item.key,item.value]);
+  for(const item of data.campaigns){
+    const label=item.name+' ['+item.source+']';
+    lines.push(['Campaign Sessions',label,item.sessions]);
+    lines.push(['Campaign Estimated Visitors',label,item.visitors]);
+    lines.push(['Campaign First-touch Visitors',label,item.acquired_visitors]);
+  }
   for(const item of data.daily_visits)lines.push(['Daily Visits',item.day,item.value]);
   return lines.map(row=>row.map(csvCell).join(',')).join('\r\n')+'\r\n';
 }
