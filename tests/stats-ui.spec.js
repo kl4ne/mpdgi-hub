@@ -83,8 +83,8 @@ test('custom report range drives dashboard request and keeps report controls pro
   await page.goto('/',{waitUntil:'domcontentloaded'});
   await page.locator('#range-select').selectOption('custom');
   await expect(page.locator('#custom-range')).toBeVisible();
-  await page.locator('#range-from').fill('2026-09-01');
-  await page.locator('#range-to').fill('2026-09-29');
+  await page.locator('#range-from').evaluate(el=>{el.type='text';el.value='2026-09-01';});
+  await page.locator('#range-to').evaluate(el=>{el.type='text';el.value='2026-09-29';});
   await page.locator('#apply-range').click();
   await expect.poll(()=>requested).toContain('preset=custom');
   expect(requested).toContain('from=2026-09-01');
