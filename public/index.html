@@ -34,20 +34,24 @@
         <h1 id="login-title">MPDGI Stats</h1>
         <p class="login-subtitle">Private Analytics Center</p>
         <div class="mini-rule"></div>
-        <p class="authorized">🔒 <strong>Acceso autorizado solamente</strong></p>
-        <p class="login-help">Inicia sesión para ver las estadísticas privadas de MPDGI.</p>
+        <p class="authorized">🔒 <strong data-i18n="authorized">Acceso autorizado solamente</strong></p>
+        <p class="login-help" data-i18n="loginHelp">Inicia sesión para ver las estadísticas privadas de MPDGI.</p>
 
         <form id="login-form" novalidate>
-          <label for="login-email">Correo electrónico</label>
+          <label for="login-email" data-i18n="email">Correo electrónico</label>
           <input id="login-email" name="email" type="email" autocomplete="username" required maxlength="160">
-          <label for="login-password">Contraseña</label>
+          <label for="login-password" data-i18n="password">Contraseña</label>
           <input id="login-password" name="password" type="password" autocomplete="current-password" required minlength="12" maxlength="128">
-          <label class="remember-row"><input id="login-remember" type="checkbox"> <span>Recordarme en este dispositivo</span></label>
-          <button id="login-button" class="primary-button" type="submit">Entrar</button>
+          <label class="remember-row"><input id="login-remember" type="checkbox"> <span data-i18n="remember">Recordarme en este dispositivo</span></label>
+          <button id="login-button" class="primary-button" type="submit" data-i18n="signIn">Entrar</button>
           <p id="login-error" class="form-error" role="alert" hidden></p>
         </form>
 
-        <p class="secure-note">🔒 Acceso privado para administradores aprobados de MPDGI.</p>
+        <div class="login-language" aria-label="Language">
+          <button type="button" class="lang-button active" data-lang="es">ES</button>
+          <button type="button" class="lang-button" data-lang="en">EN</button>
+        </div>
+        <p class="secure-note" data-i18n="secureNote">🔒 Acceso privado para administradores aprobados de MPDGI.</p>
       </section>
     </main>
   </div>
@@ -59,121 +63,203 @@
         <strong>MPDGI</strong><span>STATS</span>
       </div>
       <nav aria-label="Stats navigation">
-        <a class="nav-item active" href="#overview">⌂ <span>Dashboard</span></a>
-        <a class="nav-item" href="#reports">▥ <span>Reportes</span></a>
-        <a class="nav-item" href="#sources">↗ <span>Fuentes</span></a>
-        <a class="nav-item" href="#engagement">◎ <span>Uso</span></a>
-        <a class="nav-item" href="#devices">▣ <span>Dispositivos</span></a>
-        <a class="nav-item" href="#exports">⇩ <span>Exportar</span></a>
+        <button class="nav-item active" type="button" data-view="dashboard">⌂ <span data-i18n="navDashboard">Dashboard</span></button>
+        <button class="nav-item" type="button" data-view="reports">▥ <span data-i18n="navReports">Reportes</span></button>
+        <button class="nav-item" type="button" data-view="sources">↗ <span data-i18n="navSources">Fuentes</span></button>
+        <button class="nav-item" type="button" data-view="campaigns">⌁ <span data-i18n="navCampaigns">Campañas</span></button>
+        <button class="nav-item" type="button" data-view="engagement">◎ <span data-i18n="navEngagement">Interacción</span></button>
+        <button class="nav-item" type="button" data-view="technology">▣ <span data-i18n="navTechnology">Tecnología</span></button>
+        <button class="nav-item" type="button" data-view="system">● <span data-i18n="navSystem">Sistema</span></button>
       </nav>
       <div class="sidebar-bottom">
         <small>Ministerio Plenitud de Gracia</small>
-        <span>Solo administradores autorizados</span>
+        <span data-i18n="adminsOnly">Solo administradores autorizados</span>
       </div>
     </aside>
 
     <main class="dashboard">
       <header class="dashboard-header">
-        <div>
+        <div class="dashboard-title">
           <h1>MPDGI Stats</h1>
           <p>Private Analytics Center</p>
         </div>
         <div class="header-actions">
-          <label class="range-control">Período
+          <div class="lang-toggle" aria-label="Language">
+            <button type="button" class="lang-button active" data-lang="es">ES</button>
+            <button type="button" class="lang-button" data-lang="en">EN</button>
+          </div>
+          <label class="range-control"><span data-i18n="period">Período</span>
             <select id="range-select">
-              <option value="7d">Últimos 7 días</option>
-              <option value="30d" selected>Últimos 30 días</option>
-              <option value="90d">Últimos 90 días</option>
-              <option value="month">Este mes</option>
-              <option value="year">Este año</option>
-              <option value="365d">Últimos 12 meses</option>
-              <option value="custom">Rango personalizado</option>
+              <option value="7d" data-i18n="range7">Últimos 7 días</option>
+              <option value="30d" selected data-i18n="range30">Últimos 30 días</option>
+              <option value="90d" data-i18n="range90">Últimos 90 días</option>
+              <option value="month" data-i18n="rangeMonth">Este mes</option>
+              <option value="year" data-i18n="rangeYear">Este año</option>
+              <option value="365d" data-i18n="range365">Últimos 12 meses</option>
+              <option value="custom" data-i18n="rangeCustom">Rango personalizado</option>
             </select>
           </label>
           <div id="custom-range" class="custom-range" hidden>
-            <label>Desde<input id="range-from" type="date"></label>
-            <label>Hasta<input id="range-to" type="date"></label>
-            <button id="apply-range" class="secondary-button compact" type="button">Aplicar</button>
+            <label><span data-i18n="from">Desde</span><input id="range-from" type="date"></label>
+            <label><span data-i18n="to">Hasta</span><input id="range-to" type="date"></label>
+            <button id="apply-range" class="secondary-button compact" type="button" data-i18n="apply">Aplicar</button>
           </div>
-          <button id="print-button" class="secondary-button" type="button">🖨 Imprimir / PDF</button>
+          <button id="print-button" class="secondary-button" type="button" data-i18n="printPdf">🖨 Imprimir / PDF</button>
           <button id="export-button" class="primary-button compact" type="button">⇩ CSV</button>
-          <button id="logout-button" class="secondary-button compact" type="button">Salir</button>
+          <button id="logout-button" class="secondary-button compact" type="button" data-i18n="logout">Salir</button>
         </div>
       </header>
 
       <section id="report-header" class="print-report-header">
         <div>
           <p class="report-org">MINISTERIO PLENITUD DE GRACIA</p>
-          <h2>MPDGI Stats <span>Analytics Report</span></h2>
+          <h2>MPDGI Stats <span data-i18n="analyticsReport">Analytics Report</span></h2>
           <p id="print-range">—</p>
         </div>
         <img src="assets/profile/logo-mpdg.png" alt="">
       </section>
 
-      <section id="overview" class="section">
+      <section class="view-panel active-view" data-view-panel="dashboard">
         <div class="section-heading">
-          <div><h2>Resumen</h2><p id="range-label">Cargando período…</p></div>
+          <div><h2 data-i18n="summary">Resumen</h2><p id="range-label" data-i18n="loadingPeriod">Cargando período…</p></div>
           <span id="generated-label" class="generated-label"></span>
         </div>
-
         <div class="metrics-grid">
-          <article class="metric-card"><span class="metric-icon">◉</span><p>Visitas (sesiones)</p><strong id="metric-visits">—</strong><small id="metric-visits-change"></small></article>
-          <article class="metric-card"><span class="metric-icon">◎</span><p>Visitantes únicos estimados</p><strong id="metric-unique">—</strong><small id="metric-unique-change"></small></article>
-          <article class="metric-card"><span class="metric-icon">▣</span><p>Sesiones desde PWA</p><strong id="metric-pwa">—</strong><small id="metric-pwa-change"></small></article>
-          <article class="metric-card"><span class="metric-icon">▤</span><p>Page Views</p><strong id="metric-pageviews">—</strong><small id="metric-pageviews-change"></small></article>
+          <article class="metric-card" data-tooltip-key="tipVisits"><span class="metric-icon">◉</span><p data-i18n="visits">Visitas (sesiones)</p><strong id="metric-visits">—</strong><small id="metric-visits-change"></small></article>
+          <article class="metric-card" data-tooltip-key="tipUnique"><span class="metric-icon">◎</span><p data-i18n="uniqueVisitors">Visitantes únicos estimados</p><strong id="metric-unique">—</strong><small id="metric-unique-change"></small></article>
+          <article class="metric-card" data-tooltip-key="tipPwa"><span class="metric-icon">▣</span><p data-i18n="pwaSessions">Sesiones desde PWA</p><strong id="metric-pwa">—</strong><small id="metric-pwa-change"></small></article>
+          <article class="metric-card" data-tooltip-key="tipPageViews"><span class="metric-icon">▤</span><p data-i18n="pageViews">Page Views</p><strong id="metric-pageviews">—</strong><small id="metric-pageviews-change"></small></article>
+        </div>
+        <div class="dashboard-insight panel" data-tooltip-key="tipOverview">
+          <div>
+            <span class="eyebrow" data-i18n="currentPeriod">Período actual</span>
+            <strong id="dashboard-period-summary">—</strong>
+          </div>
+          <div>
+            <span class="eyebrow" data-i18n="lastUpdated">Última actualización</span>
+            <strong id="dashboard-last-updated">—</strong>
+          </div>
         </div>
       </section>
 
-      <section id="reports" class="section grid-two">
-        <article class="panel">
-          <div class="panel-head"><h2>Visitas diarias</h2><span id="daily-total"></span></div>
-          <div id="daily-chart" class="daily-chart" role="img" aria-label="Visitas diarias"></div>
+      <section class="view-panel" data-view-panel="reports" hidden>
+        <div class="section-heading">
+          <div><h2 data-i18n="reportsTitle">Reportes</h2><p data-i18n="reportsIntro">Resumen visual e imprimible del período seleccionado.</p></div>
+        </div>
+        <div class="grid-two">
+          <article class="panel" data-tooltip-key="tipDaily">
+            <div class="panel-head"><h2 data-i18n="dailyVisits">Visitas diarias</h2><span id="daily-total"></span></div>
+            <div id="daily-chart" class="daily-chart" role="img" aria-label="Visitas diarias"></div>
+          </article>
+          <article class="panel" data-tooltip-key="tipVisitorMix">
+            <div class="panel-head"><h2 data-i18n="newReturning">Visitantes nuevos vs recurrentes</h2><span data-i18n="anonymousEstimate">Estimación anónima</span></div>
+            <div id="visitor-mix-list" class="bar-list"></div>
+          </article>
+        </div>
+        <article class="panel report-note" data-tooltip-key="tipReport">
+          <h2 data-i18n="reportNoteTitle">Acerca del reporte</h2>
+          <p data-i18n="reportNote">El dashboard, el CSV y el reporte impreso utilizan los mismos datos agregados del servidor. No se exportan identificadores anónimos individuales.</p>
         </article>
-        <article id="sources" class="panel">
-          <div class="panel-head"><h2>Fuente de adquisición</h2><span>Visitantes estimados</span></div>
-          <div class="donut-layout">
-            <div id="source-donut" class="donut"><div><strong id="source-total">0</strong><small>Total</small></div></div>
-            <div id="source-legend" class="legend-list"></div>
+      </section>
+
+      <section class="view-panel" data-view-panel="sources" hidden>
+        <div class="section-heading">
+          <div><h2 data-i18n="sourcesTitle">Fuentes</h2><p data-i18n="sourcesIntro">Cómo llegaron los visitantes y cómo comenzó cada sesión.</p></div>
+        </div>
+        <div class="grid-two">
+          <article class="panel source-panel" data-tooltip-key="tipAcquisition">
+            <div class="panel-head"><h2 data-i18n="acquisitionSource">Fuente de adquisición</h2><span data-i18n="estimatedVisitors">Visitantes estimados</span></div>
+            <div class="donut-layout">
+              <div id="source-donut" class="donut"><div><strong id="source-total">0</strong><small data-i18n="total">Total</small></div></div>
+              <div class="source-table">
+                <div class="source-table-head"><span data-i18n="source">Fuente</span><span>%</span><span data-i18n="visitorsShort">Visitantes</span></div>
+                <div id="source-legend" class="legend-list"></div>
+              </div>
+            </div>
+          </article>
+          <article class="panel" data-tooltip-key="tipSessionEntry"><div class="panel-head"><h2 data-i18n="sessionEntry">Entrada de sesión</h2></div><div id="session-entry-list" class="bar-list"></div></article>
+        </div>
+        <article class="panel compact-panel" data-tooltip-key="tipDisplayMode"><div class="panel-head"><h2 data-i18n="usageMode">Modo de uso</h2></div><div id="display-list" class="bar-list"></div></article>
+      </section>
+
+      <section class="view-panel" data-view-panel="campaigns" hidden>
+        <div class="section-heading">
+          <div><h2 data-i18n="campaignsTitle">Campañas</h2><p data-i18n="campaignsIntro">Crea enlaces etiquetados para saber cuándo una visita llega por Link, QR o NFC.</p></div>
+        </div>
+        <div class="campaign-grid">
+          <article class="panel campaign-builder" data-tooltip-key="tipCampaignBuilder">
+            <div class="panel-head"><h2 data-i18n="createCampaign">Crear campaña</h2><span data-i18n="noCost">Sin servicios adicionales</span></div>
+            <label><span data-i18n="campaignName">Nombre de campaña</span><input id="campaign-name" type="text" maxlength="64" placeholder="reunion-lideres-octubre"></label>
+            <label><span data-i18n="campaignSource">Tipo de acceso</span>
+              <select id="campaign-source">
+                <option value="link" data-i18n="sharedLink">Enlace compartido</option>
+                <option value="qr">QR</option>
+                <option value="nfc">NFC</option>
+              </select>
+            </label>
+            <label><span data-i18n="generatedUrl">URL generada</span><input id="campaign-url" type="text" readonly></label>
+            <div class="campaign-actions">
+              <button id="campaign-copy" class="primary-button compact" type="button" data-i18n="copyUrl">Copiar URL</button>
+              <button id="campaign-open" class="secondary-button compact" type="button" data-i18n="openUrl">Abrir URL</button>
+            </div>
+            <p id="campaign-feedback" class="campaign-feedback" aria-live="polite"></p>
+          </article>
+          <article class="panel" data-tooltip-key="tipCampaignResults">
+            <div class="panel-head"><h2 data-i18n="campaignResults">Resultados de campañas</h2><span data-i18n="firstTouch">Adquisición inicial etiquetada</span></div>
+            <div id="campaigns-list" class="bar-list"></div>
+          </article>
+        </div>
+        <article class="panel general-link-panel" data-tooltip-key="tipGeneralLink">
+          <div>
+            <h2 data-i18n="generalShareLink">Enlace general para compartir</h2>
+            <p data-i18n="generalShareHelp">Usa este enlace cuando envíes el Hub por WhatsApp, Messages, correo o redes y quieras que Stats lo clasifique como Enlace.</p>
+          </div>
+          <div class="general-link-row">
+            <input id="general-link-url" type="text" value="https://hub.mpdgi.org/?src=link" readonly>
+            <button id="general-link-copy" class="secondary-button compact" type="button" data-i18n="copy">Copiar</button>
           </div>
         </article>
       </section>
 
-      <section id="engagement" class="section grid-three">
-        <article class="panel"><div class="panel-head"><h2>Entrada de sesión</h2></div><div id="session-entry-list" class="bar-list"></div></article>
-        <article class="panel"><div class="panel-head"><h2>Acciones principales</h2></div><div id="actions-list" class="bar-list"></div></article>
-        <article class="panel"><div class="panel-head"><h2>Modo de uso</h2></div><div id="display-list" class="bar-list"></div></article>
+      <section class="view-panel" data-view-panel="engagement" hidden>
+        <div class="section-heading">
+          <div><h2 data-i18n="engagementTitle">Interacción</h2><p data-i18n="engagementIntro">Qué acciones realizan los visitantes dentro del Hub.</p></div>
+        </div>
+        <div class="grid-two">
+          <article class="panel" data-tooltip-key="tipActions"><div class="panel-head"><h2 data-i18n="topActions">Acciones principales</h2></div><div id="actions-list" class="bar-list"></div></article>
+          <article class="panel" data-tooltip-key="tipVisitorMix"><div class="panel-head"><h2 data-i18n="newReturning">Visitantes nuevos vs recurrentes</h2><span data-i18n="anonymousEstimate">Estimación anónima</span></div><div id="visitor-mix-list-secondary" class="bar-list"></div></article>
+        </div>
       </section>
 
-      <section class="section grid-two">
-        <article class="panel"><div class="panel-head"><h2>Visitantes nuevos vs recurrentes</h2><span>Estimación anónima</span></div><div id="visitor-mix-list" class="bar-list"></div></article>
-        <article class="panel"><div class="panel-head"><h2>Campañas</h2><span>Top fuentes etiquetadas</span></div><div id="campaigns-list" class="bar-list"></div></article>
+      <section class="view-panel" data-view-panel="technology" hidden>
+        <div class="section-heading">
+          <div><h2 data-i18n="technologyTitle">Tecnología</h2><p data-i18n="technologyIntro">Dispositivos, navegadores e idioma observado.</p></div>
+        </div>
+        <div class="grid-three">
+          <article class="panel" data-tooltip-key="tipDevices"><div class="panel-head"><h2 data-i18n="devices">Dispositivos</h2></div><div id="devices-list" class="bar-list"></div></article>
+          <article class="panel" data-tooltip-key="tipBrowsers"><div class="panel-head"><h2 data-i18n="browsers">Navegadores</h2></div><div id="browsers-list" class="bar-list"></div></article>
+          <article class="panel" data-tooltip-key="tipLanguages"><div class="panel-head"><h2 data-i18n="languages">Idiomas</h2></div><div id="languages-list" class="bar-list"></div></article>
+        </div>
       </section>
 
-      <section id="devices" class="section grid-three">
-        <article class="panel"><div class="panel-head"><h2>Dispositivos</h2></div><div id="devices-list" class="bar-list"></div></article>
-        <article class="panel"><div class="panel-head"><h2>Navegadores</h2></div><div id="browsers-list" class="bar-list"></div></article>
-        <article class="panel"><div class="panel-head"><h2>Idiomas</h2></div><div id="languages-list" class="bar-list"></div></article>
-      </section>
-
-      <section class="section">
-        <article class="panel health-panel">
-          <div class="panel-head"><h2>Estado del sistema</h2><span id="health-overall" class="health-ok">● Verificando…</span></div>
+      <section class="view-panel" data-view-panel="system" hidden>
+        <div class="section-heading">
+          <div><h2 data-i18n="systemTitle">Estado del sistema</h2><p data-i18n="systemIntro">Comprobación de los componentes principales de MPDGI Stats.</p></div>
+        </div>
+        <article class="panel health-panel" data-tooltip-key="tipSystem">
+          <div class="panel-head"><h2 data-i18n="systemHealth">System Health</h2><span id="health-overall" class="health-ok">● Verificando…</span></div>
           <div class="health-grid">
-            <div><span>Collector</span><strong id="health-collector">—</strong></div>
-            <div><span>Base de datos</span><strong id="health-db">—</strong></div>
-            <div><span>Último evento</span><strong id="health-last-event">—</strong></div>
+            <div class="health-item"><i id="health-collector-light" class="status-light status-neutral"></i><span>Collector</span><strong id="health-collector">—</strong></div>
+            <div class="health-item"><i id="health-db-light" class="status-light status-neutral"></i><span data-i18n="database">Base de datos</span><strong id="health-db">—</strong></div>
+            <div class="health-item"><i id="health-event-light" class="status-light status-neutral"></i><span data-i18n="lastEvent">Último evento</span><strong id="health-last-event">—</strong></div>
           </div>
         </article>
-      </section>
-
-      <section id="exports" class="section report-note">
-        <h2>Reportes</h2>
-        <p>El dashboard, la exportación CSV y el reporte impreso utilizan los mismos datos agregados del servidor. No se exportan identificadores anónimos individuales.</p>
       </section>
 
       <footer class="stats-footer">
-        <span>MPDGI Stats v<span id="stats-version">1.0.0</span></span>
-        <span>🔒 For authorized administrators only.</span>
+        <span>MPDGI Stats v<span id="stats-version">1.1.0</span></span>
+        <span class="developer-credit">Designed &amp; Developed by Roberto S. Macfie for MPDGI</span>
+        <span data-i18n="authorizedFooter">🔒 For authorized administrators only.</span>
       </footer>
     </main>
   </div>
