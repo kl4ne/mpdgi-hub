@@ -405,10 +405,16 @@ function setupDashboard(){
     void copyValue(url,'campaign-feedback');
     void saveCampaign();
   });
-  $('campaign-open').addEventListener('click',()=>{
+  $('campaign-open').addEventListener('click',async()=>{
     const url=$('campaign-url').value;
-    void saveCampaign();
-    window.open(url,'_blank','noopener,noreferrer');
+    const popup=window.open('about:blank','_blank','noopener,noreferrer');
+    const saved=await saveCampaign();
+    const target=saved?.url||url;
+    if(popup){
+      try{popup.location.replace(target);}catch{window.open(target,'_blank','noopener,noreferrer');}
+    }else if(saved){
+      window.open(target,'_blank','noopener,noreferrer');
+    }
   });
   $('general-link-copy').addEventListener('click',()=>copyValue($('general-link-url').value,'campaign-feedback'));
 }
