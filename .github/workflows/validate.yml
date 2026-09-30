@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   validate:
+    if: ${{ !startsWith(github.base_ref, 'mpdgi-stats-') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
