@@ -258,7 +258,8 @@ function captureEntryHint(){
 }
 function resolveAnalyticsIdentity(entry){
   let visitorId=storageGet(ANALYTICS_VISITOR_KEY)||cookieGet('mpdgi_visitor_id');
-  if(!validAnalyticsId(visitorId))visitorId=randomId();
+  const existingVisitor=validAnalyticsId(visitorId);
+  if(!existingVisitor)visitorId=randomId();
   storageSet(ANALYTICS_VISITOR_KEY,visitorId);cookieSet('mpdgi_visitor_id',visitorId);
 
   let firstSource=normalizeSource(storageGet(ANALYTICS_FIRST_SOURCE_KEY))||normalizeSource(cookieGet('mpdgi_first_source'));
@@ -266,7 +267,7 @@ function resolveAnalyticsIdentity(entry){
   storageSet(ANALYTICS_FIRST_SOURCE_KEY,firstSource);cookieSet('mpdgi_first_source',firstSource);
 
   let firstCampaign=normalizeCampaign(storageGet(ANALYTICS_FIRST_CAMPAIGN_KEY)||cookieGet('mpdgi_first_campaign'));
-  if(!firstCampaign&&entry.campaign)firstCampaign=entry.campaign;
+  if(!existingVisitor&&!firstCampaign&&entry.campaign)firstCampaign=entry.campaign;
   if(firstCampaign){storageSet(ANALYTICS_FIRST_CAMPAIGN_KEY,firstCampaign);cookieSet('mpdgi_first_campaign',firstCampaign);}
 
   return {visitorId,firstSource,firstCampaign};
