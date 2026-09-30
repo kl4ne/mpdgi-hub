@@ -31,9 +31,13 @@ test('unauthenticated users see only the secure login experience',async({page})=
 });
 
 test('authenticated dashboard renders the same server aggregates including zero-value QR',async({page})=>{
+  const pageErrors=[];
+  page.on('pageerror',error=>pageErrors.push(error.message));
   await page.route('**/api/auth/session',r=>r.fulfill({status:200,contentType:'application/json',body:'{"authenticated":true,"user":{"email":"owner@example.com","role":"owner"}}'}));
   await page.route('**/api/dashboard**',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(sample)}));
   await page.goto('/',{waitUntil:'domcontentloaded'});
+  await page.waitForTimeout(150);
+  expect(pageErrors,'Browser page errors: '+pageErrors.join(' | ')).toEqual([]);
   await expect(page.locator('#app-view')).toBeVisible();
   await expect(page.locator('#metric-visits')).toHaveText('128');
   await expect(page.locator('#metric-unique')).toHaveText('84');
