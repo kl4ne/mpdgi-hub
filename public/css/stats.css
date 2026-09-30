@@ -125,3 +125,41 @@
 .campaign-result-metrics b{font-size:1.05rem;color:#10233f}
 .campaign-result-meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.78rem;color:#667792}
 @media (max-width:640px){.campaign-result-metrics{grid-template-columns:1fr}.campaign-actions{display:grid;grid-template-columns:1fr}.campaign-actions button{width:100%}}
+
+/* MPDGI Stats v1.2.0 */
+.executive-panel{margin-top:14px}
+.executive-summary-text{margin:8px 0 14px;color:var(--ink);line-height:1.6}
+.executive-highlights{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.executive-highlights>div{padding:10px 11px;border:1px solid var(--line);border-radius:12px;background:#f8fbff}
+.executive-highlights span,.quality-grid span{display:block;color:var(--muted);font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.executive-highlights strong{display:block;margin-top:4px;font-size:.9rem}
+.activity-grid{margin-top:14px}
+.activity-list{display:grid;gap:6px;max-height:390px;overflow:auto;padding-right:3px}
+.activity-row{display:grid;grid-template-columns:82px 1fr 42px;align-items:center;gap:8px;font-size:.76rem}
+.activity-row>span{color:var(--muted);font-variant-numeric:tabular-nums}
+.activity-row>strong{text-align:right;font-variant-numeric:tabular-nums}
+.data-quality-panel{margin-top:14px}
+.quality-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.quality-grid>div{padding:12px;border:1px solid var(--line);border-radius:12px;background:#f8fbff}
+.quality-grid strong{display:block;margin-top:5px;font-size:1.15rem}
+.quality-note{margin:12px 0 0;color:var(--muted);font-size:.76rem;line-height:1.45}
+.print-all .view-panel{display:block!important}
+.print-all .sidebar{display:none!important}
+
+@media(max-width:1100px){
+  .executive-highlights{grid-template-columns:repeat(3,1fr)}
+  .quality-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:760px){
+  .executive-highlights{grid-template-columns:repeat(2,1fr)}
+  .quality-grid{grid-template-columns:repeat(2,1fr)}
+  .activity-row{grid-template-columns:68px 1fr 36px}
+}
+
+@media print{
+  .print-all .view-panel{display:block!important}
+  .executive-highlights{grid-template-columns:repeat(3,1fr)}
+  .quality-grid{grid-template-columns:repeat(5,1fr)}
+  .activity-list{max-height:none;overflow:visible}
+  .executive-panel,.data-quality-panel{break-inside:avoid}
+}

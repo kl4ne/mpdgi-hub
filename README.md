@@ -22,6 +22,9 @@ MPDGI Stats provides private, authenticated reporting for anonymous Hub usage:
 - Devices, browsers and languages
 - Professional Print / Save PDF reports
 - Aggregate CSV export
+- Executive summaries and period comparisons
+- Hourly and weekday activity insights
+- Data-quality monitoring for event delivery
 - System health
 
 ## Privacy

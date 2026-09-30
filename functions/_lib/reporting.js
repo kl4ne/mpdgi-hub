@@ -87,10 +87,18 @@ export async function getDashboardData(env,urlString){
       FROM campaigns c WHERE c.active=1 ORDER BY c.created_at DESC LIMIT 100`).bind(
         range.from,range.to,range.from,range.to,range.from,range.to,range.from,range.to
       ),
-    db.prepare('SELECT MAX(server_ts) AS last_event_at FROM events')
+    db.prepare('SELECT MAX(server_ts) AS last_event_at FROM events'),
+    db.prepare('SELECT session_id,first_seen_at FROM sessions WHERE first_seen_day_et BETWEEN ? AND ?').bind(range.from,range.to),
+    db.prepare('SELECT COALESCE(SUM(received),0) AS received,COALESCE(SUM(accepted),0) AS accepted,COALESCE(SUM(duplicates),0) AS duplicates,COALESCE(SUM(rejected),0) AS rejected,COALESCE(SUM(delayed),0) AS delayed,MAX(last_received_at) AS last_received_at FROM collector_metrics WHERE day_et BETWEEN ? AND ?').bind(range.from,range.to),
+    db.prepare(`SELECT COUNT(*) AS stored,COUNT(DISTINCT event_id) AS unique_event_ids,
+      COALESCE(SUM(CASE WHEN client_ts<>'' AND julianday(server_ts)-julianday(client_ts)>0.0013888889 THEN 1 ELSE 0 END),0) AS delayed_events
+      FROM events WHERE server_day_et BETWEEN ? AND ?`).bind(range.from,range.to)
   ];
   const result=await db.batch(statements);
   const current=one(result[0]),previous=one(result[1]),last=one(result[12]);
+  const sessionTimes=rows(result[13]);
+  const metricQuality=one(result[14]);
+  const eventQuality=one(result[15]);
   const summary={
     visits:Number(current.visits)||0,
     unique_visitors:Number(current.unique_visitors)||0,
@@ -128,7 +136,45 @@ export async function getDashboardData(env,urlString){
       created_at:r.created_at||null,sessions:Number(r.sessions)||0,visitors:Number(r.visitors)||0,
       acquired_visitors:Number(r.acquired_visitors)||0,last_activity_at:r.last_activity_at||null
     })),
+    activity:buildActivityInsights(sessionTimes),
+    data_quality:{
+      events_received:Number(metricQuality.received)||Number(eventQuality.stored)||0,
+      events_stored:Number(eventQuality.stored)||0,
+      unique_event_ids:Number(eventQuality.unique_event_ids)||0,
+      duplicates_prevented:Number(metricQuality.duplicates)||0,
+      rejected:Number(metricQuality.rejected)||0,
+      delayed_events:Math.max(Number(metricQuality.delayed)||0,Number(eventQuality.delayed_events)||0),
+      last_received_at:metricQuality.last_received_at||last.last_event_at||null
+    },
     health:{collector:'operational',database:'operational',last_event_at:last.last_event_at||null}
+  };
+}
+
+function buildActivityInsights(sessionRows){
+  const hourly=Array.from({length:24},(_,hour)=>({key:String(hour),value:0}));
+  const weekday=Array.from({length:7},(_,day)=>({key:String(day),value:0}));
+  const weekdayNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  for(const row of sessionRows){
+    const ts=Date.parse(row.first_seen_at||'');
+    if(!Number.isFinite(ts))continue;
+    const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'2-digit',hourCycle:'h23',weekday:'short'}).formatToParts(new Date(ts));
+    const hour=Number(parts.find(p=>p.type==='hour')?.value);
+    const weekdayName=parts.find(p=>p.type==='weekday')?.value||'';
+    const day=weekdayNames.findIndex(name=>name.startsWith(weekdayName));
+    if(Number.isInteger(hour)&&hour>=0&&hour<24)hourly[hour].value++;
+    if(day>=0)weekday[day].value++;
+  }
+  const peakHour=hourly.reduce((best,item)=>item.value>best.value?item:best,{key:'0',value:0});
+  const peakDay=weekday.reduce((best,item)=>item.value>best.value?item:best,{key:'0',value:0});
+  return {
+    hourly_sessions:hourly,
+    weekday_sessions:weekday,
+    peak_hour:Number(peakHour.key)||0,
+    peak_hour_sessions:Number(peakHour.value)||0,
+    peak_weekday:Number(peakDay.key)||0,
+    peak_weekday_sessions:Number(peakDay.value)||0,
+    sunday_sessions:weekday[0].value,
+    wednesday_sessions:weekday[3].value
   };
 }
 
@@ -157,5 +203,16 @@ export function dashboardCsv(data){
     lines.push(['Campaign First-touch Visitors',label,item.acquired_visitors]);
   }
   for(const item of data.daily_visits)lines.push(['Daily Visits',item.day,item.value]);
+  for(const item of (data.activity?.hourly_sessions||[]))lines.push(['Hourly Activity',item.key+':00',item.value]);
+  for(const item of (data.activity?.weekday_sessions||[]))lines.push(['Weekday Activity',item.key,item.value]);
+  lines.push(['Activity Insight','Peak Hour',data.activity?.peak_hour??'']);
+  lines.push(['Activity Insight','Peak Weekday',data.activity?.peak_weekday??'']);
+  lines.push(['Activity Insight','Sunday Sessions',data.activity?.sunday_sessions??0]);
+  lines.push(['Activity Insight','Wednesday Sessions',data.activity?.wednesday_sessions??0]);
+  lines.push(['Data Quality','Events Received',data.data_quality?.events_received??0]);
+  lines.push(['Data Quality','Events Stored',data.data_quality?.events_stored??0]);
+  lines.push(['Data Quality','Duplicates Prevented',data.data_quality?.duplicates_prevented??0]);
+  lines.push(['Data Quality','Rejected',data.data_quality?.rejected??0]);
+  lines.push(['Data Quality','Delayed Events',data.data_quality?.delayed_events??0]);
   return lines.map(row=>row.map(csvCell).join(',')).join('\r\n')+'\r\n';
 }

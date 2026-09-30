@@ -1,5 +1,20 @@
 [
   {
+    "version": "1.2.0",
+    "title": "Intelligence, Executive Reporting & Data Quality",
+    "date": "2026-09-30",
+    "changes": [
+      "Added executive snapshots with period comparisons, top source/action and peak activity insights.",
+      "Added hourly and weekday activity analysis using Eastern Time.",
+      "Expanded professional print/PDF reports to include all analytics sections.",
+      "Added data-quality reporting for received, stored, duplicate, rejected and delayed events.",
+      "Added collector-side quality counters without storing visitor names, raw IP addresses or precise location.",
+      "Expanded CSV export with activity and data-quality sections.",
+      "Improved campaign results sorting by activity while preserving zero-activity campaigns.",
+      "Refreshed the Stats PWA cache and runtime release metadata to v1.2.0."
+    ]
+  },
+  {
     "version": "1.4.7",
     "title": "Cache Reliability & Smart Navigation",
     "date": "2026-09-28",

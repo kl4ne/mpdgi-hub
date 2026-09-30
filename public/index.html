@@ -140,6 +140,21 @@
             <strong id="dashboard-last-updated">—</strong>
           </div>
         </div>
+        <article class="panel executive-panel" data-tooltip-key="tipExecutive">
+          <div class="panel-head">
+            <h2 data-i18n="executiveSnapshot">Resumen ejecutivo</h2>
+            <span id="executive-period" data-i18n="executivePeriod">Período seleccionado</span>
+          </div>
+          <p id="executive-summary-text" class="executive-summary-text">—</p>
+          <div class="executive-highlights">
+            <div><span data-i18n="topSource">Fuente principal</span><strong id="executive-source">—</strong></div>
+            <div><span data-i18n="topAction">Acción principal</span><strong id="executive-action">—</strong></div>
+            <div><span data-i18n="peakHour">Hora de mayor actividad</span><strong id="executive-peak-hour">—</strong></div>
+            <div><span data-i18n="peakDay">Día de mayor actividad</span><strong id="executive-peak-day">—</strong></div>
+            <div><span data-i18n="sundayActivity">Sesiones dominicales</span><strong id="executive-sunday">—</strong></div>
+            <div><span data-i18n="wednesdayActivity">Sesiones del miércoles</span><strong id="executive-wednesday">—</strong></div>
+          </div>
+        </article>
       </section>
 
       <section class="view-panel" data-view-panel="reports" hidden>
@@ -154,6 +169,16 @@
           <article class="panel" data-tooltip-key="tipVisitorMix">
             <div class="panel-head"><h2 data-i18n="newReturning">Visitantes nuevos vs recurrentes</h2><span data-i18n="anonymousEstimate">Estimación anónima</span></div>
             <div id="visitor-mix-list" class="bar-list"></div>
+          </article>
+        </div>
+        <div class="grid-two activity-grid">
+          <article class="panel" data-tooltip-key="tipHourly">
+            <div class="panel-head"><h2 data-i18n="hourlyActivity">Actividad por hora</h2><span>ET</span></div>
+            <div id="hourly-activity-list" class="activity-list"></div>
+          </article>
+          <article class="panel" data-tooltip-key="tipWeekday">
+            <div class="panel-head"><h2 data-i18n="weekdayActivity">Actividad por día de la semana</h2><span>ET</span></div>
+            <div id="weekday-activity-list" class="activity-list"></div>
           </article>
         </div>
         <article class="panel report-note" data-tooltip-key="tipReport">
@@ -253,12 +278,24 @@
             <div class="health-item"><i id="health-collector-light" class="status-light status-neutral"></i><span>Collector</span><strong id="health-collector">—</strong></div>
             <div class="health-item"><i id="health-db-light" class="status-light status-neutral"></i><span data-i18n="database">Base de datos</span><strong id="health-db">—</strong></div>
             <div class="health-item"><i id="health-event-light" class="status-light status-neutral"></i><span data-i18n="lastEvent">Último evento</span><strong id="health-last-event">—</strong></div>
+            <div class="health-item"><i id="health-check-light" class="status-light status-green"></i><span data-i18n="lastCheck">Última comprobación</span><strong id="health-last-check">—</strong></div>
           </div>
+        </article>
+        <article class="panel data-quality-panel" data-tooltip-key="tipDataQuality">
+          <div class="panel-head"><h2 data-i18n="dataQuality">Calidad de datos</h2><span id="quality-window">—</span></div>
+          <div class="quality-grid">
+            <div><span data-i18n="eventsReceived">Eventos recibidos</span><strong id="quality-received">—</strong></div>
+            <div><span data-i18n="eventsStored">Eventos almacenados</span><strong id="quality-stored">—</strong></div>
+            <div><span data-i18n="duplicatesPrevented">Duplicados evitados</span><strong id="quality-duplicates">—</strong></div>
+            <div><span data-i18n="rejectedEvents">Eventos rechazados</span><strong id="quality-rejected">—</strong></div>
+            <div><span data-i18n="delayedEvents">Eventos retrasados / recuperados</span><strong id="quality-delayed">—</strong></div>
+          </div>
+          <p id="quality-note" class="quality-note">—</p>
         </article>
       </section>
 
       <footer class="stats-footer">
-        <span>MPDGI Stats v<span id="stats-version">1.1.1</span></span>
+        <span>MPDGI Stats v<span id="stats-version">1.2.0</span></span>
         <span class="developer-credit">Designed &amp; Developed by Roberto S. Macfie for MPDGI</span>
         <span data-i18n="authorizedFooter">🔒 For authorized administrators only.</span>
       </footer>
