@@ -37,9 +37,15 @@ test('authenticated dashboard renders the same server aggregates including zero-
   await expect(page.locator('#app-view')).toBeVisible();
   await expect(page.locator('#metric-visits')).toHaveText('128');
   await expect(page.locator('#metric-unique')).toHaveText('84');
+  await page.locator('.nav-item[data-view="sources"]').click();
+  await expect(page.locator('[data-view-panel="sources"]')).toBeVisible();
+  await expect(page.locator('[data-view-panel="dashboard"]')).toBeHidden();
   await expect(page.locator('#source-legend')).toContainText('QR');
   await expect(page.locator('#source-legend')).toContainText('0');
+  await page.locator('.nav-item[data-view="system"]').click();
   await expect(page.locator('#health-overall')).toContainText('Todos los sistemas operacionales');
+  await expect(page.locator('#health-collector-light')).toHaveClass(/status-green/);
+  await expect(page.locator('#health-db-light')).toHaveClass(/status-green/);
 });
 
 test('print layout exposes the professional report header and hides navigation',async({page})=>{
@@ -59,6 +65,7 @@ test('mobile Stats dashboard avoids horizontal overflow',async({page})=>{
   await page.goto('/',{waitUntil:'networkidle'});
   const dims=await page.evaluate(()=>({inner:innerWidth,scroll:document.documentElement.scrollWidth}));
   expect(dims.scroll).toBeLessThanOrEqual(dims.inner+1);
+  await page.locator('.nav-item[data-view="sources"]').click();
   await expect(page.locator('#source-donut')).toBeVisible();
 });
 
@@ -81,4 +88,42 @@ test('custom report range drives dashboard request and keeps report controls pro
   expect(requested).toContain('to=2026-09-29');
   await expect(page.locator('#visitor-mix-list')).toContainText('Nuevos');
   await expect(page.locator('#campaigns-list')).toContainText('credential-test');
+});
+
+
+test('left navigation behaves as real views instead of scrolling one long dashboard',async({page})=>{
+  await page.route('**/api/auth/session',r=>r.fulfill({status:200,contentType:'application/json',body:'{"authenticated":true,"user":{"email":"owner@example.com","role":"owner"}}'}));
+  await page.route('**/api/dashboard**',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(sample)}));
+  await page.goto('/',{waitUntil:'networkidle'});
+  await expect(page.locator('[data-view-panel="dashboard"]')).toBeVisible();
+  await expect(page.locator('[data-view-panel="reports"]')).toBeHidden();
+  await page.locator('.nav-item[data-view="reports"]').click();
+  await expect(page.locator('[data-view-panel="dashboard"]')).toBeHidden();
+  await expect(page.locator('[data-view-panel="reports"]')).toBeVisible();
+  await expect(page.locator('.daily-day')).toHaveCount(sample.daily_visits.length);
+});
+
+test('English mode translates the private interface and printable report',async({page})=>{
+  await page.route('**/api/auth/session',r=>r.fulfill({status:200,contentType:'application/json',body:'{"authenticated":true,"user":{"email":"owner@example.com","role":"owner"}}'}));
+  await page.route('**/api/dashboard**',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(sample)}));
+  await page.goto('/',{waitUntil:'networkidle'});
+  await page.locator('#app-view .lang-button[data-lang="en"]').click();
+  await expect(page.locator('.nav-item[data-view="reports"] span')).toHaveText('Reports');
+  await expect(page.locator('[data-view-panel="dashboard"]')).toContainText('Estimated unique visitors');
+  await page.emulateMedia({media:'print'});
+  await expect(page.locator('#report-header')).toContainText('Analytics Report');
+});
+
+test('campaign builder creates tagged Link QR and NFC URLs without external services',async({page})=>{
+  await page.route('**/api/auth/session',r=>r.fulfill({status:200,contentType:'application/json',body:'{"authenticated":true,"user":{"email":"owner@example.com","role":"owner"}}'}));
+  await page.route('**/api/dashboard**',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(sample)}));
+  await page.goto('/',{waitUntil:'networkidle'});
+  await page.locator('.nav-item[data-view="campaigns"]').click();
+  await page.locator('#campaign-name').fill('Reunión Líderes Octubre');
+  await expect(page.locator('#campaign-url')).toHaveValue(/src=link.*campaign=reunion-lideres-octubre/);
+  await page.locator('#campaign-source').selectOption('qr');
+  await expect(page.locator('#campaign-url')).toHaveValue(/src=qr.*campaign=reunion-lideres-octubre/);
+  await page.locator('#campaign-source').selectOption('nfc');
+  await expect(page.locator('#campaign-url')).toHaveValue(/src=nfc.*campaign=reunion-lideres-octubre/);
+  await expect(page.locator('#general-link-url')).toHaveValue('https://hub.mpdgi.org/?src=link');
 });
