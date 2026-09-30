@@ -21,6 +21,12 @@ const sample={
     {id:'c1',name:'Credential Test',slug:'credential-test',source:'nfc',created_at:'2026-09-20T14:00:00.000Z',sessions:22,visitors:18,acquired_visitors:16,last_activity_at:'2026-09-29T18:40:00.000Z'},
     {id:'c2',name:'Youth Campaign 2026',slug:'youth-campaign-2026',source:'link',created_at:'2026-09-24T14:00:00.000Z',sessions:9,visitors:8,acquired_visitors:6,last_activity_at:'2026-09-28T18:40:00.000Z'}
   ],
+  activity:{
+    hourly_sessions:Array.from({length:24},(_,hour)=>({key:String(hour),value:hour===10?31:hour===19?22:1})),
+    weekday_sessions:[{key:'0',value:44},{key:'1',value:8},{key:'2',value:11},{key:'3',value:29},{key:'4',value:9},{key:'5',value:7},{key:'6',value:20}],
+    peak_hour:10,peak_hour_sessions:31,peak_weekday:0,peak_weekday_sessions:44,sunday_sessions:44,wednesday_sessions:29
+  },
+  data_quality:{events_received:260,events_stored:258,unique_event_ids:258,duplicates_prevented:2,rejected:1,delayed_events:7,last_received_at:'2026-09-29T18:59:00.000Z'},
   health:{collector:'operational',database:'operational',last_event_at:'2026-09-29T18:58:00.000Z'}
 };
 
@@ -156,4 +162,30 @@ test('campaign builder persists records and Open URL preserves the tagged destin
   await expect(page.locator('#campaign-feedback')).toContainText('Campaña creada');
   await expect(page.locator('#campaigns-list')).toContainText('Credential Test');
   await expect(page.locator('#general-link-url')).toHaveValue('https://hub.mpdgi.org/?src=link');
+});
+
+
+test('v1.2.0 executive insights, activity and data-quality views render from server data',async({page})=>{
+  await page.route('**/api/auth/session',r=>r.fulfill({status:200,contentType:'application/json',body:'{"authenticated":true,"user":{"email":"owner@example.com","role":"owner"}}'}));
+  await page.route('**/api/dashboard**',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(sample)}));
+  await page.goto('/',{waitUntil:'domcontentloaded'});
+  await expect(page.locator('#executive-summary-text')).toContainText('128');
+  await expect(page.locator('#executive-peak-hour')).toContainText('10');
+  await page.locator('.nav-item[data-view="reports"]').click();
+  await expect(page.locator('#hourly-activity-list .activity-row')).toHaveCount(24);
+  await expect(page.locator('#weekday-activity-list .activity-row')).toHaveCount(7);
+  await page.locator('.nav-item[data-view="system"]').click();
+  await expect(page.locator('#quality-received')).toHaveText('260');
+  await expect(page.locator('#quality-duplicates')).toHaveText('2');
+  await expect(page.locator('#quality-delayed')).toHaveText('7');
+});
+
+test('print mode can expose all report sections for the executive PDF',async({page})=>{
+  await page.route('**/api/auth/session',r=>r.fulfill({status:200,contentType:'application/json',body:'{"authenticated":true,"user":{"email":"owner@example.com","role":"owner"}}'}));
+  await page.route('**/api/dashboard**',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(sample)}));
+  await page.goto('/',{waitUntil:'domcontentloaded'});
+  await page.locator('#print-button').click();
+  await expect(page.locator('body')).toHaveClass(/print-all/);
+  await expect(page.locator('[data-view-panel="reports"]')).toBeVisible();
+  await expect(page.locator('[data-view-panel="system"]')).toBeVisible();
 });
