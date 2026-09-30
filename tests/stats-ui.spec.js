@@ -38,6 +38,8 @@ test('authenticated dashboard renders the same server aggregates including zero-
   await page.goto('/',{waitUntil:'domcontentloaded'});
   await page.waitForTimeout(150);
   expect(pageErrors,'Browser page errors: '+pageErrors.join(' | ')).toEqual([]);
+  const sessionError=await page.evaluate(()=>globalThis.__MPDGI_STATS_SESSION_ERROR__||'');
+  expect(sessionError,'Session check error: '+sessionError).toBe('');
   await expect(page.locator('#app-view')).toBeVisible();
   await expect(page.locator('#metric-visits')).toHaveText('128');
   await expect(page.locator('#metric-unique')).toHaveText('84');
