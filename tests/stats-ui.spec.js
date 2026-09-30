@@ -83,14 +83,14 @@ test('custom report range drives dashboard request and keeps report controls pro
   await page.goto('/',{waitUntil:'domcontentloaded'});
   await page.locator('#range-select').selectOption('custom');
   await expect(page.locator('#custom-range')).toBeVisible();
-  await page.locator('#range-from').evaluate((el,value)=>{el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));},'2026-09-01');
-  await page.locator('#range-to').evaluate((el,value)=>{el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));},'2026-09-29');
-  await page.locator('#apply-range').evaluate(el=>el.click());
+  await page.locator('#range-from').fill('2026-09-01');
+  await page.locator('#range-to').fill('2026-09-29');
+  await page.locator('#apply-range').click();
   await expect.poll(()=>requested).toContain('preset=custom');
   expect(requested).toContain('from=2026-09-01');
   expect(requested).toContain('to=2026-09-29');
   await expect(page.locator('#visitor-mix-list')).toContainText('Nuevos');
-  await expect(page.locator('#campaigns-list')).toContainText('credential-test');
+  await expect(page.locator('#campaigns-list')).toContainText('Credential Test');
 });
 
 
@@ -119,7 +119,6 @@ test('English mode translates the private interface and printable report',async(
 
 test('campaign builder saves records and open URL also saves before opening',async({page})=>{
   let saves=0,lastBody=null;
-  await page.addInitScript(()=>{window.open=url=>{window.__openedCampaignUrl=url;return null;};});
   await page.route('**/api/auth/session',r=>r.fulfill({status:200,contentType:'application/json',body:'{"authenticated":true,"user":{"email":"owner@example.com","role":"owner"}}'}));
   await page.route('**/api/dashboard**',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(sample)}));
   await page.route('**/api/campaigns',async r=>{
@@ -133,6 +132,7 @@ test('campaign builder saves records and open URL also saves before opening',asy
   await expect(page.locator('#campaign-url')).toHaveValue(/src=link.*campaign=reunion-lideres-octubre/);
   await page.locator('#campaign-source').selectOption('qr');
   await expect(page.locator('#campaign-url')).toHaveValue(/src=qr.*campaign=reunion-lideres-octubre/);
+  await page.evaluate(()=>{Object.defineProperty(window,'open',{configurable:true,value:url=>{window.__openedCampaignUrl=url;return null;}});});
   await page.locator('#campaign-open').click();
   await expect.poll(()=>saves).toBe(1);
   expect(lastBody).toEqual({name:'Reunión Líderes Octubre',source:'qr',slug:'reunion-lideres-octubre'});
