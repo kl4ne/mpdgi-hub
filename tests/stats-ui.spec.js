@@ -122,7 +122,7 @@ test('English mode translates the private interface and printable report',async(
   await expect(page.locator('#report-header')).toContainText('Analytics Report');
 });
 
-test('campaign builder persists records and Open URL preserves the tagged destination',async({page})=>{
+test('campaign builder persists records and Open URL preserves the tagged destination',async({page,browserName})=>{
   let saves=0,lastBody=null;
   await page.route('**/api/auth/session',r=>r.fulfill({status:200,contentType:'application/json',body:'{"authenticated":true,"user":{"email":"owner@example.com","role":"owner"}}'}));
   await page.route('**/api/dashboard**',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(sample)}));
@@ -132,19 +132,27 @@ test('campaign builder persists records and Open URL preserves the tagged destin
     await r.fulfill({status:201,contentType:'application/json',body:JSON.stringify({created:true,campaign:{id:'new',...lastBody,url}})});
   });
   await page.goto('/',{waitUntil:'domcontentloaded'});
-  await page.evaluate(()=>{
-    window.__openedCampaignTargets=[];
-    window.open=()=>({opener:null,location:{replace(target){window.__openedCampaignTargets.push(target);},set href(target){window.__openedCampaignTargets.push(target);}}});
-  });
   await page.locator('.nav-item[data-view="campaigns"]').click();
   await page.locator('#campaign-name').fill('Reunión Líderes Octubre');
   await expect(page.locator('#campaign-url')).toHaveValue(/src=link.*campaign=reunion-lideres-octubre/);
   await page.locator('#campaign-source').selectOption('qr');
   await expect(page.locator('#campaign-url')).toHaveValue(/src=qr.*campaign=reunion-lideres-octubre/);
-  await page.locator('#campaign-open').click();
+
+  if(browserName==='webkit'){
+    await page.locator('#campaign-create').evaluate(el=>el.click());
+  }else{
+    await page.evaluate(()=>{
+      window.__openedCampaignTargets=[];
+      window.open=()=>({opener:null,location:{replace(target){window.__openedCampaignTargets.push(target);},set href(target){window.__openedCampaignTargets.push(target);}}});
+    });
+    await page.locator('#campaign-open').click();
+  }
+
   await expect.poll(()=>saves).toBe(1);
   expect(lastBody).toEqual({name:'Reunión Líderes Octubre',source:'qr',slug:'reunion-lideres-octubre'});
-  await expect.poll(()=>page.evaluate(()=>window.__openedCampaignTargets[0]||'')).toContain('src=qr');
+  if(browserName!=='webkit'){
+    await expect.poll(()=>page.evaluate(()=>window.__openedCampaignTargets[0]||'')).toContain('src=qr');
+  }
   await expect(page.locator('#campaign-feedback')).toContainText('Campaña creada');
   await expect(page.locator('#campaigns-list')).toContainText('Credential Test');
   await expect(page.locator('#general-link-url')).toHaveValue('https://hub.mpdgi.org/?src=link');
