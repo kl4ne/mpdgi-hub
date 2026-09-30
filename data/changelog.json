@@ -1,5 +1,15 @@
 [
   {
+    "version": "1.5.1",
+    "title": "Tablet Detection & Analytics Refinement",
+    "date": "2026-09-29",
+    "changes": [
+      "Improves device categorization so modern iPadOS devices using desktop-style Safari are recorded as tablets instead of desktop computers.",
+      "Keeps iPhone, Android phone, Android tablet and desktop categorization behavior intact.",
+      "Preserves the privacy-first analytics model, source attribution, session entry logic and public Hub design from v1.5.0."
+    ]
+  },
+  {
     "version": "1.5.0",
     "title": "Private Analytics Foundation",
     "date": "2026-09-29",
