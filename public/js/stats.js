@@ -406,11 +406,12 @@ function setupDashboard(){
   });
   $('campaign-open').addEventListener('click',async()=>{
     const url=$('campaign-url').value;
-    const popup=window.open('about:blank','_blank','noopener,noreferrer');
+    const popup=window.open('about:blank','_blank');
+    if(popup){try{popup.opener=null;}catch{}}
     const saved=await saveCampaign();
     const target=saved?.url||url;
     if(popup){
-      try{popup.location.replace(target);}catch{window.open(target,'_blank','noopener,noreferrer');}
+      try{popup.location.replace(target);}catch{try{popup.location.href=target;}catch{}}
     }else if(saved){
       window.open(target,'_blank','noopener,noreferrer');
     }
