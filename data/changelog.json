@@ -1,5 +1,15 @@
 [
   {
+    "version": "1.5.2",
+    "title": "Session Campaign Attribution",
+    "date": "2026-09-30",
+    "changes": [
+      "Adds a separate session campaign field so a tagged Link, QR or NFC visit can be attributed to the current campaign without changing the visitor's original acquisition source.",
+      "Keeps first-touch acquisition immutable while allowing later campaign sessions to be measured independently.",
+      "Preserves anonymous identifiers, privacy protections, source cleanup, offline queuing and the approved public Hub design."
+    ]
+  },
+  {
     "version": "1.5.1",
     "title": "Tablet Detection & Analytics Refinement",
     "date": "2026-09-29",
