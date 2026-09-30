@@ -3,6 +3,21 @@ import {validateEvent,isLikelyBot,easternDay} from '../_lib/validation.js';
 import {sha256} from '../_lib/auth.js';
 import {ensureCampaignSchema} from '../_lib/schema.js';
 
+async function bumpCollectorMetric(db,day,values={}){
+  const received=Number(values.received||0),accepted=Number(values.accepted||0),duplicates=Number(values.duplicates||0),
+    rejected=Number(values.rejected||0),delayed=Number(values.delayed||0),timestamp=values.timestamp||new Date().toISOString();
+  await db.prepare(`INSERT INTO collector_metrics(day_et,received,accepted,duplicates,rejected,delayed,last_received_at)
+    VALUES(?,?,?,?,?,?,?)
+    ON CONFLICT(day_et) DO UPDATE SET
+      received=received+excluded.received,
+      accepted=accepted+excluded.accepted,
+      duplicates=duplicates+excluded.duplicates,
+      rejected=rejected+excluded.rejected,
+      delayed=delayed+excluded.delayed,
+      last_received_at=excluded.last_received_at`)
+    .bind(day,received,accepted,duplicates,rejected,delayed,timestamp).run();
+}
+
 function corsHeaders(origin){
   return {
     ...NO_STORE_HEADERS,
@@ -33,14 +48,23 @@ export async function onRequest(context){
   if(isLikelyBot(context.request.headers.get('User-Agent')))return new Response(null,{status:204,headers:corsHeaders(origin)});
 
   const raw=await context.request.text();
-  if(raw.length>8192)return json({error:'payload_too_large'},413,corsHeaders(origin));
-  let parsed;try{parsed=JSON.parse(raw);}catch{return json({error:'invalid_json'},400,corsHeaders(origin));}
-  const checked=validateEvent(parsed);
-  if(!checked.ok)return json({error:checked.error},400,corsHeaders(origin));
-
-  const event=checked.event;
   try{await ensureCampaignSchema(context.env);}catch(error){console.error('[MPDGI Stats] schema upgrade failed',error);return json({error:'collector_unavailable'},503,corsHeaders(origin));}
   const now=new Date(),serverTs=now.toISOString(),day=easternDay(now);
+  if(raw.length>8192){
+    await bumpCollectorMetric(context.env.STATS_DB,day,{rejected:1,timestamp:serverTs});
+    return json({error:'payload_too_large'},413,corsHeaders(origin));
+  }
+  let parsed;try{parsed=JSON.parse(raw);}catch{
+    await bumpCollectorMetric(context.env.STATS_DB,day,{rejected:1,timestamp:serverTs});
+    return json({error:'invalid_json'},400,corsHeaders(origin));
+  }
+  const checked=validateEvent(parsed);
+  if(!checked.ok){
+    await bumpCollectorMetric(context.env.STATS_DB,day,{rejected:1,timestamp:serverTs});
+    return json({error:checked.error},400,corsHeaders(origin));
+  }
+
+  const event=checked.event;
 
   // Anonymous rate control: raw IP is never persisted.
   if(context.env.AUTH_PEPPER){
@@ -64,14 +88,20 @@ export async function onRequest(context){
       ).bind(event.visitor_id,event.acquisition_source,event.acquisition_campaign,serverTs,day),
       context.env.STATS_DB.prepare(
         'INSERT OR IGNORE INTO sessions(session_id,visitor_id,session_entry,session_campaign,display_mode,first_seen_at,first_seen_day_et) VALUES(?,?,?,?,?,?,?)'
-      ).bind(event.session_id,event.visitor_id,event.session_entry,event.session_campaign,event.display_mode,serverTs,day),
-      context.env.STATS_DB.prepare(
-        'INSERT OR IGNORE INTO events(event_id,visitor_id,session_id,event_type,acquisition_source,acquisition_campaign,session_entry,session_campaign,display_mode,language,app_version,device_category,browser,action_name,target,client_ts,server_ts,server_day_et) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
-      ).bind(
-        event.event_id,event.visitor_id,event.session_id,event.event_type,event.acquisition_source,event.acquisition_campaign,event.session_entry,event.session_campaign,
-        event.display_mode,event.language,event.app_version,event.device_category,event.browser,event.action_name,event.target,event.client_ts||null,serverTs,day
-      )
+      ).bind(event.session_id,event.visitor_id,event.session_entry,event.session_campaign,event.display_mode,serverTs,day)
     ]);
+    const eventResult=await context.env.STATS_DB.prepare(
+      'INSERT OR IGNORE INTO events(event_id,visitor_id,session_id,event_type,acquisition_source,acquisition_campaign,session_entry,session_campaign,display_mode,language,app_version,device_category,browser,action_name,target,client_ts,server_ts,server_day_et) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+    ).bind(
+      event.event_id,event.visitor_id,event.session_id,event.event_type,event.acquisition_source,event.acquisition_campaign,event.session_entry,event.session_campaign,
+      event.display_mode,event.language,event.app_version,event.device_category,event.browser,event.action_name,event.target,event.client_ts||null,serverTs,day
+    ).run();
+    const inserted=Number(eventResult?.meta?.changes||0)>0;
+    const clientTime=event.client_ts?Date.parse(event.client_ts):NaN;
+    const delayed=Number.isFinite(clientTime)&&now.getTime()-clientTime>120000?1:0;
+    await bumpCollectorMetric(context.env.STATS_DB,day,{
+      received:1,accepted:inserted?1:0,duplicates:inserted?0:1,delayed,timestamp:serverTs
+    });
     return new Response(null,{status:204,headers:corsHeaders(origin)});
   }catch(error){
     console.error('[MPDGI Stats] collector D1 failure',error);
