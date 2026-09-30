@@ -40,7 +40,7 @@ async function upgrade(db){
     rejected INTEGER NOT NULL DEFAULT 0,
     delayed INTEGER NOT NULL DEFAULT 0,
     last_received_at TEXT
-  `).run();
+  )`).run();
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_collector_metrics_day ON collector_metrics(day_et)').run();
 
   await db.prepare(`INSERT OR IGNORE INTO campaigns(id,name,slug,source,active,created_at,created_by)
