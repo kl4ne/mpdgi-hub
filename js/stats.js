@@ -291,7 +291,7 @@ function showPanel(view){
   currentView=view||'dashboard';
   document.querySelectorAll('[data-view-panel]').forEach(panel=>{panel.hidden=panel.dataset.viewPanel!==currentView;panel.classList.toggle('active-view',!panel.hidden);});
   document.querySelectorAll('.nav-item').forEach(item=>item.classList.toggle('active',item.dataset.view===currentView));
-  window.scrollTo({top:0,behavior:'instant'});
+  window.scrollTo({top:0,behavior:'auto'});
 }
 
 function slugify(value){
