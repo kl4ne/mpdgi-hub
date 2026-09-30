@@ -11,6 +11,7 @@ const valid={
   event_type:'session_start',
   acquisition_source:'nfc',
   acquisition_campaign:'credential-test',
+  session_campaign:'leaders-meeting',
   session_entry:'nfc',
   display_mode:'browser',
   language:'es',
@@ -22,6 +23,7 @@ const valid={
   client_ts:'2026-09-29T15:00:00.000Z'
 };
 assert.equal(validateEvent(valid).ok,true);
+assert.equal(validateEvent(valid).event.session_campaign,'leaders-meeting');
 assert.equal(validateEvent({...valid,acquisition_source:'magic'}).ok,false);
 assert.equal(validateEvent({...valid,event_type:'action',action_name:''}).ok,false);
 assert.equal(isLikelyBot('Mozilla/5.0 HeadlessChrome Lighthouse'),true);
