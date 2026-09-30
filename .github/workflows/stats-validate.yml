@@ -63,7 +63,14 @@ jobs:
           console.log('MPDGI Stats static validation passed');
           NODE
       - name: Install Chromium and WebKit
-        run: npx playwright install --with-deps chromium webkit
+        run: |
+          for attempt in 1 2; do
+            if timeout 240s npx playwright install --with-deps chromium webkit; then
+              exit 0
+            fi
+            echo "Playwright browser install attempt $attempt failed or timed out; retrying..."
+          done
+          exit 1
       - name: Start static Stats shell
         run: |
           nohup python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/mpdgi-stats-http.log 2>&1 &
