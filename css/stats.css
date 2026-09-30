@@ -112,3 +112,16 @@
   .daily-day{font-size:.48rem}
   .stats-footer{display:flex!important;border-top:1px solid #d9e3ef;margin-top:10px}
 }
+
+
+.campaign-result{border:1px solid #dce5f1;border-radius:14px;padding:14px 16px;background:#fff;display:grid;gap:10px}
+.campaign-result+.campaign-result{margin-top:10px}
+.campaign-result-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.campaign-result-head strong{font-size:1rem;color:#10233f}
+.campaign-source-badge{font-size:.72rem;font-weight:800;letter-spacing:.06em;padding:4px 8px;border-radius:999px;background:#eef4ff;color:#245eb7}
+.campaign-result-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.campaign-result-metrics span{background:#f7f9fc;border-radius:10px;padding:9px 10px;display:grid;gap:2px}
+.campaign-result-metrics small{font-size:.72rem;color:#667792}
+.campaign-result-metrics b{font-size:1.05rem;color:#10233f}
+.campaign-result-meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.78rem;color:#667792}
+@media (max-width:640px){.campaign-result-metrics{grid-template-columns:1fr}.campaign-actions{display:grid;grid-template-columns:1fr}.campaign-actions button{width:100%}}
