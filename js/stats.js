@@ -10,15 +10,16 @@ const I18N={
     authorized:'Acceso autorizado solamente',loginHelp:'Inicia sesión para ver las estadísticas privadas de MPDGI.',email:'Correo electrónico',password:'Contraseña',remember:'Recordarme en este dispositivo',signIn:'Entrar',secureNote:'🔒 Acceso privado para administradores aprobados de MPDGI.',
     navDashboard:'Dashboard',navReports:'Reportes',navSources:'Fuentes',navCampaigns:'Campañas',navEngagement:'Interacción',navTechnology:'Tecnología',navSystem:'Sistema',adminsOnly:'Solo administradores autorizados',
     period:'Período',range7:'Últimos 7 días',range30:'Últimos 30 días',range90:'Últimos 90 días',rangeMonth:'Este mes',rangeYear:'Este año',range365:'Últimos 12 meses',rangeCustom:'Rango personalizado',from:'Desde',to:'Hasta',apply:'Aplicar',printPdf:'🖨 Imprimir / PDF',logout:'Salir',analyticsReport:'Reporte de Analítica',
-    summary:'Resumen',loadingPeriod:'Cargando período…',visits:'Visitas (sesiones)',uniqueVisitors:'Visitantes únicos estimados',pwaSessions:'Sesiones desde PWA',pageViews:'Page Views',currentPeriod:'Período actual',lastUpdated:'Última actualización',
+    summary:'Resumen',loadingPeriod:'Cargando período…',visits:'Visitas (sesiones)',uniqueVisitors:'Visitantes únicos estimados',pwaSessions:'Sesiones desde PWA',pageViews:'Page Views',currentPeriod:'Período actual',lastUpdated:'Última actualización',executiveSnapshot:'Resumen ejecutivo',executivePeriod:'Período seleccionado',peakHour:'Hora de mayor actividad',peakDay:'Día de mayor actividad',sundayActivity:'Sesiones dominicales',wednesdayActivity:'Sesiones del miércoles',topSource:'Fuente principal',topAction:'Acción principal',hourlyActivity:'Actividad por hora',weekdayActivity:'Actividad por día de la semana',
     reportsTitle:'Reportes',reportsIntro:'Resumen visual e imprimible del período seleccionado.',dailyVisits:'Visitas diarias',newReturning:'Visitantes nuevos vs recurrentes',anonymousEstimate:'Estimación anónima',reportNoteTitle:'Acerca del reporte',reportNote:'El dashboard, el CSV y el reporte impreso utilizan los mismos datos agregados del servidor. No se exportan identificadores anónimos individuales.',
     sourcesTitle:'Fuentes',sourcesIntro:'Cómo llegaron los visitantes y cómo comenzó cada sesión.',acquisitionSource:'Fuente de adquisición',estimatedVisitors:'Visitantes estimados',total:'Total',source:'Fuente',visitorsShort:'Visitantes',sessionEntry:'Entrada de sesión',usageMode:'Modo de uso',
     campaignsTitle:'Campañas',campaignsIntro:'Crea enlaces etiquetados para saber cuándo una visita llega por Link, QR o NFC.',createCampaign:'Crear campaña',noCost:'Sin servicios adicionales',campaignName:'Nombre de campaña',campaignSource:'Tipo de acceso',sharedLink:'Enlace compartido',generatedUrl:'URL generada',copyUrl:'Copiar URL',openUrl:'Abrir URL',campaignResults:'Resultados de campañas',firstTouch:'Sesiones atribuidas y adquisición inicial',generalShareLink:'Enlace general para compartir',generalShareHelp:'Usa este enlace cuando envíes el Hub por WhatsApp, Messages, correo o redes y quieras que Stats lo clasifique como Enlace.',copy:'Copiar',
     engagementTitle:'Interacción',engagementIntro:'Qué acciones realizan los visitantes dentro del Hub.',topActions:'Acciones principales',
     technologyTitle:'Tecnología',technologyIntro:'Dispositivos, navegadores e idioma observado.',devices:'Dispositivos',browsers:'Navegadores',languages:'Idiomas',
-    systemTitle:'Estado del sistema',systemIntro:'Comprobación de los componentes principales de MPDGI Stats.',systemHealth:'Salud del sistema',database:'Base de datos',lastEvent:'Último evento',authorizedFooter:'🔒 Solo administradores autorizados.',
+    systemTitle:'Estado del sistema',systemIntro:'Comprobación de los componentes principales de MPDGI Stats.',systemHealth:'Salud del sistema',database:'Base de datos',lastEvent:'Último evento',lastCheck:'Última comprobación',dataQuality:'Calidad de datos',eventsReceived:'Eventos recibidos',eventsStored:'Eventos almacenados',duplicatesPrevented:'Duplicados evitados',rejectedEvents:'Eventos rechazados',delayedEvents:'Eventos retrasados / recuperados',qualityNote:'Los eventos retrasados indican registros recibidos más de dos minutos después de su marca de tiempo del cliente; suelen corresponder a entregas tardías o recuperación de cola offline.',authorizedFooter:'🔒 Solo administradores autorizados.',
     noData:'Sin datos para este período.',sessions:'sesiones',generated:'Generado',previousPeriod:'vs. período anterior',allOperational:'● Todos los sistemas operacionales',attentionRequired:'● Atención requerida',operational:'Operacional',review:'Revisar',noEvents:'Sin eventos',
     loginError:'Correo o contraseña incorrectos.',rateError:'Demasiados intentos. Intenta nuevamente en unos minutos.',validRange:'Selecciona un rango de fechas válido.',exportError:'No fue posible generar el CSV.',copied:'URL copiada.',copyFailed:'No fue posible copiar automáticamente. Selecciona y copia la URL.',campaignPlaceholder:'reunion-lideres-octubre',createCampaignButton:'Crear campaña',campaignCreated:'Campaña creada y guardada.',campaignExists:'La campaña ya existía; se usará el registro existente.',campaignCreateError:'No fue posible guardar la campaña.',campaignNameRequired:'Escribe un nombre de campaña.',campaignSessions:'Sesiones',campaignVisitors:'Visitantes estimados',campaignFirstTouch:'Adquisición inicial',campaignCreatedOn:'Creada',campaignLastActivity:'Última actividad',campaignNoActivity:'Sin actividad en este período',
+    executiveSummary:(visits,users,change,source,action,hour,day,sunday,wednesday)=>'Durante el período seleccionado se registraron '+visits+' sesiones y '+users+' visitantes estimados'+(change?' ('+change+')':'')+'. La fuente principal fue '+source+' y la acción más utilizada fue '+action+'. La mayor actividad se observó alrededor de '+hour+' el '+day+'. Domingo registró '+sunday+' sesiones y miércoles '+wednesday+'.',
     dashboardSummary:(visits,users)=>visits+' sesiones · '+users+' visitantes estimados',
     tipVisits:'Número de sesiones observadas durante el período seleccionado. Una misma persona o dispositivo puede iniciar más de una sesión.',
     tipUnique:'Estimación anónima de navegadores o dispositivos únicos observados. No identifica personas por nombre.',
@@ -38,21 +39,26 @@ const I18N={
     tipDevices:'Categoría del dispositivo reportada por el Hub: móvil, computadora, tableta u otro.',
     tipBrowsers:'Familia de navegador observada en las sesiones.',
     tipLanguages:'Idioma activo del Hub durante las sesiones observadas.',
-    tipSystem:'Estado de los componentes esenciales: collector, base D1 y recepción de eventos.'
+    tipSystem:'Estado de los componentes esenciales: collector, base D1 y recepción de eventos.',
+    tipExecutive:'Resumen ejecutivo generado con los datos agregados del período seleccionado.',
+    tipHourly:'Sesiones agrupadas por hora local del Este de Estados Unidos.',
+    tipWeekday:'Sesiones agrupadas por día de la semana según la hora local del Este.',
+    tipDataQuality:'Indicadores de calidad del flujo de eventos. Los contadores de duplicados y rechazos comienzan a medirse con esta versión.'
   },
   en:{
     authorized:'Authorized access only',loginHelp:'Sign in to view MPDGI private analytics.',email:'Email address',password:'Password',remember:'Remember me on this device',signIn:'Sign in',secureNote:'🔒 Private access for approved MPDGI administrators.',
     navDashboard:'Dashboard',navReports:'Reports',navSources:'Sources',navCampaigns:'Campaigns',navEngagement:'Engagement',navTechnology:'Technology',navSystem:'System',adminsOnly:'Authorized administrators only',
     period:'Period',range7:'Last 7 days',range30:'Last 30 days',range90:'Last 90 days',rangeMonth:'This month',rangeYear:'This year',range365:'Last 12 months',rangeCustom:'Custom range',from:'From',to:'To',apply:'Apply',printPdf:'🖨 Print / PDF',logout:'Sign out',analyticsReport:'Analytics Report',
-    summary:'Summary',loadingPeriod:'Loading period…',visits:'Visits (sessions)',uniqueVisitors:'Estimated unique visitors',pwaSessions:'PWA sessions',pageViews:'Page Views',currentPeriod:'Current period',lastUpdated:'Last updated',
+    summary:'Summary',loadingPeriod:'Loading period…',visits:'Visits (sessions)',uniqueVisitors:'Estimated unique visitors',pwaSessions:'PWA sessions',pageViews:'Page Views',currentPeriod:'Current period',lastUpdated:'Last updated',executiveSnapshot:'Executive Snapshot',executivePeriod:'Selected period',peakHour:'Peak activity hour',peakDay:'Peak activity day',sundayActivity:'Sunday sessions',wednesdayActivity:'Wednesday sessions',topSource:'Top source',topAction:'Top action',hourlyActivity:'Hourly activity',weekdayActivity:'Weekday activity',
     reportsTitle:'Reports',reportsIntro:'Visual and printable summary for the selected period.',dailyVisits:'Daily visits',newReturning:'New vs returning visitors',anonymousEstimate:'Anonymous estimate',reportNoteTitle:'About this report',reportNote:'The dashboard, CSV export and printed report use the same aggregated server data. Individual anonymous identifiers are not exported.',
     sourcesTitle:'Sources',sourcesIntro:'How visitors arrived and how each session started.',acquisitionSource:'Acquisition source',estimatedVisitors:'Estimated visitors',total:'Total',source:'Source',visitorsShort:'Visitors',sessionEntry:'Session entry',usageMode:'Usage mode',
     campaignsTitle:'Campaigns',campaignsIntro:'Create tagged URLs to identify visits arriving through Link, QR or NFC.',createCampaign:'Create campaign',noCost:'No additional services',campaignName:'Campaign name',campaignSource:'Access type',sharedLink:'Shared link',generatedUrl:'Generated URL',copyUrl:'Copy URL',openUrl:'Open URL',campaignResults:'Campaign results',firstTouch:'Attributed sessions and initial acquisition',generalShareLink:'General share link',generalShareHelp:'Use this link when sharing the Hub through WhatsApp, Messages, email or social media and you want Stats to classify it as Link.',copy:'Copy',
     engagementTitle:'Engagement',engagementIntro:'What visitors do inside the Hub.',topActions:'Top actions',
     technologyTitle:'Technology',technologyIntro:'Observed devices, browsers and Hub language.',devices:'Devices',browsers:'Browsers',languages:'Languages',
-    systemTitle:'System status',systemIntro:'Status of the main MPDGI Stats components.',systemHealth:'System Health',database:'Database',lastEvent:'Last event',authorizedFooter:'🔒 For authorized administrators only.',
+    systemTitle:'System status',systemIntro:'Status of the main MPDGI Stats components.',systemHealth:'System Health',database:'Database',lastEvent:'Last event',lastCheck:'Last check',dataQuality:'Data quality',eventsReceived:'Events received',eventsStored:'Events stored',duplicatesPrevented:'Duplicates prevented',rejectedEvents:'Rejected events',delayedEvents:'Delayed / recovered events',qualityNote:'Delayed events are records received more than two minutes after the client timestamp; they commonly indicate late delivery or offline-queue recovery.',authorizedFooter:'🔒 For authorized administrators only.',
     noData:'No data for this period.',sessions:'sessions',generated:'Generated',previousPeriod:'vs. previous period',allOperational:'● All systems operational',attentionRequired:'● Attention required',operational:'Operational',review:'Review',noEvents:'No events',
     loginError:'Incorrect email or password.',rateError:'Too many attempts. Try again in a few minutes.',validRange:'Select a valid date range.',exportError:'The CSV could not be generated.',copied:'URL copied.',copyFailed:'Automatic copy failed. Select and copy the URL.',campaignPlaceholder:'leaders-meeting-october',createCampaignButton:'Create campaign',campaignCreated:'Campaign created and saved.',campaignExists:'This campaign already existed; the existing record will be used.',campaignCreateError:'The campaign could not be saved.',campaignNameRequired:'Enter a campaign name.',campaignSessions:'Sessions',campaignVisitors:'Estimated visitors',campaignFirstTouch:'Initial acquisition',campaignCreatedOn:'Created',campaignLastActivity:'Last activity',campaignNoActivity:'No activity in this period',
+    executiveSummary:(visits,users,change,source,action,hour,day,sunday,wednesday)=>'The selected period recorded '+visits+' sessions and '+users+' estimated visitors'+(change?' ('+change+')':'')+'. The top source was '+source+' and the most-used action was '+action+'. Peak activity occurred around '+hour+' on '+day+'. Sunday recorded '+sunday+' sessions and Wednesday '+wednesday+'.',
     dashboardSummary:(visits,users)=>visits+' sessions · '+users+' estimated visitors',
     tipVisits:'Number of observed sessions during the selected period. The same person or device can start more than one session.',
     tipUnique:'Anonymous estimate of unique browsers or devices observed. It does not identify people by name.',
@@ -72,7 +78,11 @@ const I18N={
     tipDevices:'Device category reported by the Hub: mobile, desktop, tablet or other.',
     tipBrowsers:'Browser family observed during sessions.',
     tipLanguages:'Active Hub language during observed sessions.',
-    tipSystem:'Status of essential components: collector, D1 database and event reception.'
+    tipSystem:'Status of essential components: collector, D1 database and event reception.',
+    tipExecutive:'Executive snapshot generated from aggregated data for the selected period.',
+    tipHourly:'Sessions grouped by local Eastern Time hour.',
+    tipWeekday:'Sessions grouped by weekday using local Eastern Time.',
+    tipDataQuality:'Event-flow quality indicators. Duplicate and rejection counters begin tracking with this release.'
   }
 };
 
@@ -85,6 +95,7 @@ const LABELS={
     browser:{edge:'Edge',chrome:'Chrome',safari:'Safari',firefox:'Firefox',other:'Otro'},
     language:{es:'ES — Español',en:'EN — English',other:'Otro'},
     mix:{new:'Nuevos',returning:'Recurrentes'},
+    weekday:{0:'Domingo',1:'Lunes',2:'Martes',3:'Miércoles',4:'Jueves',5:'Viernes',6:'Sábado'},
     action:{card_members:'Portal de Miembros',card_give:'Ofrendar',card_prayer:'Petición de Oración',card_bible:'Biblia',card_ministries:'Ministerios',card_social:'Redes Sociales',card_website:'Sitio Web',card_about:'Acerca de',give_tithely:'Tithe.ly',give_square:'Square',give_zelle_copy:'Copiar Zelle',social_facebook:'Facebook',social_instagram:'Instagram',social_youtube:'YouTube',social_tiktok:'TikTok',bible_spanish:'Biblia RVR1960',bible_english:'Bible KJV',directions:'Indicaciones / GPS',language_change:'Cambio de idioma',pwa_install_prompt:'Instalar PWA',pwa_installed:'PWA instalada',external_link:'Enlace externo'}
   },
   en:{
@@ -95,6 +106,7 @@ const LABELS={
     browser:{edge:'Edge',chrome:'Chrome',safari:'Safari',firefox:'Firefox',other:'Other'},
     language:{es:'ES — Spanish',en:'EN — English',other:'Other'},
     mix:{new:'New',returning:'Returning'},
+    weekday:{0:'Sunday',1:'Monday',2:'Tuesday',3:'Wednesday',4:'Thursday',5:'Friday',6:'Saturday'},
     action:{card_members:'Member Portal',card_give:'Give',card_prayer:'Prayer Request',card_bible:'Bible',card_ministries:'Ministries',card_social:'Social Media',card_website:'Website',card_about:'About',give_tithely:'Tithe.ly',give_square:'Square',give_zelle_copy:'Copy Zelle',social_facebook:'Facebook',social_instagram:'Instagram',social_youtube:'YouTube',social_tiktok:'TikTok',bible_spanish:'Bible RVR1960',bible_english:'Bible KJV',directions:'Directions / GPS',language_change:'Language change',pwa_install_prompt:'Install PWA',pwa_installed:'PWA installed',external_link:'External link'}
   }
 };
@@ -213,9 +225,54 @@ function renderDaily(items){
   changeText('daily-total',number(total)+' '+t('sessions'));
 }
 
+function hourLabel(hour){
+  const base=new Date(Date.UTC(2026,0,1,Number(hour)||0,0,0));
+  return new Intl.DateTimeFormat(currentLang==='es'?'es-US':'en-US',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/New_York'}).format(base);
+}
+function renderActivityBars(containerId,items,type){
+  const root=$(containerId);if(!root)return;root.replaceChildren();
+  if(!items.length){root.textContent=t('noData');return;}
+  const max=Math.max(1,...items.map(x=>Number(x.value)||0));
+  for(const item of items){
+    const row=document.createElement('div');row.className='activity-row';
+    const label=document.createElement('span');label.textContent=type==='hour'?hourLabel(Number(item.key)):LABELS[currentLang].weekday[item.key]||item.key;
+    const track=document.createElement('div');track.className='bar-track';
+    const fill=document.createElement('div');fill.className='bar-fill';fill.style.width=Math.max(2,(Number(item.value)||0)/max*100)+'%';
+    const value=document.createElement('strong');value.textContent=number(item.value);
+    row.append(label,track,value);root.append(row);
+  }
+}
+function renderExecutiveSummary(data){
+  const source=(data.acquisition_sources||[]).reduce((best,item)=>Number(item.value)>Number(best.value||0)?item:best,{key:'unattributed',value:0});
+  const action=(data.top_actions||[])[0]||{key:'—',value:0};
+  const activity=data.activity||{};
+  const change=percentChange(data.comparison?.visits_pct);
+  const sourceLabel=LABELS[currentLang].source[source.key]||source.key;
+  const actionLabel=LABELS[currentLang].action[action.key]||action.key;
+  const dayLabel=LABELS[currentLang].weekday[String(activity.peak_weekday)]||'—';
+  changeText('executive-summary-text',t('executiveSummary')(number(data.summary.visits),number(data.summary.unique_visitors),change,sourceLabel,actionLabel,hourLabel(activity.peak_hour),dayLabel,number(activity.sunday_sessions||0),number(activity.wednesday_sessions||0)));
+  changeText('executive-period',data.range.from+' — '+data.range.to);
+  changeText('executive-peak-hour',hourLabel(activity.peak_hour));
+  changeText('executive-peak-day',dayLabel);
+  changeText('executive-sunday',number(activity.sunday_sessions||0));
+  changeText('executive-wednesday',number(activity.wednesday_sessions||0));
+  changeText('executive-source',sourceLabel);
+  changeText('executive-action',actionLabel);
+}
+function renderDataQuality(data){
+  const q=data.data_quality||{};
+  changeText('quality-received',number(q.events_received));
+  changeText('quality-stored',number(q.events_stored));
+  changeText('quality-duplicates',number(q.duplicates_prevented));
+  changeText('quality-rejected',number(q.rejected));
+  changeText('quality-delayed',number(q.delayed_events));
+  changeText('quality-window',data.range.from+' — '+data.range.to);
+  changeText('quality-note',t('qualityNote'));
+}
 function renderCampaigns(items){
   const root=$('campaigns-list');if(!root)return;root.replaceChildren();
   if(!items.length){root.textContent=t('noData');return;}
+  items=[...items].sort((a,b)=>(Number(b.sessions)||0)-(Number(a.sessions)||0)||(Number(b.visitors)||0)-(Number(a.visitors)||0)||String(b.created_at||'').localeCompare(String(a.created_at||'')));
   for(const item of items){
     const card=document.createElement('div');card.className='campaign-result';
     const head=document.createElement('div');head.className='campaign-result-head';
@@ -246,6 +303,7 @@ function renderHealth(health){
   changeText('health-collector',collectorOk?t('operational'):t('review'));
   changeText('health-db',dbOk?t('operational'):t('review'));
   changeText('health-last-event',lastEventOk?dateTime(health.last_event_at):t('noEvents'));
+  changeText('health-last-check',dateTime(new Date().toISOString()));
   setStatusLight('health-collector-light',collectorOk?'ok':'bad');
   setStatusLight('health-db-light',dbOk?'ok':'bad');
   setStatusLight('health-event-light',lastEventOk?'ok':'bad');
@@ -266,7 +324,10 @@ function renderDashboard(data){
   applyChange('metric-pageviews-change',data.comparison.page_views_pct);
   changeText('dashboard-period-summary',t('dashboardSummary')(number(data.summary.visits),number(data.summary.unique_visitors)));
   changeText('dashboard-last-updated',dateTime(data.generated_at));
+  renderExecutiveSummary(data);
   renderDaily(data.daily_visits||[]);
+  renderActivityBars('hourly-activity-list',data.activity?.hourly_sessions||[],'hour');
+  renderActivityBars('weekday-activity-list',data.activity?.weekday_sessions||[],'weekday');
   renderLegend(data.acquisition_sources||[]);
   renderBars('session-entry-list',data.session_entries||[],LABELS[currentLang].entry);
   renderBars('actions-list',data.top_actions||[],LABELS[currentLang].action);
@@ -277,7 +338,9 @@ function renderDashboard(data){
   renderBars('visitor-mix-list',data.visitor_mix||[],LABELS[currentLang].mix);
   renderBars('visitor-mix-list-secondary',data.visitor_mix||[],LABELS[currentLang].mix);
   renderCampaigns(data.campaigns||[]);
+  renderDataQuality(data);
   renderHealth(data.health||{});
+
 }
 
 function dashboardQuery(){
@@ -384,7 +447,13 @@ function setupDashboard(){
     if(!from||!to||from>to){alert(t('validRange'));return;}
     await loadDashboard();
   });
-  $('print-button').addEventListener('click',()=>window.print());
+  $('print-button').addEventListener('click',()=>{
+    document.body.classList.add('print-all');
+    const cleanup=()=>document.body.classList.remove('print-all');
+    window.addEventListener('afterprint',cleanup,{once:true});
+    window.print();
+    setTimeout(cleanup,3000);
+  });
   $('export-button').addEventListener('click',async()=>{
     const button=$('export-button');button.disabled=true;
     try{
@@ -418,6 +487,9 @@ function setupDashboard(){
   });
   $('general-link-copy').addEventListener('click',()=>copyValue($('general-link-url').value,'campaign-feedback'));
 }
+
+window.addEventListener('beforeprint',()=>document.body.classList.add('print-all'));
+window.addEventListener('afterprint',()=>document.body.classList.remove('print-all'));
 
 async function setupServiceWorker(){
   if(!('serviceWorker'in navigator))return;
