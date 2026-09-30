@@ -1,5 +1,16 @@
 [
   {
+    "version": "1.2.1",
+    "title": "Data Restoration Hotfix",
+    "date": "2026-09-30",
+    "changes": [
+      "Fixed a malformed collector_metrics D1 CREATE TABLE statement introduced in v1.2.0.",
+      "Restored dashboard access to the existing D1 analytics data without deleting or recreating historical events.",
+      "Restored collector writes so new Hub events continue to be recorded.",
+      "Added validation to prevent the collector_metrics schema from shipping with an unclosed CREATE TABLE definition."
+    ]
+  },
+  {
     "version": "1.2.0",
     "title": "Intelligence, Executive Reporting & Data Quality",
     "date": "2026-09-30",
