@@ -11,6 +11,7 @@ const ANALYTICS_FIRST_CAMPAIGN_KEY='mpdgiAnalyticsFirstCampaign';
 const ANALYTICS_SESSION_KEY='mpdgiAnalyticsSessionId';
 const ANALYTICS_SESSION_LAST_KEY='mpdgiAnalyticsSessionLast';
 const ANALYTICS_SESSION_ENTRY_KEY='mpdgiAnalyticsSessionEntry';
+const ANALYTICS_SESSION_CAMPAIGN_KEY='mpdgiAnalyticsSessionCampaign';
 const ANALYTICS_SESSION_TIMEOUT=30*60*1000;
 const ANALYTICS_MAX_QUEUE=100;
 const ANALYTICS_COOKIE_MAX_AGE=60*60*24*730;
@@ -275,6 +276,7 @@ function resolveAnalyticsSession(entry){
   const last=Number(storageGet(ANALYTICS_SESSION_LAST_KEY)||cookieGet('mpdgi_session_last')||0);
   let sessionId=storageGet(ANALYTICS_SESSION_KEY)||cookieGet('mpdgi_session_id');
   let sessionEntry=storageGet(ANALYTICS_SESSION_ENTRY_KEY)||cookieGet('mpdgi_session_entry');
+  let sessionCampaign=normalizeCampaign(storageGet(ANALYTICS_SESSION_CAMPAIGN_KEY)||cookieGet('mpdgi_session_campaign'));
   if(!validAnalyticsId(sessionId))sessionId='';
   const attributedEntry=entry.source&&entry.source!=='unattributed'?entry.source:null;
   const standalone=isStandaloneMode();
@@ -286,18 +288,20 @@ function resolveAnalyticsSession(entry){
   if(isNew){
     sessionId=randomId();
     sessionEntry=attributedEntry||(standalone?'pwa':'web');
+    sessionCampaign=normalizeCampaign(entry.campaign);
   }
   sessionEntry=VALID_SESSION_ENTRIES.has(sessionEntry)?sessionEntry:(standalone?'pwa':'web');
   storageSet(ANALYTICS_SESSION_KEY,sessionId);cookieSet('mpdgi_session_id',sessionId,1800);
   storageSet(ANALYTICS_SESSION_ENTRY_KEY,sessionEntry);cookieSet('mpdgi_session_entry',sessionEntry,1800);
+  storageSet(ANALYTICS_SESSION_CAMPAIGN_KEY,sessionCampaign);cookieSet('mpdgi_session_campaign',sessionCampaign,1800);
   storageSet(ANALYTICS_SESSION_LAST_KEY,String(now));cookieSet('mpdgi_session_last',String(now),1800);
-  return {sessionId,sessionEntry,isNew};
+  return {sessionId,sessionEntry,sessionCampaign,isNew};
 }
 function analyticsContext(){
   if(!analyticsState)return null;
   const activityNow=Date.now();
   storageSet(ANALYTICS_SESSION_LAST_KEY,String(activityNow));cookieSet('mpdgi_session_last',String(activityNow),1800);
-  cookieSet('mpdgi_session_id',analyticsState.sessionId,1800);cookieSet('mpdgi_session_entry',analyticsState.sessionEntry,1800);
+  cookieSet('mpdgi_session_id',analyticsState.sessionId,1800);cookieSet('mpdgi_session_entry',analyticsState.sessionEntry,1800);cookieSet('mpdgi_session_campaign',analyticsState.sessionCampaign||'',1800);
   return {
     schema_version:ANALYTICS_SCHEMA_VERSION,
     visitor_id:analyticsState.visitorId,
@@ -305,6 +309,7 @@ function analyticsContext(){
     acquisition_source:analyticsState.firstSource,
     acquisition_campaign:analyticsState.firstCampaign||'',
     session_entry:analyticsState.sessionEntry,
+    session_campaign:analyticsState.sessionCampaign||'',
     display_mode:isStandaloneMode()?'pwa':'browser',
     language:currentLanguage,
     app_version:HUB_VERSION,
