@@ -227,7 +227,7 @@ function renderDaily(items){
 
 function hourLabel(hour){
   const base=new Date(Date.UTC(2026,0,1,Number(hour)||0,0,0));
-  return new Intl.DateTimeFormat(currentLang==='es'?'es-US':'en-US',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/New_York'}).format(base);
+  return new Intl.DateTimeFormat(currentLang==='es'?'es-US':'en-US',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'UTC'}).format(base);
 }
 function renderActivityBars(containerId,items,type){
   const root=$(containerId);if(!root)return;root.replaceChildren();
