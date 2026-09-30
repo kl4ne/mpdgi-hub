@@ -261,12 +261,14 @@ function renderDashboard(data){
 }
 
 function dashboardQuery(){
-  if(currentPreset==='custom'){
+  const selected=$('range-select')?.value||currentPreset;
+  currentPreset=selected;
+  if(selected==='custom'){
     const from=$('range-from').value,to=$('range-to').value;
     if(from&&to&&from<=to)return '?preset=custom&from='+encodeURIComponent(from)+'&to='+encodeURIComponent(to);
     return '?preset=30d';
   }
-  return '?preset='+encodeURIComponent(currentPreset);
+  return '?preset='+encodeURIComponent(selected);
 }
 
 async function loadDashboard(){
@@ -340,8 +342,10 @@ function setupDashboard(){
     if(currentPreset!=='custom')await loadDashboard();
   });
   $('apply-range').addEventListener('click',async()=>{
+    currentPreset=$('range-select').value||currentPreset;
     const from=$('range-from').value,to=$('range-to').value;
-    if(!from||!to||from>to){alert(t('validRange'));return;}await loadDashboard();
+    if(!from||!to||from>to){alert(t('validRange'));return;}
+    await loadDashboard();
   });
   $('print-button').addEventListener('click',()=>window.print());
   $('export-button').addEventListener('click',async()=>{
