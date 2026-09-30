@@ -4,6 +4,7 @@ module.exports=defineConfig({
   testDir:'./tests',
   testMatch:'**/stats-ui.spec.js',
   timeout:30000,
+  maxFailures:1,
   retries:1,
   workers:1,
   reporter:'line',
