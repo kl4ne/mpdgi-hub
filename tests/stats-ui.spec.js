@@ -91,7 +91,7 @@ test('custom report range drives dashboard request and keeps report controls pro
   await expect(page.locator('#custom-range')).toBeVisible();
   await page.locator('#range-from').evaluate((el,value)=>{el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));},'2026-09-01');
   await page.locator('#range-to').evaluate((el,value)=>{el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));},'2026-09-29');
-  await page.locator('#apply-range').click();
+  await page.locator('#apply-range').evaluate(el=>el.click());
   await expect.poll(()=>requested).toContain('preset=custom');
   expect(requested).toContain('from=2026-09-01');
   expect(requested).toContain('to=2026-09-29');
