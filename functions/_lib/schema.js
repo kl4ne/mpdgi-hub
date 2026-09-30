@@ -32,6 +32,17 @@ async function upgrade(db){
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_sessions_campaign ON sessions(session_campaign)').run();
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_events_session_campaign ON events(session_campaign)').run();
 
+  await db.prepare(`CREATE TABLE IF NOT EXISTS collector_metrics (
+    day_et TEXT PRIMARY KEY,
+    received INTEGER NOT NULL DEFAULT 0,
+    accepted INTEGER NOT NULL DEFAULT 0,
+    duplicates INTEGER NOT NULL DEFAULT 0,
+    rejected INTEGER NOT NULL DEFAULT 0,
+    delayed INTEGER NOT NULL DEFAULT 0,
+    last_received_at TEXT
+  `).run();
+  await db.prepare('CREATE INDEX IF NOT EXISTS idx_collector_metrics_day ON collector_metrics(day_et)').run();
+
   await db.prepare(`INSERT OR IGNORE INTO campaigns(id,name,slug,source,active,created_at,created_by)
     SELECT 'legacy:'||acquisition_source||':'||acquisition_campaign,
            acquisition_campaign,acquisition_campaign,acquisition_source,1,MIN(first_seen_at),'legacy'
