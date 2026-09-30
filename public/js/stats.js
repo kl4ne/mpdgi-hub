@@ -102,7 +102,9 @@ const LABELS={
 let currentPreset='30d';
 let currentData=null;
 let currentView='dashboard';
-let currentLang=localStorage.getItem(LANGUAGE_KEY)==='en'?'en':'es';
+function storageGet(key){try{return localStorage.getItem(key);}catch{return null;}}
+function storageSet(key,value){try{localStorage.setItem(key,value);}catch{}}
+let currentLang=storageGet(LANGUAGE_KEY)==='en'?'en':'es';
 
 const $=id=>document.getElementById(id);
 const t=key=>I18N[currentLang][key]??key;
@@ -151,7 +153,7 @@ function applyTranslations(){
 
 function setLanguage(lang){
   currentLang=lang==='en'?'en':'es';
-  localStorage.setItem(LANGUAGE_KEY,currentLang);
+  storageSet(LANGUAGE_KEY,currentLang);
   applyTranslations();
 }
 
