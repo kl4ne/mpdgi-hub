@@ -1,4 +1,4 @@
-const {test,expect}=require('@playwright/test');
+import {test,expect} from '@playwright/test';
 
 const sample={
   generated_at:'2026-09-29T19:00:00.000Z',
