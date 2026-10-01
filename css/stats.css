@@ -163,3 +163,14 @@
   .activity-list{max-height:none;overflow:visible}
   .executive-panel,.data-quality-panel{break-inside:avoid}
 }
+
+
+/* v1.3.0 quality & maturity */
+.status-yellow{background:#e0a800;box-shadow:0 0 0 4px rgba(224,168,0,.12)}
+.methodology-card h2+*{margin-top:10px}
+.methodology-list{display:grid;gap:10px}
+.methodology-list div{padding:10px 12px;border:1px solid #e4eaf1;border-radius:12px;background:#fbfcfe}
+.methodology-list dt{font-weight:800;color:#071A36}
+.methodology-list dd{margin-top:3px;color:#526274;line-height:1.45}
+.methodology-bullets{margin:10px 0 0 1.1rem;color:#526274;line-height:1.55}
+.methodology-bullets li+li{margin-top:6px}

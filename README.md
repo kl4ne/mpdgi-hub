@@ -1,4 +1,4 @@
-# MPDGI Stats
+# MPDGI Stats — v1.3.0
 
 Private analytics PWA for **Ministerio Plenitud de Gracia**.
 
@@ -25,7 +25,9 @@ MPDGI Stats provides private, authenticated reporting for anonymous Hub usage:
 - Executive summaries and period comparisons
 - Hourly and weekday activity insights
 - Data-quality monitoring for event delivery
-- System health
+- Real System Health with D1 latency, Collector activity and Event Pipeline state
+- Bilingual Methodology & Privacy definitions
+- Documented data-retention baseline
 
 ## Privacy
 
@@ -49,6 +51,8 @@ Anonymous visitor and session IDs exist only to deduplicate and aggregate usage.
 Designed for Cloudflare Pages Functions + D1 Free and the existing MPDGI domain. No paid service is required for the intended church-scale usage.
 
 See `STATS_DEPLOYMENT.md` for deployment instructions.
+
+See `ANALYTICS_METHODOLOGY.md` for metric definitions and `DATA_RETENTION_POLICY.md` for the retention baseline. v1.3.0 does not automatically delete historical analytics data.
 
 ## Important
 

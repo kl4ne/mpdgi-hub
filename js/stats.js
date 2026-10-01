@@ -8,7 +8,7 @@ const SOURCE_COLORS={nfc:'#1468e8',qr:'#5aa2f8',link:'#efb94f',unattributed:'#9c
 const I18N={
   es:{
     authorized:'Acceso autorizado solamente',loginHelp:'Inicia sesión para ver las estadísticas privadas de MPDGI.',email:'Correo electrónico',password:'Contraseña',remember:'Recordarme en este dispositivo',signIn:'Entrar',secureNote:'🔒 Acceso privado para administradores aprobados de MPDGI.',
-    navDashboard:'Dashboard',navReports:'Reportes',navSources:'Fuentes',navCampaigns:'Campañas',navEngagement:'Interacción',navTechnology:'Tecnología',navSystem:'Sistema',adminsOnly:'Solo administradores autorizados',
+    navDashboard:'Dashboard',navReports:'Reportes',navSources:'Fuentes',navCampaigns:'Campañas',navEngagement:'Interacción',navTechnology:'Tecnología',navSystem:'Sistema',navMethodology:'Metodología',adminsOnly:'Solo administradores autorizados',
     period:'Período',range7:'Últimos 7 días',range30:'Últimos 30 días',range90:'Últimos 90 días',rangeMonth:'Este mes',rangeYear:'Este año',range365:'Últimos 12 meses',rangeCustom:'Rango personalizado',from:'Desde',to:'Hasta',apply:'Aplicar',printPdf:'🖨 Imprimir / PDF',logout:'Salir',analyticsReport:'Reporte de Analítica',
     summary:'Resumen',loadingPeriod:'Cargando período…',visits:'Visitas (sesiones)',uniqueVisitors:'Visitantes únicos estimados',pwaSessions:'Sesiones desde PWA',pageViews:'Page Views',currentPeriod:'Período actual',lastUpdated:'Última actualización',executiveSnapshot:'Resumen ejecutivo',executivePeriod:'Período seleccionado',peakHour:'Hora de mayor actividad',peakDay:'Día de mayor actividad',sundayActivity:'Sesiones dominicales',wednesdayActivity:'Sesiones del miércoles',topSource:'Fuente principal',topAction:'Acción principal',hourlyActivity:'Actividad por hora',weekdayActivity:'Actividad por día de la semana',
     reportsTitle:'Reportes',reportsIntro:'Resumen visual e imprimible del período seleccionado.',dailyVisits:'Visitas diarias',newReturning:'Visitantes nuevos vs recurrentes',anonymousEstimate:'Estimación anónima',reportNoteTitle:'Acerca del reporte',reportNote:'El dashboard, el CSV y el reporte impreso utilizan los mismos datos agregados del servidor. No se exportan identificadores anónimos individuales.',
@@ -17,6 +17,16 @@ const I18N={
     engagementTitle:'Interacción',engagementIntro:'Qué acciones realizan los visitantes dentro del Hub.',topActions:'Acciones principales',
     technologyTitle:'Tecnología',technologyIntro:'Dispositivos, navegadores e idioma observado.',devices:'Dispositivos',browsers:'Navegadores',languages:'Idiomas',
     systemTitle:'Estado del sistema',systemIntro:'Comprobación de los componentes principales de MPDGI Stats.',systemHealth:'Salud del sistema',database:'Base de datos',lastEvent:'Último evento',lastCheck:'Última comprobación',dataQuality:'Calidad de datos',eventsReceived:'Eventos recibidos',eventsStored:'Eventos almacenados',duplicatesPrevented:'Duplicados evitados',rejectedEvents:'Eventos rechazados',delayedEvents:'Eventos retrasados / recuperados',qualityNote:'Los eventos retrasados indican registros recibidos más de dos minutos después de su marca de tiempo del cliente; suelen corresponder a entregas tardías o recuperación de cola offline.',authorizedFooter:'🔒 Solo administradores autorizados.',
+    eventPipeline:'Flujo de eventos',degraded:'Degradado',noRecentActivity:'Sin actividad reciente',errorStatus:'Error',
+    methodologyTitle:'Metodología y privacidad',methodologyIntro:'Cómo MPDGI Stats define, calcula y conserva sus métricas anónimas.',definitionsTitle:'Definiciones de analítica',
+    defSessionTitle:'Session',defSession:'ID anónimo de una visita activa; expira después de 30 minutos de inactividad o cuando cambia el contexto de entrada.',
+    defVisitorTitle:'Estimated Visitor',defVisitor:'Navegador/dispositivo anónimo aproximado. No representa una persona identificada.',
+    defAcquisitionTitle:'Acquisition Source',defAcquisition:'Primera fuente conocida del visitante anónimo; se conserva y no se sobrescribe.',
+    defEntryTitle:'Session Entry',defEntry:'Cómo comenzó la sesión actual: NFC, QR, Link, Web o PWA.',
+    defCampaignTitle:'Campaign',defCampaign:'Etiqueta de la sesión actual, separada de la adquisición original.',
+    defPwaTitle:'PWA Session',defPwa:'Sesión observada cuando el Hub corre en modo standalone instalado.',
+    privacyMethodTitle:'Privacidad y límites',privacyMethod:'No se almacenan nombres de visitantes, emails, pagos, IP cruda, ubicación precisa ni User-Agent completo. La zona oficial de reportes es America/New_York.',
+    retentionTitle:'Política de retención',retentionAggregates:'Agregados y reportes: conservación indefinida.',retentionEvents:'Eventos anónimos detallados: hasta 24 meses como política objetivo.',retentionRate:'Datos de rate control: retención corta y operativa.',retentionCampaigns:'Campañas: hasta archivo o eliminación administrativa.',retentionNoDelete:'v1.3.0 no activa borrado automático; cualquier purga futura requiere revisión del volumen D1 y aprobación administrativa.',
     noData:'Sin datos para este período.',sessions:'sesiones',generated:'Generado',previousPeriod:'vs. período anterior',allOperational:'● Todos los sistemas operacionales',attentionRequired:'● Atención requerida',operational:'Operacional',review:'Revisar',noEvents:'Sin eventos',
     loginError:'Correo o contraseña incorrectos.',rateError:'Demasiados intentos. Intenta nuevamente en unos minutos.',validRange:'Selecciona un rango de fechas válido.',exportError:'No fue posible generar el CSV.',copied:'URL copiada.',copyFailed:'No fue posible copiar automáticamente. Selecciona y copia la URL.',campaignPlaceholder:'reunion-lideres-octubre',createCampaignButton:'Crear campaña',campaignCreated:'Campaña creada y guardada.',campaignExists:'La campaña ya existía; se usará el registro existente.',campaignCreateError:'No fue posible guardar la campaña.',campaignNameRequired:'Escribe un nombre de campaña.',campaignSessions:'Sesiones',campaignVisitors:'Visitantes estimados',campaignFirstTouch:'Adquisición inicial',campaignCreatedOn:'Creada',campaignLastActivity:'Última actividad',campaignNoActivity:'Sin actividad en este período',
     executiveSummary:(visits,users,change,source,action,hour,day,sunday,wednesday)=>'Durante el período seleccionado se registraron '+visits+' sesiones y '+users+' visitantes estimados'+(change?' ('+change+')':'')+'. La fuente principal fue '+source+' y la acción más utilizada fue '+action+'. La mayor actividad se observó alrededor de '+hour+' el '+day+'. Domingo registró '+sunday+' sesiones y miércoles '+wednesday+'.',
@@ -47,7 +57,7 @@ const I18N={
   },
   en:{
     authorized:'Authorized access only',loginHelp:'Sign in to view MPDGI private analytics.',email:'Email address',password:'Password',remember:'Remember me on this device',signIn:'Sign in',secureNote:'🔒 Private access for approved MPDGI administrators.',
-    navDashboard:'Dashboard',navReports:'Reports',navSources:'Sources',navCampaigns:'Campaigns',navEngagement:'Engagement',navTechnology:'Technology',navSystem:'System',adminsOnly:'Authorized administrators only',
+    navDashboard:'Dashboard',navReports:'Reports',navSources:'Sources',navCampaigns:'Campaigns',navEngagement:'Engagement',navTechnology:'Technology',navSystem:'System',navMethodology:'Methodology',adminsOnly:'Authorized administrators only',
     period:'Period',range7:'Last 7 days',range30:'Last 30 days',range90:'Last 90 days',rangeMonth:'This month',rangeYear:'This year',range365:'Last 12 months',rangeCustom:'Custom range',from:'From',to:'To',apply:'Apply',printPdf:'🖨 Print / PDF',logout:'Sign out',analyticsReport:'Analytics Report',
     summary:'Summary',loadingPeriod:'Loading period…',visits:'Visits (sessions)',uniqueVisitors:'Estimated unique visitors',pwaSessions:'PWA sessions',pageViews:'Page Views',currentPeriod:'Current period',lastUpdated:'Last updated',executiveSnapshot:'Executive Snapshot',executivePeriod:'Selected period',peakHour:'Peak activity hour',peakDay:'Peak activity day',sundayActivity:'Sunday sessions',wednesdayActivity:'Wednesday sessions',topSource:'Top source',topAction:'Top action',hourlyActivity:'Hourly activity',weekdayActivity:'Weekday activity',
     reportsTitle:'Reports',reportsIntro:'Visual and printable summary for the selected period.',dailyVisits:'Daily visits',newReturning:'New vs returning visitors',anonymousEstimate:'Anonymous estimate',reportNoteTitle:'About this report',reportNote:'The dashboard, CSV export and printed report use the same aggregated server data. Individual anonymous identifiers are not exported.',
@@ -56,6 +66,16 @@ const I18N={
     engagementTitle:'Engagement',engagementIntro:'What visitors do inside the Hub.',topActions:'Top actions',
     technologyTitle:'Technology',technologyIntro:'Observed devices, browsers and Hub language.',devices:'Devices',browsers:'Browsers',languages:'Languages',
     systemTitle:'System status',systemIntro:'Status of the main MPDGI Stats components.',systemHealth:'System Health',database:'Database',lastEvent:'Last event',lastCheck:'Last check',dataQuality:'Data quality',eventsReceived:'Events received',eventsStored:'Events stored',duplicatesPrevented:'Duplicates prevented',rejectedEvents:'Rejected events',delayedEvents:'Delayed / recovered events',qualityNote:'Delayed events are records received more than two minutes after the client timestamp; they commonly indicate late delivery or offline-queue recovery.',authorizedFooter:'🔒 For authorized administrators only.',
+    eventPipeline:'Event pipeline',degraded:'Degraded',noRecentActivity:'No recent activity',errorStatus:'Error',
+    methodologyTitle:'Methodology & privacy',methodologyIntro:'How MPDGI Stats defines, calculates and retains anonymous metrics.',definitionsTitle:'Analytics definitions',
+    defSessionTitle:'Session',defSession:'Anonymous ID for an active visit; expires after 30 minutes of inactivity or when the entry context changes.',
+    defVisitorTitle:'Estimated Visitor',defVisitor:'Approximate anonymous browser/device. It is not an identified person.',
+    defAcquisitionTitle:'Acquisition Source',defAcquisition:'The anonymous visitor’s first known source; it remains immutable.',
+    defEntryTitle:'Session Entry',defEntry:'How the current session began: NFC, QR, Link, Web or PWA.',
+    defCampaignTitle:'Campaign',defCampaign:'Tag for the current session, kept separate from original acquisition.',
+    defPwaTitle:'PWA Session',defPwa:'Session observed while the Hub runs in installed standalone mode.',
+    privacyMethodTitle:'Privacy & limits',privacyMethod:'Visitor names, visitor emails, payment data, raw IP addresses, precise location and full User-Agent strings are not stored. Official reporting timezone is America/New_York.',
+    retentionTitle:'Data retention policy',retentionAggregates:'Aggregates and reports: retained indefinitely.',retentionEvents:'Detailed anonymous events: target retention up to 24 months.',retentionRate:'Rate-control data: short operational retention.',retentionCampaigns:'Campaigns: retained until administratively archived or deleted.',retentionNoDelete:'v1.3.0 does not enable automatic deletion; any future purge requires D1 volume review and administrative approval.',
     noData:'No data for this period.',sessions:'sessions',generated:'Generated',previousPeriod:'vs. previous period',allOperational:'● All systems operational',attentionRequired:'● Attention required',operational:'Operational',review:'Review',noEvents:'No events',
     loginError:'Incorrect email or password.',rateError:'Too many attempts. Try again in a few minutes.',validRange:'Select a valid date range.',exportError:'The CSV could not be generated.',copied:'URL copied.',copyFailed:'Automatic copy failed. Select and copy the URL.',campaignPlaceholder:'leaders-meeting-october',createCampaignButton:'Create campaign',campaignCreated:'Campaign created and saved.',campaignExists:'This campaign already existed; the existing record will be used.',campaignCreateError:'The campaign could not be saved.',campaignNameRequired:'Enter a campaign name.',campaignSessions:'Sessions',campaignVisitors:'Estimated visitors',campaignFirstTouch:'Initial acquisition',campaignCreatedOn:'Created',campaignLastActivity:'Last activity',campaignNoActivity:'No activity in this period',
     executiveSummary:(visits,users,change,source,action,hour,day,sunday,wednesday)=>'The selected period recorded '+visits+' sessions and '+users+' estimated visitors'+(change?' ('+change+')':'')+'. The top source was '+source+' and the most-used action was '+action+'. Peak activity occurred around '+hour+' on '+day+'. Sunday recorded '+sunday+' sessions and Wednesday '+wednesday+'.',
@@ -292,21 +312,24 @@ function renderCampaigns(items){
 
 function setStatusLight(id,status){
   const el=$(id);if(!el)return;
-  el.className='status-light '+(status==='ok'?'status-green':status==='bad'?'status-red':'status-neutral');
+  el.className='status-light '+(status==='ok'?'status-green':status==='warn'?'status-yellow':status==='bad'?'status-red':'status-neutral');
 }
 function renderHealth(health){
-  const collectorOk=health?.collector==='operational';
-  const dbOk=health?.database==='operational';
+  const label=status=>status==='operational'?t('operational'):status==='degraded'?t('degraded'):status==='no_recent_activity'?t('noRecentActivity'):t('errorStatus');
+  const light=status=>status==='operational'?'ok':status==='no_recent_activity'||status==='degraded'?'warn':'bad';
+  const collector=health?.collector||'error',database=health?.database||'error',pipeline=health?.event_pipeline||'error';
   const lastEventOk=Boolean(health?.last_event_at);
-  const ok=collectorOk&&dbOk;
+  const ok=collector==='operational'&&database==='operational'&&pipeline==='operational';
   const overall=$('health-overall');overall.textContent=ok?t('allOperational'):t('attentionRequired');overall.className=ok?'health-ok':'';
-  changeText('health-collector',collectorOk?t('operational'):t('review'));
-  changeText('health-db',dbOk?t('operational'):t('review'));
+  changeText('health-collector',label(collector));
+  changeText('health-db',label(database)+(Number.isFinite(Number(health?.database_latency_ms))?' · '+number(health.database_latency_ms)+' ms':''));
+  changeText('health-pipeline',label(pipeline));
   changeText('health-last-event',lastEventOk?dateTime(health.last_event_at):t('noEvents'));
   changeText('health-last-check',dateTime(new Date().toISOString()));
-  setStatusLight('health-collector-light',collectorOk?'ok':'bad');
-  setStatusLight('health-db-light',dbOk?'ok':'bad');
-  setStatusLight('health-event-light',lastEventOk?'ok':'bad');
+  setStatusLight('health-collector-light',light(collector));
+  setStatusLight('health-db-light',light(database));
+  setStatusLight('health-pipeline-light',light(pipeline));
+  setStatusLight('health-event-light',lastEventOk?'ok':collector==='no_recent_activity'?'warn':'bad');
 }
 
 function renderDashboard(data){
@@ -363,7 +386,7 @@ async function loadDashboard(){
     console.error('[MPDGI Stats] dashboard load failed',error);
     $('health-overall').textContent=t('attentionRequired');
     $('health-overall').className='';
-    setStatusLight('health-collector-light','bad');setStatusLight('health-db-light','bad');setStatusLight('health-event-light','bad');
+    setStatusLight('health-collector-light','bad');setStatusLight('health-db-light','bad');setStatusLight('health-pipeline-light','bad');setStatusLight('health-event-light','bad');
   }
 }
 

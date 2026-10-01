@@ -67,6 +67,10 @@ export async function getDashboardData(env,urlString){
     FROM events e LEFT JOIN sessions s ON s.session_id=e.session_id
     WHERE e.server_day_et BETWEEN ? AND ?`;
   const db=env.STATS_DB;
+  const dbHealthStarted=Date.now();
+  const dbHealthRow=await db.prepare('SELECT 1 AS ok').first();
+  const databaseLatencyMs=Math.max(0,Date.now()-dbHealthStarted);
+  if(Number(dbHealthRow?.ok)!==1)throw Object.assign(new Error('database_health_check_failed'),{status:503});
   const statements=[
     db.prepare(summarySql).bind(range.from,range.to),
     db.prepare(summarySql).bind(range.previous_from,range.previous_to),
@@ -146,7 +150,22 @@ export async function getDashboardData(env,urlString){
       delayed_events:Math.max(Number(metricQuality.delayed)||0,Number(eventQuality.delayed_events)||0),
       last_received_at:metricQuality.last_received_at||last.last_event_at||null
     },
-    health:{collector:'operational',database:'operational',last_event_at:last.last_event_at||null}
+    health:(()=>{
+      const lastReceived=metricQuality.last_received_at||last.last_event_at||null;
+      const parsedLast=lastReceived?Date.parse(lastReceived):NaN;
+      const ageMs=Number.isFinite(parsedLast)?Math.max(0,Date.now()-parsedLast):null;
+      const collectorStatus=ageMs===null||ageMs>48*60*60*1000?'no_recent_activity':'operational';
+      const received=Number(metricQuality.received)||0,stored=Number(eventQuality.stored)||0;
+      const pipelineStatus=received>0&&stored===0?'error':collectorStatus;
+      return {
+        collector:collectorStatus,
+        database:databaseLatencyMs>1200?'degraded':'operational',
+        event_pipeline:pipelineStatus,
+        database_latency_ms:databaseLatencyMs,
+        last_received_at:lastReceived,
+        last_event_at:last.last_event_at||null
+      };
+    })()
   };
 }
 
