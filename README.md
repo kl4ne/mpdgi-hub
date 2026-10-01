@@ -1,8 +1,14 @@
-# MPDGI Hub — v1.4.7
+# MPDGI Hub — v1.6.0
 
 Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
+
+## v1.6.0 — Sharing, Release Metadata & Quality Maturity
+
+The About view now provides **Share Hub**, using the device's native share sheet when supported and a clipboard fallback otherwise. Shared links use `https://hub.mpdgi.org/?src=link` so MPDGI Stats records the current session entry as Link while preserving immutable first-touch acquisition.
+
+About also displays **Last Updated / Última actualización** from the release changelog for the active Hub version. The approved v1.5.2 visual design, NFC behavior, anonymous analytics, offline support, silent updates and reduced-motion accessibility are preserved.
 
 ## v1.4.7 — Cache Reliability & Smart Navigation
 
