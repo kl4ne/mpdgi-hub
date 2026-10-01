@@ -1,5 +1,16 @@
 [
   {
+    "version": "1.6.0",
+    "title": "Sharing, Release Metadata & Quality Maturity",
+    "date": "2026-09-30",
+    "changes": [
+      "Added a Share Hub action in About using the native share sheet when available and a clipboard fallback otherwise.",
+      "Shared Hub URLs now use ?src=link so MPDGI Stats can classify shared visits as Link without changing first-touch acquisition.",
+      "Added Last Updated to About using the release date from the changelog instead of a manually maintained label.",
+      "Preserved the approved v1.5.2 design, NFC behavior, analytics, offline support, silent updates and reduced-motion accessibility."
+    ]
+  },
+  {
     "version": "1.5.2",
     "title": "Session Campaign Attribution",
     "date": "2026-09-30",
