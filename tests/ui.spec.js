@@ -145,9 +145,9 @@ test('shared runtime version is loaded and matches config',async({page})=>{
       config:config.version
     };
   });
-  expect(values.runtime).toBe('1.5.2');
-  expect(values.source).toBe('1.5.2');
-  expect(values.config).toBe('1.5.2');
+  expect(values.runtime).toBe('1.6.0');
+  expect(values.source).toBe('1.6.0');
+  expect(values.config).toBe('1.6.0');
 });
 
 test('accessibility labels switch with language',async({page})=>{
@@ -191,9 +191,9 @@ test('payment logos use known-good inline SVG rendering',async({page})=>{
 
 test('release-pinned assets prevent mixed-version CSS and JS',async({page})=>{
   await page.goto('/',{waitUntil:'networkidle'});
-  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.5.2.css');
-  await expect(page.locator('script[src="js/version-v1.5.2.js"]')).toHaveCount(1);
-  await expect(page.locator('script[src="js/app-v1.5.2.js"]')).toHaveCount(1);
+  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.6.0.css');
+  await expect(page.locator('script[src="js/version-v1.6.0.js"]')).toHaveCount(1);
+  await expect(page.locator('script[src="js/app-v1.6.0.js"]')).toHaveCount(1);
 });
 
 test('church address opens directions and translates its accessibility label',async({page})=>{
@@ -233,7 +233,7 @@ test('stored version mismatch repairs old MPDGI caches',async({page})=>{
     return !keys.includes('mpdgi-hub-shell-1.4.5')&&!keys.includes('mpdgi-hub-runtime-1.4.6-stale');
   },null,{timeout:10000});
   const keys=await page.evaluate(()=>caches.keys());
-  expect(keys).toContain('mpdgi-hub-shell-1.5.2');
+  expect(keys).toContain('mpdgi-hub-shell-1.6.0');
 });
 
 test('payment logos remain stable across repeated Chromium reopen cycles',async({context})=>{
@@ -400,4 +400,16 @@ test('iPadOS desktop-mode Safari is categorized as tablet',async({page})=>{
   await page.goto('/',{waitUntil:'networkidle'});
   const category=await page.evaluate(()=>window.__MPDGI_ANALYTICS__.deviceCategory());
   expect(category).toBe('tablet');
+});
+
+
+test('About exposes attributed Share Hub and changelog-derived Last Updated metadata',async({page})=>{
+  await page.goto('/',{waitUntil:'networkidle'});
+  await page.locator('[data-card-id="about"] .card-action').click();
+  const modal=page.locator('#modal-body');
+  await expect(modal).toContainText(/Última actualización|Last updated/);
+  await expect(modal.locator('button.share-hub')).toHaveCount(1);
+  const appSource=await page.request.get('/js/app-v1.6.0.js').then(r=>r.text());
+  expect(appSource).toContain('https://hub.mpdgi.org/?src=link');
+  expect(appSource).toContain('navigator.share');
 });
