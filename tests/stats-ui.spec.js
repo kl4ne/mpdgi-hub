@@ -27,7 +27,7 @@ const sample={
     peak_hour:10,peak_hour_sessions:31,peak_weekday:0,peak_weekday_sessions:44,sunday_sessions:44,wednesday_sessions:29
   },
   data_quality:{events_received:260,events_stored:258,unique_event_ids:258,duplicates_prevented:2,rejected:1,delayed_events:7,last_received_at:'2026-09-29T18:59:00.000Z'},
-  health:{collector:'operational',database:'operational',last_event_at:'2026-09-29T18:58:00.000Z'}
+  health:{collector:'operational',database:'operational',event_pipeline:'operational',database_latency_ms:18,last_received_at:'2026-09-29T18:59:00.000Z',last_event_at:'2026-09-29T18:58:00.000Z'}
 };
 
 test('unauthenticated users see only the secure login experience',async({page})=>{
@@ -55,6 +55,8 @@ test('authenticated dashboard renders the same server aggregates including zero-
   await expect(page.locator('#health-overall')).toContainText('Todos los sistemas operacionales');
   await expect(page.locator('#health-collector-light')).toHaveClass(/status-green/);
   await expect(page.locator('#health-db-light')).toHaveClass(/status-green/);
+  await expect(page.locator('#health-pipeline-light')).toHaveClass(/status-green/);
+  await expect(page.locator('#health-db')).toContainText('18 ms');
 });
 
 test('print layout exposes the professional report header and hides navigation',async({page})=>{
@@ -188,4 +190,29 @@ test('print mode can expose all report sections for the executive PDF',async({pa
   await expect(page.locator('body')).toHaveClass(/print-all/);
   await expect(page.locator('[data-view-panel="reports"]')).toBeVisible();
   await expect(page.locator('[data-view-panel="system"]')).toBeVisible();
+});
+
+
+test('System Health distinguishes quiet traffic from system failure',async({page})=>{
+  const quiet=structuredClone(sample);
+  quiet.health={collector:'no_recent_activity',database:'operational',event_pipeline:'no_recent_activity',database_latency_ms:22,last_received_at:null,last_event_at:null};
+  await page.route('**/api/auth/session',r=>r.fulfill({status:200,contentType:'application/json',body:'{"authenticated":true,"user":{"email":"owner@example.com","role":"owner"}}'}));
+  await page.route('**/api/dashboard**',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(quiet)}));
+  await page.goto('/',{waitUntil:'domcontentloaded'});
+  await page.locator('.nav-item[data-view="system"]').click();
+  await expect(page.locator('#health-collector')).toContainText('Sin actividad reciente');
+  await expect(page.locator('#health-collector-light')).toHaveClass(/status-yellow/);
+  await expect(page.locator('#health-db-light')).toHaveClass(/status-green/);
+});
+
+test('Methodology view documents definitions, privacy and retention without automatic deletion',async({page})=>{
+  await page.route('**/api/auth/session',r=>r.fulfill({status:200,contentType:'application/json',body:'{"authenticated":true,"user":{"email":"owner@example.com","role":"owner"}}'}));
+  await page.route('**/api/dashboard**',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(sample)}));
+  await page.goto('/',{waitUntil:'domcontentloaded'});
+  await page.locator('.nav-item[data-view="methodology"]').click();
+  const panel=page.locator('[data-view-panel="methodology"]');
+  await expect(panel).toBeVisible();
+  await expect(panel).toContainText('Estimated Visitor');
+  await expect(panel).toContainText('24 meses');
+  await expect(panel).toContainText('no activa borrado automático');
 });
