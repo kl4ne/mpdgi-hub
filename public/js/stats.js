@@ -8,7 +8,7 @@ const SOURCE_COLORS={nfc:'#1468e8',qr:'#5aa2f8',link:'#efb94f',unattributed:'#9c
 const I18N={
   es:{
     authorized:'Acceso autorizado solamente',loginHelp:'Inicia sesión para ver las estadísticas privadas de MPDGI.',email:'Correo electrónico',password:'Contraseña',remember:'Recordarme en este dispositivo',signIn:'Entrar',secureNote:'🔒 Acceso privado para administradores aprobados de MPDGI.',
-    navDashboard:'Dashboard',navReports:'Reportes',navSources:'Fuentes',navCampaigns:'Campañas',navEngagement:'Interacción',navTechnology:'Tecnología',navSystem:'Sistema',adminsOnly:'Solo administradores autorizados',
+    navDashboard:'Dashboard',navReports:'Reportes',navSources:'Fuentes',navCampaigns:'Campañas',navEngagement:'Interacción',navTechnology:'Tecnología',navSystem:'Sistema',navMethodology:'Metodología',adminsOnly:'Solo administradores autorizados',
     period:'Período',range7:'Últimos 7 días',range30:'Últimos 30 días',range90:'Últimos 90 días',rangeMonth:'Este mes',rangeYear:'Este año',range365:'Últimos 12 meses',rangeCustom:'Rango personalizado',from:'Desde',to:'Hasta',apply:'Aplicar',printPdf:'🖨 Imprimir / PDF',logout:'Salir',analyticsReport:'Reporte de Analítica',
     summary:'Resumen',loadingPeriod:'Cargando período…',visits:'Visitas (sesiones)',uniqueVisitors:'Visitantes únicos estimados',pwaSessions:'Sesiones desde PWA',pageViews:'Page Views',currentPeriod:'Período actual',lastUpdated:'Última actualización',executiveSnapshot:'Resumen ejecutivo',executivePeriod:'Período seleccionado',peakHour:'Hora de mayor actividad',peakDay:'Día de mayor actividad',sundayActivity:'Sesiones dominicales',wednesdayActivity:'Sesiones del miércoles',topSource:'Fuente principal',topAction:'Acción principal',hourlyActivity:'Actividad por hora',weekdayActivity:'Actividad por día de la semana',
     reportsTitle:'Reportes',reportsIntro:'Resumen visual e imprimible del período seleccionado.',dailyVisits:'Visitas diarias',newReturning:'Visitantes nuevos vs recurrentes',anonymousEstimate:'Estimación anónima',reportNoteTitle:'Acerca del reporte',reportNote:'El dashboard, el CSV y el reporte impreso utilizan los mismos datos agregados del servidor. No se exportan identificadores anónimos individuales.',
@@ -47,7 +47,7 @@ const I18N={
   },
   en:{
     authorized:'Authorized access only',loginHelp:'Sign in to view MPDGI private analytics.',email:'Email address',password:'Password',remember:'Remember me on this device',signIn:'Sign in',secureNote:'🔒 Private access for approved MPDGI administrators.',
-    navDashboard:'Dashboard',navReports:'Reports',navSources:'Sources',navCampaigns:'Campaigns',navEngagement:'Engagement',navTechnology:'Technology',navSystem:'System',adminsOnly:'Authorized administrators only',
+    navDashboard:'Dashboard',navReports:'Reports',navSources:'Sources',navCampaigns:'Campaigns',navEngagement:'Engagement',navTechnology:'Technology',navSystem:'System',navMethodology:'Methodology',adminsOnly:'Authorized administrators only',
     period:'Period',range7:'Last 7 days',range30:'Last 30 days',range90:'Last 90 days',rangeMonth:'This month',rangeYear:'This year',range365:'Last 12 months',rangeCustom:'Custom range',from:'From',to:'To',apply:'Apply',printPdf:'🖨 Print / PDF',logout:'Sign out',analyticsReport:'Analytics Report',
     summary:'Summary',loadingPeriod:'Loading period…',visits:'Visits (sessions)',uniqueVisitors:'Estimated unique visitors',pwaSessions:'PWA sessions',pageViews:'Page Views',currentPeriod:'Current period',lastUpdated:'Last updated',executiveSnapshot:'Executive Snapshot',executivePeriod:'Selected period',peakHour:'Peak activity hour',peakDay:'Peak activity day',sundayActivity:'Sunday sessions',wednesdayActivity:'Wednesday sessions',topSource:'Top source',topAction:'Top action',hourlyActivity:'Hourly activity',weekdayActivity:'Weekday activity',
     reportsTitle:'Reports',reportsIntro:'Visual and printable summary for the selected period.',dailyVisits:'Daily visits',newReturning:'New vs returning visitors',anonymousEstimate:'Anonymous estimate',reportNoteTitle:'About this report',reportNote:'The dashboard, CSV export and printed report use the same aggregated server data. Individual anonymous identifiers are not exported.',
@@ -292,21 +292,24 @@ function renderCampaigns(items){
 
 function setStatusLight(id,status){
   const el=$(id);if(!el)return;
-  el.className='status-light '+(status==='ok'?'status-green':status==='bad'?'status-red':'status-neutral');
+  el.className='status-light '+(status==='ok'?'status-green':status==='warn'?'status-yellow':status==='bad'?'status-red':'status-neutral');
 }
 function renderHealth(health){
-  const collectorOk=health?.collector==='operational';
-  const dbOk=health?.database==='operational';
+  const label=status=>status==='operational'?t('operational'):status==='degraded'?t('degraded'):status==='no_recent_activity'?t('noRecentActivity'):t('errorStatus');
+  const light=status=>status==='operational'?'ok':status==='no_recent_activity'||status==='degraded'?'warn':'bad';
+  const collector=health?.collector||'error',database=health?.database||'error',pipeline=health?.event_pipeline||'error';
   const lastEventOk=Boolean(health?.last_event_at);
-  const ok=collectorOk&&dbOk;
+  const ok=collector==='operational'&&database==='operational'&&pipeline==='operational';
   const overall=$('health-overall');overall.textContent=ok?t('allOperational'):t('attentionRequired');overall.className=ok?'health-ok':'';
-  changeText('health-collector',collectorOk?t('operational'):t('review'));
-  changeText('health-db',dbOk?t('operational'):t('review'));
+  changeText('health-collector',label(collector));
+  changeText('health-db',label(database)+(Number.isFinite(Number(health?.database_latency_ms))?' · '+number(health.database_latency_ms)+' ms':''));
+  changeText('health-pipeline',label(pipeline));
   changeText('health-last-event',lastEventOk?dateTime(health.last_event_at):t('noEvents'));
   changeText('health-last-check',dateTime(new Date().toISOString()));
-  setStatusLight('health-collector-light',collectorOk?'ok':'bad');
-  setStatusLight('health-db-light',dbOk?'ok':'bad');
-  setStatusLight('health-event-light',lastEventOk?'ok':'bad');
+  setStatusLight('health-collector-light',light(collector));
+  setStatusLight('health-db-light',light(database));
+  setStatusLight('health-pipeline-light',light(pipeline));
+  setStatusLight('health-event-light',lastEventOk?'ok':collector==='no_recent_activity'?'warn':'bad');
 }
 
 function renderDashboard(data){
@@ -363,7 +366,7 @@ async function loadDashboard(){
     console.error('[MPDGI Stats] dashboard load failed',error);
     $('health-overall').textContent=t('attentionRequired');
     $('health-overall').className='';
-    setStatusLight('health-collector-light','bad');setStatusLight('health-db-light','bad');setStatusLight('health-event-light','bad');
+    setStatusLight('health-collector-light','bad');setStatusLight('health-db-light','bad');setStatusLight('health-pipeline-light','bad');setStatusLight('health-event-light','bad');
   }
 }
 
