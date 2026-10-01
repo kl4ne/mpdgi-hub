@@ -18,6 +18,7 @@ const ANALYTICS_COOKIE_MAX_AGE=60*60*24*730;
 const VALID_ACQUISITION_SOURCES=new Set(['nfc','qr','link','unattributed']);
 const VALID_SESSION_ENTRIES=new Set(['nfc','qr','link','web','pwa']);
 const COPYRIGHT_START_YEAR=2026;
+let releaseDate='';
 const VALID_THEMES=new Set(['blue','green','purple','gold','teal','social','website','about']);
 const VALID_MODAL_TYPES=new Set(['give','social','bible','about']);
 
@@ -41,7 +42,7 @@ const UI={
     privacy:'Privacidad',privacyText:'Este Hub no almacena contraseñas, información de pago ni información personal sensible.',
     developerCredit:'Designed & Developed by Roberto S. Macfie for MPDGI',
     copyright:'© {year} Ministerio Plenitud de Gracia. Todos los derechos reservados.',
-    officialWebsite:'Abrir mpdgi.org',languageLabel:'Cambiar idioma a inglés'
+    updated:'Última actualización',shareHub:'Compartir Hub',shareText:'Ministerio Plenitud de Gracia — Hub digital oficial',shareCopied:'Enlace copiado',shareFailed:'No fue posible compartir. Intenta nuevamente.',officialWebsite:'Abrir mpdgi.org',languageLabel:'Cambiar idioma a inglés'
   },
   en:{
     linksHeading:'Main access links',sunday:'Sundays',wednesday:'Wednesdays',install:'Install',about:'About',skip:'Skip to content',visitInfoLabel:'Church information',logoAlt:'Official logo of Ministerio Plenitud de Gracia',directionsLabel:'Get directions to Ministerio Plenitud de Gracia',
@@ -62,7 +63,7 @@ const UI={
     privacy:'Privacy',privacyText:'This Hub does not store passwords, payment information, or sensitive personal information.',
     developerCredit:'Designed & Developed by Roberto S. Macfie for MPDGI',
     copyright:'© {year} Ministerio Plenitud de Gracia. All Rights Reserved.',
-    officialWebsite:'Open mpdgi.org',languageLabel:'Change language to Spanish'
+    updated:'Last updated',shareHub:'Share Hub',shareText:'Ministerio Plenitud de Gracia — official digital Hub',shareCopied:'Link copied',shareFailed:'Unable to share. Please try again.',officialWebsite:'Open mpdgi.org',languageLabel:'Change language to Spanish'
   }
 };
 
@@ -516,10 +517,34 @@ function createInstallAction(){
   markAnalytics(btn,'pwa_install_prompt','install');btn.addEventListener('click',async()=>{if(!installPrompt)return;const prompt=installPrompt;installPrompt=null;btn.disabled=true;await prompt.prompt();await prompt.userChoice.catch(()=>null);btn.remove();});
   return btn;
 }
+function formattedReleaseDate(){
+  if(!releaseDate)return '—';
+  const parsed=new Date(releaseDate+'T12:00:00Z');
+  if(!Number.isFinite(parsed.getTime()))return releaseDate;
+  return new Intl.DateTimeFormat(currentLanguage==='en'?'en-US':'es-US',{year:'numeric',month:'long',day:'numeric',timeZone:'UTC'}).format(parsed);
+}
+function createShareAction(){
+  const s=UI[currentLanguage],url='https://hub.mpdgi.org/?src=link';
+  const btn=textElement('button','modal-action share-hub',s.shareHub);btn.type='button';
+  markAnalytics(btn,'share_hub','link');
+  btn.addEventListener('click',async()=>{
+    try{
+      if(typeof navigator.share==='function')await navigator.share({title:'MPDGI Hub',text:s.shareText,url});
+      else if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(url);
+      else throw new Error('share_unavailable');
+      const original=s.shareHub;btn.textContent=s.shareCopied;setTimeout(()=>{if(btn.isConnected)btn.textContent=original;},1800);
+    }catch(error){
+      if(error?.name==='AbortError')return;
+      const original=s.shareHub;btn.textContent=s.shareFailed;setTimeout(()=>{if(btn.isConnected)btn.textContent=original;},2200);
+    }
+  });
+  return btn;
+}
 function renderAboutModal(trigger){
   const s=UI[currentLanguage],b=openModal(s.aboutTitle,trigger);b.append(textElement('p','modal-text',s.aboutIntro));
-  const meta=document.createElement('div');meta.className='about-meta';const v=document.createElement('div');v.append(textElement('span','',s.version),textElement('strong','', 'v'+(config.version||HUB_VERSION)));const w=document.createElement('div');w.append(textElement('span','',s.website),textElement('strong','','mpdgi.org'));meta.append(v,w);b.append(meta);
+  const meta=document.createElement('div');meta.className='about-meta';const v=document.createElement('div');v.append(textElement('span','',s.version),textElement('strong','', 'v'+(config.version||HUB_VERSION)));const w=document.createElement('div');w.append(textElement('span','',s.website),textElement('strong','','mpdgi.org'));const u=document.createElement('div');u.append(textElement('span','',s.updated),textElement('strong','',formattedReleaseDate()));meta.append(v,w,u);b.append(meta);
   const install=createInstallAction();if(install)b.append(install);
+  b.append(createShareAction());
   b.append(textElement('p','modal-text',s.external+': '+s.externalText),textElement('p','modal-text',s.privacy+': '+s.privacyText),textElement('p','modal-text about-credit',s.developerCredit),textElement('p','modal-text',copyrightText(currentLanguage)),externalLink(s.officialWebsite,config.website));
 }
 function openNamedModal(type,trigger){if(type==='give')renderGiveModal(trigger);if(type==='social')renderSocialModal(trigger);if(type==='bible')renderBibleModal(trigger);if(type==='about')renderAboutModal(trigger);}
@@ -571,7 +596,9 @@ function resolveInitialLanguage(){try{const s=localStorage.getItem(STORAGE_LANGU
 
 async function init(){
   setupIcons();setupLanguage();setupModal();setupInstall();setupServiceWorker();setupAnalyticsInteractions();
-  const [loadedConfig,loadedLinks]=await Promise.all([fetchJson('data/config.json',DEFAULT_CONFIG),fetchJson('data/links.json',FALLBACK_LINKS)]);
-  config={...DEFAULT_CONFIG,...loadedConfig};links=Array.isArray(loadedLinks)&&loadedLinks.length?loadedLinks:[...FALLBACK_LINKS];updateStaticInfo();setLanguage(resolveInitialLanguage(),false);updateOfflineState();initAnalytics();
+  const [loadedConfig,loadedLinks,loadedChangelog]=await Promise.all([fetchJson('data/config.json',DEFAULT_CONFIG),fetchJson('data/links.json',FALLBACK_LINKS),fetchJson('data/changelog.json',[])]);
+  config={...DEFAULT_CONFIG,...loadedConfig};links=Array.isArray(loadedLinks)&&loadedLinks.length?loadedLinks:[...FALLBACK_LINKS];
+  const release=Array.isArray(loadedChangelog)?loadedChangelog.find(item=>String(item?.version||'')===String(config.version||HUB_VERSION)):null;releaseDate=String(release?.date||'');
+  updateStaticInfo();setLanguage(resolveInitialLanguage(),false);updateOfflineState();initAnalytics();
 }
 window.addEventListener('online',()=>{updateOfflineState();void flushAnalyticsQueue();});window.addEventListener('offline',updateOfflineState);init();window.__MPDGI_HUB_VERSION__=HUB_VERSION;window.__MPDGI_COPYRIGHT_RANGE__=copyrightYearRange;window.__MPDGI_ANALYTICS__={captureEntryHint,normalizeSource,normalizeCampaign,isStandaloneMode,deviceCategory,browserFamily};
