@@ -70,6 +70,7 @@
         <button class="nav-item" type="button" data-view="engagement">◎ <span data-i18n="navEngagement">Interacción</span></button>
         <button class="nav-item" type="button" data-view="technology">▣ <span data-i18n="navTechnology">Tecnología</span></button>
         <button class="nav-item" type="button" data-view="system">● <span data-i18n="navSystem">Sistema</span></button>
+        <button class="nav-item" type="button" data-view="methodology">ⓘ <span data-i18n="navMethodology">Metodología</span></button>
       </nav>
       <div class="sidebar-bottom">
         <small>Ministerio Plenitud de Gracia</small>
@@ -277,6 +278,7 @@
           <div class="health-grid">
             <div class="health-item"><i id="health-collector-light" class="status-light status-neutral"></i><span>Collector</span><strong id="health-collector">—</strong></div>
             <div class="health-item"><i id="health-db-light" class="status-light status-neutral"></i><span data-i18n="database">Base de datos</span><strong id="health-db">—</strong></div>
+            <div class="health-item"><i id="health-pipeline-light" class="status-light status-neutral"></i><span data-i18n="eventPipeline">Event Pipeline</span><strong id="health-pipeline">—</strong></div>
             <div class="health-item"><i id="health-event-light" class="status-light status-neutral"></i><span data-i18n="lastEvent">Último evento</span><strong id="health-last-event">—</strong></div>
             <div class="health-item"><i id="health-check-light" class="status-light status-green"></i><span data-i18n="lastCheck">Última comprobación</span><strong id="health-last-check">—</strong></div>
           </div>
@@ -294,8 +296,39 @@
         </article>
       </section>
 
+      <section class="view-panel" data-view-panel="methodology" hidden>
+        <div class="section-heading">
+          <div><h2 data-i18n="methodologyTitle">Metodología y privacidad</h2><p data-i18n="methodologyIntro">Cómo MPDGI Stats define, calcula y conserva sus métricas anónimas.</p></div>
+        </div>
+        <div class="grid-two">
+          <article class="panel methodology-card">
+            <h2 data-i18n="definitionsTitle">Definiciones de analítica</h2>
+            <dl class="methodology-list">
+              <div><dt data-i18n="defSessionTitle">Session</dt><dd data-i18n="defSession">ID anónimo de una visita activa; expira después de 30 minutos de inactividad o cuando cambia el contexto de entrada.</dd></div>
+              <div><dt data-i18n="defVisitorTitle">Estimated Visitor</dt><dd data-i18n="defVisitor">Navegador/dispositivo anónimo aproximado. No representa una persona identificada.</dd></div>
+              <div><dt data-i18n="defAcquisitionTitle">Acquisition Source</dt><dd data-i18n="defAcquisition">Primera fuente conocida del visitante anónimo; se conserva y no se sobrescribe.</dd></div>
+              <div><dt data-i18n="defEntryTitle">Session Entry</dt><dd data-i18n="defEntry">Cómo comenzó la sesión actual: NFC, QR, Link, Web o PWA.</dd></div>
+              <div><dt data-i18n="defCampaignTitle">Campaign</dt><dd data-i18n="defCampaign">Etiqueta de la sesión actual, separada de la adquisición original.</dd></div>
+              <div><dt data-i18n="defPwaTitle">PWA Session</dt><dd data-i18n="defPwa">Sesión observada cuando el Hub corre en modo standalone instalado.</dd></div>
+            </dl>
+          </article>
+          <article class="panel methodology-card">
+            <h2 data-i18n="privacyMethodTitle">Privacidad y límites</h2>
+            <p data-i18n="privacyMethod">No se almacenan nombres de visitantes, emails, pagos, IP cruda, ubicación precisa ni User-Agent completo. La zona oficial de reportes es America/New_York.</p>
+            <h2 data-i18n="retentionTitle">Política de retención</h2>
+            <ul class="methodology-bullets">
+              <li data-i18n="retentionAggregates">Agregados y reportes: conservación indefinida.</li>
+              <li data-i18n="retentionEvents">Eventos anónimos detallados: hasta 24 meses como política objetivo.</li>
+              <li data-i18n="retentionRate">Datos de rate control: retención corta y operativa.</li>
+              <li data-i18n="retentionCampaigns">Campañas: hasta archivo o eliminación administrativa.</li>
+              <li data-i18n="retentionNoDelete">v1.3.0 no activa borrado automático; cualquier purga futura requiere revisión del volumen D1 y aprobación administrativa.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
       <footer class="stats-footer">
-        <span>MPDGI Stats v<span id="stats-version">1.2.0</span></span>
+        <span>MPDGI Stats v<span id="stats-version">1.3.0</span></span>
         <span class="developer-credit">Designed &amp; Developed by Roberto S. Macfie for MPDGI</span>
         <span data-i18n="authorizedFooter">🔒 For authorized administrators only.</span>
       </footer>
