@@ -1,5 +1,17 @@
 [
   {
+    "version": "1.3.0",
+    "title": "Real System Health, Methodology & Data Governance",
+    "date": "2026-09-30",
+    "changes": [
+      "Replaced hard-coded Collector and Database health labels with states derived from real D1 checks and recent collector activity.",
+      "Added Event Pipeline health, database response latency and a distinct No recent activity state so quiet traffic is not reported as a system failure.",
+      "Added a bilingual Methodology & Privacy view defining sessions, estimated visitors, acquisition, session entry, campaigns and PWA sessions.",
+      "Added a documented data-retention baseline without enabling automatic deletion of historical analytics.",
+      "Preserved v1.2.2 silent automatic updates, authentication, campaigns, reporting, CSV, print/PDF and anonymous privacy controls."
+    ]
+  },
+  {
     "version": "1.2.2",
     "title": "Silent Automatic Updates",
     "date": "2026-09-30",
