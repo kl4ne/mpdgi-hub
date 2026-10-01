@@ -50,7 +50,7 @@ jobs:
           if(manifest.name!=='MPDGI Stats • Private Analytics Center'||manifest.display!=='standalone')throw Error('Stats manifest mismatch');
           if(!migration.includes('events')||!migration.includes('event_id TEXT PRIMARY KEY')||!migration.includes('server_day_et'))throw Error('D1 event schema mismatch');
           if(!migration2.includes('CREATE TABLE IF NOT EXISTS campaigns')||!migration2.includes('session_campaign'))throw Error('Campaign migration missing');
-          if(!statsVersion.includes("MPDGI_STATS_VERSION='1.2.1'"))throw Error('Stats version mismatch');
+          if(!statsVersion.includes("MPDGI_STATS_VERSION='1.2.2'"))throw Error('Stats version mismatch');
           if(!headers.includes('X-Robots-Tag: noindex')||!headers.includes('frame-ancestors \'none\''))throw Error('Stats private/no-index headers missing');
           const collector=fs.readFileSync('functions/api/collect.js','utf8');
           if(!collector.includes('INSERT OR IGNORE INTO events')||collector.includes('CF-Connecting-IP')&&collector.includes('INSERT')&&collector.includes('ip_address'))throw Error('Collector privacy/dedupe invariant failed');
@@ -64,6 +64,11 @@ jobs:
           if(!schema.includes('CREATE TABLE IF NOT EXISTS collector_metrics'))throw Error('Collector metrics schema missing');
           if(!/CREATE TABLE IF NOT EXISTS collector_metrics\s*\([\s\S]*?last_received_at TEXT\s*\)/.test(schema))throw Error('Collector metrics CREATE TABLE statement is malformed');
           if(!reporting.includes('session_campaign=c.slug')||!reporting.includes('acquired_visitors'))throw Error('Saved campaign reporting missing');
+          const statsJs=fs.readFileSync('js/stats.js','utf8');
+          const sw=fs.readFileSync('sw.js','utf8');
+          if(!statsJs.includes("registration.update()")||!statsJs.includes("'controllerchange'")||!statsJs.includes("'visibilitychange'")||!statsJs.includes("15*60*1000"))throw Error('Silent Stats auto-update checks missing');
+          if(!statsJs.includes('mpdgiStatsSwReloadAt')||!statsJs.includes('window.location.reload()'))throw Error('Stats update reload-loop guard missing');
+          if(!sw.includes("const VERSION='1.2.2'")||!sw.includes("type==='SKIP_WAITING'"))throw Error('Stats service worker activation/version mismatch');
           console.log('MPDGI Stats static validation passed');
           NODE
       - name: Install Chromium and WebKit

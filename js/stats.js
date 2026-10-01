@@ -493,7 +493,44 @@ window.addEventListener('afterprint',()=>document.body.classList.remove('print-a
 
 async function setupServiceWorker(){
   if(!('serviceWorker'in navigator))return;
-  try{await navigator.serviceWorker.register('./sw.js?v='+encodeURIComponent(STATS_VERSION),{scope:'./',updateViaCache:'none'});}catch(error){console.warn('[MPDGI Stats] service worker',error);}
+  const RELOAD_GUARD_KEY='mpdgiStatsSwReloadAt';
+  let hadController=Boolean(navigator.serviceWorker.controller);
+  let reloadingForUpdate=false;
+  const reloadOnce=()=>{
+    if(reloadingForUpdate)return;
+    const now=Date.now();
+    try{
+      const previous=Number(sessionStorage.getItem(RELOAD_GUARD_KEY)||0);
+      if(now-previous<5000)return;
+      sessionStorage.setItem(RELOAD_GUARD_KEY,String(now));
+    }catch{}
+    reloadingForUpdate=true;
+    window.location.reload();
+  };
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(!hadController){hadController=true;return;}
+    reloadOnce();
+  });
+  try{
+    const registration=await navigator.serviceWorker.register('./sw.js?v='+encodeURIComponent(STATS_VERSION),{scope:'./',updateViaCache:'none'});
+    const activateWaiting=()=>{if(registration.waiting)registration.waiting.postMessage({type:'SKIP_WAITING'});};
+    const checkForUpdate=async()=>{
+      if(!navigator.onLine)return;
+      try{await registration.update();activateWaiting();}catch{}
+    };
+    activateWaiting();
+    registration.addEventListener('updatefound',()=>{
+      const worker=registration.installing;
+      worker?.addEventListener('statechange',()=>{
+        if(worker.state==='installed'&&navigator.serviceWorker.controller)worker.postMessage({type:'SKIP_WAITING'});
+      });
+    });
+    setTimeout(()=>void checkForUpdate(),1500);
+    setInterval(()=>void checkForUpdate(),15*60*1000);
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')void checkForUpdate();});
+    window.addEventListener('pageshow',event=>{if(event.persisted)void checkForUpdate();});
+    window.addEventListener('online',()=>void checkForUpdate());
+  }catch(error){console.warn('[MPDGI Stats] service worker',error);}
 }
 
 async function init(){

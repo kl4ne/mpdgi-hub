@@ -1,5 +1,5 @@
 'use strict';
-const VERSION='1.2.1';
+const VERSION='1.2.2';
 const CACHE='mpdgi-stats-shell-'+VERSION;
 const SHELL=['./','./index.html','./css/stats.css','./js/stats-version.js','./js/stats.js','./manifest.json','./assets/profile/logo-mpdg.png','./assets/icons/icon-192.png','./assets/icons/icon-512.png','./assets/icons/apple-touch-icon.png'];
 
@@ -12,6 +12,10 @@ self.addEventListener('install',event=>{
     }
     await self.skipWaiting();
   })());
+});
+
+self.addEventListener('message',event=>{
+  if(event.data?.type==='SKIP_WAITING')event.waitUntil(self.skipWaiting());
 });
 
 self.addEventListener('activate',event=>{

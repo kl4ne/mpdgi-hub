@@ -1,5 +1,16 @@
 [
   {
+    "version": "1.2.2",
+    "title": "Silent Automatic Updates",
+    "date": "2026-09-30",
+    "changes": [
+      "Added automatic Service Worker update checks shortly after launch, every 15 minutes, when the app returns to the foreground and when connectivity returns.",
+      "New Stats releases activate silently and reload the app once so administrators no longer need a hard refresh to receive updates.",
+      "Added a session reload guard to prevent update reload loops.",
+      "Preserved authenticated sessions, language preference and all existing analytics data during app updates."
+    ]
+  },
+  {
     "version": "1.2.1",
     "title": "Data Restoration Hotfix",
     "date": "2026-09-30",
