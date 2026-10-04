@@ -99,10 +99,19 @@ Long technical reports should be delivered as `.md` files, and grouped in a ZIP 
 - Do not invent social URLs or contact data.
 - Do not use the `GMacfie` watermark in this project.
 
+## Security design checkpoint
+
+- `SECURITY_MODEL.md` defines the compatibility-safe password-verifier migration.
+- Target: `pbkdf2-sha256-v1`.
+- Migration: dual-scheme support plus rehash after successful legacy login.
+- `AUTH_PEPPER` remains unchanged.
+- No production credential or D1 mutation occurred in this documentation phase.
+
 ## Exact next action
 
-1. Create/update `KNOWN_ISSUES.md` and `DECISIONS.md` with the remaining verified items.
-2. Do not start password-KDF migration yet; first design a compatibility-safe migration plan.
-3. Verify `stats.mpdgi.org` and `npcard.mpdgi.org` at the Cloudflare/DNS layer before declaring those custom domains active.
-4. Review Hub hosting-layer security headers; do not add a useless `_headers` file to GitHub Pages.
-5. Continue remediation one small validated phase at a time.
+1. Create a small implementation branch from the current stable Stats HEAD.
+2. Add dual-scheme password helpers and unit tests only.
+3. Do not migrate any production user during the implementation phase.
+4. Validate unit and browser QA.
+5. Benchmark PBKDF2 in the target runtime before final rollout.
+6. Checkpoint before any production credential migration.
