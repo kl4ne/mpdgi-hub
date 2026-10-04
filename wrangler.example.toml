@@ -3,7 +3,7 @@
 
 name = "mpdgi-stats"
 compatibility_date = "2026-09-29"
-pages_build_output_dir = "."
+pages_build_output_dir = "public"
 
 [[d1_databases]]
 binding = "STATS_DB"
