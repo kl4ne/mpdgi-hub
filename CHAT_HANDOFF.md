@@ -1,0 +1,108 @@
+# CHAT HANDOFF — MPDGI Digital Ecosystem
+
+Updated: 2026-10-04
+
+## Project
+
+MPDGI Digital Ecosystem:
+- MPDGI Hub
+- MPDGI Stats
+- MPDGI Digital Cards
+
+## Permanent workflow rules
+
+Use:
+
+**do -> validate -> checkpoint -> continue**
+
+Never restart after a timeout. Resume from the last validated checkpoint.
+
+Long reports belong in `.md` / ZIP artifacts; chat should contain only a short summary, decisions needing attention, links, and the next exact step.
+
+## Current stable production state
+
+### Hub
+- Repo: `kl4ne/mpdgi-hub`
+- Branch: `main`
+- Stable HEAD: `a3ecd2636f4a816d38e29a5035e0af393ee85d6d`
+- Version: `1.6.0`
+- URL: `https://hub.mpdgi.org`
+- Latest Hub validation and deployment were green.
+
+### Stats
+- Repo: `kl4ne/mpdgi-hub`
+- Branch: `mpdgi-stats-v1.0`
+- Last fully validated stable HEAD before current candidate: `28641cd96c54b3885edcfcc8f0fa09122ba75da1`
+- Last fully validated stable version before current candidate: `1.4.5`
+- Candidate now merged: `c492355da3849e656e722a90927f7ade92814c16`
+- Candidate version: `1.4.6`
+- Post-merge validation run: `37242557183`
+- Status at this handoff: still running.
+- Production Pages endpoint: `https://mpdgi-stats.pages.dev`
+
+### Digital Cards
+- Repo: `kl4ne/mpdgi-digital-cards`
+- Branch: `main`
+- Stable HEAD: `452f2c4096aa782c3be4fa77bc0f50d34487851b`
+- RSCard: `1.3.2` at `https://rscard.mpdgi.org`
+- NPCard Pages fallback: `1.0.3` at `https://npcard.pages.dev`
+- Last production smoke passed for both.
+- Nancy custom domain `https://npcard.mpdgi.org` was not reachable from GitHub Actions at the last check.
+
+## Audit remediation already completed
+
+- Stats CI now validates the deployed `public/` source.
+- Stats root/public duplication and inherited Hub baggage were cleaned.
+- Stats collector integrity was hardened.
+- Stats HSTS/nosniff/X-Frame-Options/noindex were verified in production.
+- Campaign POST same-origin protection added.
+- Campaign write RBAC added.
+- Bootstrap is disabled by default unless explicitly enabled.
+- Hub and Stats use reproducible npm lockfiles and pinned GitHub Actions.
+- Digital Card imports are manual and PR-gated.
+- Digital Cards have Chromium + WebKit QA.
+- Card generator has context-aware escaping and fallback-host support.
+- Build metadata workflow no longer writes a second bot commit to main.
+- Production card smoke tests were added and passed.
+- Dead external payment SVG assets were removed from the Hub.
+- Stats schema hardening PR #22 was merged:
+  - read-first schema inspection
+  - DDL compatibility fallback only when schema objects are missing
+  - explicit `migrations/0003_collector_metrics.sql`
+  - Stats release bumped to `1.4.6`
+
+## Open issues / intentionally deferred work
+
+1. Finish production validation of Stats v1.4.6.
+2. Password verifier migration to a slow KDF remains deferred because it requires a carefully controlled compatibility plan.
+3. Verify `npcard.mpdgi.org` from real Cloudflare/browser context before declaring it active.
+4. Hub production header audit showed HSTS but did not show response-header nosniff/clickjacking protection. Hosting-layer remediation remains open.
+5. Historical Hub pinned runtime files must not be deleted until old PWA update/recovery behavior is verified.
+
+## Exact next action
+
+Open/check run **37242557183**.
+
+If green:
+- promote Stats v1.4.6 / `c492355...` to stable;
+- record production smoke results;
+- update `MASTER_STATUS.md`, `NEXT_ACTION.md`, and this file;
+- continue to the next remediation item.
+
+If failed:
+- inspect only the failing step;
+- fix only that issue;
+- validate again;
+- do not redo completed work.
+
+## Approved decisions that must not be re-asked or redone
+
+- Hub and Digital Cards stay separate.
+- Hub must not be modified merely to solve a card-specific issue.
+- Do not reset D1.
+- Do not rotate/change `AUTH_PEPPER` casually.
+- Do not reintroduce workers.dev failover unless explicitly requested.
+- New cards come from the master template/generator.
+- No invented social/contact data.
+- No GMacfie watermark.
+- Developer credit remains: `Designed & Developed by Roberto S. Macfie for MPDGI`, with only Roberto's name linked to `https://rmcard.pages.dev`.
