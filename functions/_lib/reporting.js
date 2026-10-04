@@ -65,7 +65,7 @@ export async function getDashboardData(env,urlString){
     COUNT(DISTINCT CASE WHEN s.display_mode='pwa' THEN e.session_id END) AS pwa_sessions,
     SUM(CASE WHEN e.event_type='page_view' THEN 1 ELSE 0 END) AS page_views
     FROM events e LEFT JOIN sessions s ON s.session_id=e.session_id
-    WHERE e.server_day_et BETWEEN ? AND ?`;
+    WHERE e.server_day_et BETWEEN ? AND ? AND e.target NOT LIKE 'business_card:%'`;
   const db=env.STATS_DB;
   const dbHealthStarted=Date.now();
   const dbHealthRow=await db.prepare('SELECT 1 AS ok').first();
@@ -74,15 +74,15 @@ export async function getDashboardData(env,urlString){
   const statements=[
     db.prepare(summarySql).bind(range.from,range.to),
     db.prepare(summarySql).bind(range.previous_from,range.previous_to),
-    db.prepare('SELECT server_day_et AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? GROUP BY server_day_et ORDER BY server_day_et').bind(range.from,range.to),
-    db.prepare('SELECT v.acquisition_source AS key,COUNT(DISTINCT e.visitor_id) AS value FROM events e JOIN visitors v ON v.visitor_id=e.visitor_id WHERE e.server_day_et BETWEEN ? AND ? GROUP BY v.acquisition_source').bind(range.from,range.to),
-    db.prepare('SELECT s.session_entry AS key,COUNT(DISTINCT e.session_id) AS value FROM events e JOIN sessions s ON s.session_id=e.session_id WHERE e.server_day_et BETWEEN ? AND ? GROUP BY s.session_entry').bind(range.from,range.to),
-    db.prepare('SELECT s.display_mode AS key,COUNT(DISTINCT e.session_id) AS value FROM events e JOIN sessions s ON s.session_id=e.session_id WHERE e.server_day_et BETWEEN ? AND ? GROUP BY s.display_mode').bind(range.from,range.to),
-    db.prepare('SELECT device_category AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? GROUP BY device_category').bind(range.from,range.to),
-    db.prepare('SELECT browser AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? GROUP BY browser').bind(range.from,range.to),
-    db.prepare('SELECT language AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? GROUP BY language').bind(range.from,range.to),
-    db.prepare("SELECT action_name AS key,COUNT(*) AS value FROM events WHERE server_day_et BETWEEN ? AND ? AND event_type='action' AND action_name<>'' GROUP BY action_name ORDER BY value DESC LIMIT 12").bind(range.from,range.to),
-    db.prepare("SELECT CASE WHEN v.first_seen_day_et BETWEEN ? AND ? THEN 'new' ELSE 'returning' END AS key,COUNT(DISTINCT e.visitor_id) AS value FROM events e JOIN visitors v ON v.visitor_id=e.visitor_id WHERE e.server_day_et BETWEEN ? AND ? GROUP BY key").bind(range.from,range.to,range.from,range.to),
+    db.prepare('SELECT server_day_et AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? AND target NOT LIKE 'business_card:%' GROUP BY server_day_et ORDER BY server_day_et').bind(range.from,range.to),
+    db.prepare('SELECT v.acquisition_source AS key,COUNT(DISTINCT e.visitor_id) AS value FROM events e JOIN visitors v ON v.visitor_id=e.visitor_id WHERE e.server_day_et BETWEEN ? AND ? AND e.target NOT LIKE 'business_card:%' GROUP BY v.acquisition_source').bind(range.from,range.to),
+    db.prepare('SELECT s.session_entry AS key,COUNT(DISTINCT e.session_id) AS value FROM events e JOIN sessions s ON s.session_id=e.session_id WHERE e.server_day_et BETWEEN ? AND ? AND e.target NOT LIKE 'business_card:%' GROUP BY s.session_entry').bind(range.from,range.to),
+    db.prepare('SELECT s.display_mode AS key,COUNT(DISTINCT e.session_id) AS value FROM events e JOIN sessions s ON s.session_id=e.session_id WHERE e.server_day_et BETWEEN ? AND ? AND e.target NOT LIKE 'business_card:%' GROUP BY s.display_mode').bind(range.from,range.to),
+    db.prepare('SELECT device_category AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? AND target NOT LIKE 'business_card:%' GROUP BY device_category').bind(range.from,range.to),
+    db.prepare('SELECT browser AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? AND target NOT LIKE 'business_card:%' GROUP BY browser').bind(range.from,range.to),
+    db.prepare('SELECT language AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? AND target NOT LIKE 'business_card:%' GROUP BY language').bind(range.from,range.to),
+    db.prepare("SELECT action_name AS key,COUNT(*) AS value FROM events WHERE server_day_et BETWEEN ? AND ? AND target NOT LIKE 'business_card:%' AND event_type='action' AND action_name<>'' GROUP BY action_name ORDER BY value DESC LIMIT 12").bind(range.from,range.to),
+    db.prepare("SELECT CASE WHEN v.first_seen_day_et BETWEEN ? AND ? THEN 'new' ELSE 'returning' END AS key,COUNT(DISTINCT e.visitor_id) AS value FROM events e JOIN visitors v ON v.visitor_id=e.visitor_id WHERE e.server_day_et BETWEEN ? AND ? AND e.target NOT LIKE 'business_card:%' GROUP BY key").bind(range.from,range.to,range.from,range.to),
     db.prepare(`SELECT c.id,c.name,c.slug,c.source,c.created_at,
       (SELECT COUNT(DISTINCT s.session_id) FROM sessions s WHERE s.session_campaign=c.slug AND s.session_entry=c.source AND s.first_seen_day_et BETWEEN ? AND ?) AS sessions,
       (SELECT COUNT(DISTINCT s.visitor_id) FROM sessions s WHERE s.session_campaign=c.slug AND s.session_entry=c.source AND s.first_seen_day_et BETWEEN ? AND ?) AS visitors,
@@ -92,7 +92,7 @@ export async function getDashboardData(env,urlString){
         range.from,range.to,range.from,range.to,range.from,range.to,range.from,range.to
       ),
     db.prepare('SELECT MAX(server_ts) AS last_event_at FROM events'),
-    db.prepare('SELECT session_id,first_seen_at FROM sessions WHERE first_seen_day_et BETWEEN ? AND ?').bind(range.from,range.to),
+    db.prepare("SELECT DISTINCT s.session_id,s.first_seen_at FROM sessions s JOIN events e ON e.session_id=s.session_id WHERE s.first_seen_day_et BETWEEN ? AND ? AND e.target NOT LIKE 'business_card:%'").bind(range.from,range.to),
     db.prepare('SELECT COALESCE(SUM(received),0) AS received,COALESCE(SUM(accepted),0) AS accepted,COALESCE(SUM(duplicates),0) AS duplicates,COALESCE(SUM(rejected),0) AS rejected,COALESCE(SUM(delayed),0) AS delayed,MAX(last_received_at) AS last_received_at FROM collector_metrics WHERE day_et BETWEEN ? AND ?').bind(range.from,range.to),
     db.prepare(`SELECT COUNT(*) AS stored,COUNT(DISTINCT event_id) AS unique_event_ids,
       COALESCE(SUM(CASE WHEN client_ts<>'' AND julianday(server_ts)-julianday(client_ts)>0.0013888889 THEN 1 ELSE 0 END),0) AS delayed_events

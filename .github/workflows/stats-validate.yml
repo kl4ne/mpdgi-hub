@@ -74,6 +74,9 @@ jobs:
           if(!index.includes('data-view="cards"')||!index.includes('data-view-panel="cards"')||!index.includes('digital-cards-list'))throw Error('Digital Cards view missing');
           if(!collector.includes('rscard.mpdgi.org')||!collector.includes('card\\.mpdgi\\.org'))throw Error('Digital card collector origins missing');
           if(!reporting.includes("target LIKE 'business_card:%'")||!reporting.includes('digital_cards:rows(result[16])'))throw Error('Digital card reporting missing');
+          const hubIsolationFilters=(reporting.match(/NOT LIKE 'business_card:%'/g)||[]).length;
+          if(hubIsolationFilters<11)throw Error('Hub/Digital Card reporting isolation missing');
+          if(!reporting.includes("SELECT DISTINCT s.session_id,s.first_seen_at")||!reporting.includes("e.target NOT LIKE 'business_card:%'"))throw Error('Activity insights must exclude Digital Card sessions');
           if(!statsJs.includes('renderDigitalCards')||!statsJs.includes("navCards:'Tarjetas Digitales'")||!statsJs.includes("navCards:'Digital Cards'"))throw Error('Digital card UI missing');
           if(!index.includes('data-view="methodology"')||!index.includes('data-view-panel="methodology"'))throw Error('Methodology view missing');
           if(!statsJs.includes("navMethodology:'Metodología'")||!statsJs.includes("navMethodology:'Methodology'"))throw Error('Bilingual methodology navigation missing');
