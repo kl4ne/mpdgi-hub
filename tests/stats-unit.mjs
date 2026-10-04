@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {validateEvent,validateCollectorIdentity,isLikelyBot,easternDay} from '../functions/_lib/validation.js';
 import {resolveRange} from '../functions/_lib/reporting.js';
-import {randomToken,sha256,passwordSalt,passwordVerifier,constantTimeEqual} from '../functions/_lib/auth.js';
+import {randomToken,sha256,passwordSalt,passwordVerifier,pbkdf2PasswordVerifier,parsePbkdf2Verifier,PBKDF2_ITERATIONS,LEGACY_PASSWORD_SCHEME,TARGET_PASSWORD_SCHEME,PASSWORD_SCHEME,constantTimeEqual} from '../functions/_lib/auth.js';
 
 const valid={
   schema_version:1,
@@ -56,6 +56,27 @@ const verifier=await passwordVerifier('A-very-long-demo-password!',salt,'server-
 assert.equal(constantTimeEqual(verifier,await passwordVerifier('A-very-long-demo-password!',salt,'server-side-test-pepper')),true);
 assert.equal(constantTimeEqual(verifier,await passwordVerifier('different-password-value',salt,'server-side-test-pepper')),false);
 assert.notEqual(await sha256('a'),await sha256('b'));
+
+assert.equal(PASSWORD_SCHEME,LEGACY_PASSWORD_SCHEME,'helper phase must not change the production login scheme');
+assert.equal(TARGET_PASSWORD_SCHEME,'pbkdf2-sha256-v1');
+assert.equal(PBKDF2_ITERATIONS,600000);
+
+const pbkdf2Salt=passwordSalt();
+const modernVerifier=await pbkdf2PasswordVerifier('Contraseña-segura-🔐-demo!',pbkdf2Salt,'server-side-test-pepper');
+const parsed=parsePbkdf2Verifier(modernVerifier);
+assert.equal(parsed.iterations,PBKDF2_ITERATIONS);
+assert.ok(parsed.verifier.length>30);
+assert.equal(
+  constantTimeEqual(modernVerifier,await pbkdf2PasswordVerifier('Contraseña-segura-🔐-demo!',pbkdf2Salt,'server-side-test-pepper')),
+  true
+);
+assert.equal(
+  constantTimeEqual(modernVerifier,await pbkdf2PasswordVerifier('Contraseña-incorrecta-🔐',pbkdf2Salt,'server-side-test-pepper')),
+  false
+);
+assert.equal(parsePbkdf2Verifier('garbage'),null);
+assert.equal(parsePbkdf2Verifier('i=1$abc'),null);
+assert.equal(parsePbkdf2Verifier(),null);
 
 console.log('MPDGI Stats unit validation passed');
 
