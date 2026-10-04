@@ -2,33 +2,37 @@
 
 Updated: 2026-10-04
 
-## Immediate next step
+## Last validated checkpoint
 
-Check GitHub Actions run **37242557183** for Stats branch `mpdgi-stats-v1.0`.
+MPDGI Stats v1.4.6 is now stable.
 
-Merged candidate:
-- Stats version: `1.4.6`
+- Branch: `mpdgi-stats-v1.0`
 - HEAD: `c492355da3849e656e722a90927f7ade92814c16`
-- PR: #22 — Stats schema hardening
+- Validation run: `37242557183`
+- Result: SUCCESS
+- Browser tests: 26 passed
+- Production endpoint verified: `https://mpdgi-stats.pages.dev`
+- Verified response headers: HSTS, nosniff, X-Frame-Options DENY, X-Robots-Tag noindex
+- `https://stats.mpdgi.org` was not reachable at the expected version from GitHub Actions.
 
-## If the run is green
+## Exact next phase
 
-1. Confirm production smoke passed for `https://mpdgi-stats.pages.dev`.
-2. Record whether `https://stats.mpdgi.org` was reachable at the expected version.
-3. Mark `c492355...` / Stats v1.4.6 as the new stable checkpoint in `MASTER_STATUS.md`.
-4. Update `CHAT_HANDOFF.md`.
-5. Continue to the next remediation item.
+Documentation / continuity checkpoint only:
 
-## If the run fails
+1. Create `KNOWN_ISSUES.md`.
+2. Create `DECISIONS.md`.
+3. Record the remaining open items without changing production code.
+4. Validate those documents.
+5. Checkpoint.
+6. Then move to the next remediation phase.
 
-1. Inspect only the failing step/log.
-2. Fix only that failure in a small branch.
-3. Re-run validation.
-4. Do not restart or repeat completed audit/remediation phases.
+## Remaining technical work after that checkpoint
 
-## Do not do yet
+- Design a compatibility-safe password-KDF migration; do not change existing credentials yet.
+- Verify `stats.mpdgi.org` and `npcard.mpdgi.org` through Cloudflare/DNS.
+- Review Hub hosting-layer security headers.
+- Review historical Hub pinned runtime files only after PWA update/recovery behavior is proven safe.
 
-- Do not modify D1 data destructively.
-- Do not rotate `AUTH_PEPPER`.
-- Do not start the password-KDF migration until Stats v1.4.6 is production-validated.
-- Do not delete old Hub runtime versions until PWA update/recovery implications are verified.
+## Never redo
+
+Do not restart the audit or repeat already merged remediation work.
