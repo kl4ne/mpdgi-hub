@@ -4,8 +4,8 @@ const SESSION_COOKIE='mpdgi_stats_session';
 export const LEGACY_PASSWORD_SCHEME='hmac-sha256-v1';
 export const TARGET_PASSWORD_SCHEME='pbkdf2-sha256-v1';
 export const PBKDF2_ITERATIONS=600000;
-// Keep current production behavior unchanged until dual-scheme login wiring is validated.
-export const PASSWORD_SCHEME=LEGACY_PASSWORD_SCHEME;
+// New records use PBKDF2; legacy records remain readable during migration.
+export const PASSWORD_SCHEME=TARGET_PASSWORD_SCHEME;
 
 function bytesToBase64Url(bytes){
   let binary='';for(const b of bytes)binary+=String.fromCharCode(b);
@@ -82,6 +82,17 @@ export async function verifyPasswordRecord(password,record,pepper){
     return {ok,needsUpgrade:ok&&parsed.iterations<PBKDF2_ITERATIONS,error:null};
   }
   return {ok:false,needsUpgrade:false,error:'unsupported_password_scheme'};
+}
+export async function maybeUpgradePasswordRecord(db,user,password,pepper,verification){
+  if(!verification?.ok||!verification.needsUpgrade)return false;
+  const next=await createTargetPasswordRecord(password,pepper);
+  const result=await db.prepare(
+    'UPDATE admin_users SET password_hash=?,password_salt=?,password_scheme=?,updated_at=datetime(\'now\') WHERE id=? AND password_scheme=? AND password_hash=?'
+  ).bind(
+    next.password_hash,next.password_salt,next.password_scheme,
+    user.id,user.password_scheme,user.password_hash
+  ).run();
+  return Number(result?.meta?.changes||0)>0;
 }
 export function constantTimeEqual(a,b){
   const x=new TextEncoder().encode(String(a||'')),y=new TextEncoder().encode(String(b||''));let diff=x.length^y.length;
