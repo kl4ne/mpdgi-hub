@@ -1,1 +1,1 @@
-globalThis.MPDGI_STATS_VERSION='1.4.3';
+globalThis.MPDGI_STATS_VERSION='1.4.4';
