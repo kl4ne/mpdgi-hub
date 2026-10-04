@@ -1,6 +1,6 @@
 # MPDGI Stats — zero-cost deployment plan
 
-This branch is the private **MPDGI Stats** application that supports MPDGI Hub v1.5.2.
+This branch is the private **MPDGI Stats** application that supports MPDGI Hub v1.6.0.
 
 ## Non-negotiable project rules
 
