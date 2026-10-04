@@ -1,6 +1,6 @@
 'use strict';
 // Digital Cards tooltip shell refresh 2026-10-04
-const VERSION='1.4.2';
+const VERSION='1.4.3';
 const CACHE='mpdgi-stats-shell-'+VERSION;
 const SHELL=['./','./index.html','./css/stats.css','./js/stats-version.js','./js/stats.js','./manifest.json','./assets/profile/logo-mpdg.png','./assets/icons/icon-192.png','./assets/icons/icon-512.png','./assets/icons/apple-touch-icon.png'];
 
