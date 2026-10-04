@@ -4,34 +4,31 @@ Updated: 2026-10-04
 
 ## Last validated checkpoint
 
-MPDGI Stats v1.4.6 is now stable.
-
-- Branch: `mpdgi-stats-v1.0`
-- HEAD: `c492355da3849e656e722a90927f7ade92814c16`
-- Validation run: `37242557183`
-- Result: SUCCESS
-- Browser tests: 26 passed
-- Production endpoint verified: `https://mpdgi-stats.pages.dev`
-- Verified response headers: HSTS, nosniff, X-Frame-Options DENY, X-Robots-Tag noindex
-- `https://stats.mpdgi.org` was not reachable at the expected version from GitHub Actions.
+- Stats stable: v1.4.6 / `c492355da3849e656e722a90927f7ade92814c16`.
+- Password-verifier migration design is documented in `SECURITY_MODEL.md`.
+- No credential, `AUTH_PEPPER`, or D1 data has been changed by the design phase.
 
 ## Exact next phase
 
-Documentation / continuity checkpoint only:
+Implement dual-scheme password verification on a small Stats branch.
 
-1. Create `KNOWN_ISSUES.md`.
-2. Create `DECISIONS.md`.
-3. Record the remaining open items without changing production code.
-4. Validate those documents.
-5. Checkpoint.
-6. Then move to the next remediation phase.
+Scope for that phase only:
+1. Keep legacy `hmac-sha256-v1` verification intact.
+2. Add `pbkdf2-sha256-v1` helper/parser.
+3. Add unit tests for correct/wrong password, malformed metadata, Unicode and password bounds.
+4. Add login-time upgrade logic only after successful legacy authentication.
+5. Make bootstrap create the new scheme.
+6. Do not merge until Stats unit/browser QA is green.
+7. Do not perform a production owner login/migration yet.
+8. Checkpoint before benchmarking/rollout.
 
-## Remaining technical work after that checkpoint
+## Later phases
 
-- Design a compatibility-safe password-KDF migration; do not change existing credentials yet.
-- Verify `stats.mpdgi.org` and `npcard.mpdgi.org` through Cloudflare/DNS.
-- Review Hub hosting-layer security headers.
-- Review historical Hub pinned runtime files only after PWA update/recovery behavior is proven safe.
+- Benchmark PBKDF2 on the target runtime.
+- Controlled owner migration only after a dual-scheme rollback checkpoint exists.
+- Verify `stats.mpdgi.org` and `npcard.mpdgi.org` at Cloudflare/DNS.
+- Review Hub hosting-layer response headers.
+- Review historical Hub pinned runtime files only after PWA safety proof.
 
 ## Never redo
 
