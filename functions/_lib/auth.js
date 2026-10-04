@@ -60,6 +60,29 @@ export async function pbkdf2PasswordVerifier(password,salt,pepper,iterations=PBK
   return 'i='+iterations+String.fromCharCode(36)+bytesToBase64Url(new Uint8Array(derived));
 }
 export function passwordSalt(){return randomToken(18);}
+export async function createTargetPasswordRecord(password,pepper,iterations=PBKDF2_ITERATIONS){
+  const salt=passwordSalt();
+  const hash=await pbkdf2PasswordVerifier(password,salt,pepper,iterations);
+  return {password_hash:hash,password_salt:salt,password_scheme:TARGET_PASSWORD_SCHEME};
+}
+export async function verifyPasswordRecord(password,record,pepper){
+  const scheme=String(record?.password_scheme||'');
+  const salt=String(record?.password_salt||'');
+  const stored=String(record?.password_hash||'');
+  if(scheme===LEGACY_PASSWORD_SCHEME){
+    const calculated=await passwordVerifier(password,salt,pepper);
+    const ok=constantTimeEqual(calculated,stored);
+    return {ok,needsUpgrade:ok,error:null};
+  }
+  if(scheme===TARGET_PASSWORD_SCHEME){
+    const parsed=parsePbkdf2Verifier(stored);
+    if(!parsed)return {ok:false,needsUpgrade:false,error:'invalid_password_record'};
+    const calculated=await pbkdf2PasswordVerifier(password,salt,pepper,parsed.iterations);
+    const ok=constantTimeEqual(calculated,stored);
+    return {ok,needsUpgrade:ok&&parsed.iterations<PBKDF2_ITERATIONS,error:null};
+  }
+  return {ok:false,needsUpgrade:false,error:'unsupported_password_scheme'};
+}
 export function constantTimeEqual(a,b){
   const x=new TextEncoder().encode(String(a||'')),y=new TextEncoder().encode(String(b||''));let diff=x.length^y.length;
   const len=Math.max(x.length,y.length);

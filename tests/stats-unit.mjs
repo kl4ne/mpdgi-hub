@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {validateEvent,validateCollectorIdentity,isLikelyBot,easternDay} from '../functions/_lib/validation.js';
 import {resolveRange} from '../functions/_lib/reporting.js';
-import {randomToken,sha256,passwordSalt,passwordVerifier,pbkdf2PasswordVerifier,parsePbkdf2Verifier,PBKDF2_ITERATIONS,LEGACY_PASSWORD_SCHEME,TARGET_PASSWORD_SCHEME,PASSWORD_SCHEME,constantTimeEqual} from '../functions/_lib/auth.js';
+import {randomToken,sha256,passwordSalt,passwordVerifier,pbkdf2PasswordVerifier,parsePbkdf2Verifier,createTargetPasswordRecord,verifyPasswordRecord,PBKDF2_ITERATIONS,LEGACY_PASSWORD_SCHEME,TARGET_PASSWORD_SCHEME,PASSWORD_SCHEME,constantTimeEqual} from '../functions/_lib/auth.js';
 
 const valid={
   schema_version:1,
@@ -77,6 +77,33 @@ assert.equal(
 assert.equal(parsePbkdf2Verifier('garbage'),null);
 assert.equal(parsePbkdf2Verifier('i=1$abc'),null);
 assert.equal(parsePbkdf2Verifier(),null);
+
+const legacyRecord={
+  password_hash:await passwordVerifier('Legacy-password-1234!',pbkdf2Salt,'server-side-test-pepper'),
+  password_salt:pbkdf2Salt,
+  password_scheme:LEGACY_PASSWORD_SCHEME
+};
+assert.deepEqual(
+  await verifyPasswordRecord('Legacy-password-1234!',legacyRecord,'server-side-test-pepper'),
+  {ok:true,needsUpgrade:true,error:null}
+);
+assert.equal((await verifyPasswordRecord('wrong-password-1234!',legacyRecord,'server-side-test-pepper')).ok,false);
+
+const targetRecord=await createTargetPasswordRecord('Modern-password-1234!','server-side-test-pepper');
+assert.equal(targetRecord.password_scheme,TARGET_PASSWORD_SCHEME);
+assert.deepEqual(
+  await verifyPasswordRecord('Modern-password-1234!',targetRecord,'server-side-test-pepper'),
+  {ok:true,needsUpgrade:false,error:null}
+);
+assert.equal((await verifyPasswordRecord('wrong-password-5678!',targetRecord,'server-side-test-pepper')).ok,false);
+assert.equal(
+  (await verifyPasswordRecord('Modern-password-1234!',{...targetRecord,password_hash:'malformed'},'server-side-test-pepper')).error,
+  'invalid_password_record'
+);
+assert.equal(
+  (await verifyPasswordRecord('anything',{...targetRecord,password_scheme:'future-scheme'},'server-side-test-pepper')).error,
+  'unsupported_password_scheme'
+);
 
 console.log('MPDGI Stats unit validation passed');
 
