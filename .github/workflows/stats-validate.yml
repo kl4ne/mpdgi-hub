@@ -17,6 +17,7 @@ on:
       - 'tests/stats-*'
       - 'playwright.stats.config.cjs'
       - 'package.json'
+      - 'package-lock.json'
       - 'wrangler.example.toml'
       - 'STATS_DEPLOYMENT.md'
       - '.github/workflows/stats-validate.yml'
@@ -35,7 +36,7 @@ jobs:
           package-manager-cache: false
 
       - name: Install QA dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Syntax and unit validation
         run: |
