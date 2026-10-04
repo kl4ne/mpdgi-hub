@@ -30,9 +30,9 @@ Long technical reports should be delivered as `.md` files, and grouped in a ZIP 
 ### MPDGI Stats
 - Repository: `kl4ne/mpdgi-hub`
 - Branch: `mpdgi-stats-v1.0`
-- Stable HEAD: `c492355da3849e656e722a90927f7ade92814c16`
+- Stable HEAD: `5684a15a24837bcf70846cbc4e1a9425019ae1f3`
 - Stable version: `1.4.6`
-- Post-merge validation run: `37242557183` — SUCCESS
+- Post-merge validation run: `37243600952` — SUCCESS
 - Production endpoint: `https://mpdgi-stats.pages.dev`
 - Latest validated work:
   - `public/` is the single deployed static source
@@ -109,9 +109,9 @@ Long technical reports should be delivered as `.md` files, and grouped in a ZIP 
 
 ## Exact next action
 
-1. Create a small implementation branch from the current stable Stats HEAD.
-2. Add dual-scheme password helpers and unit tests only.
-3. Do not migrate any production user during the implementation phase.
-4. Validate unit and browser QA.
-5. Benchmark PBKDF2 in the target runtime before final rollout.
-6. Checkpoint before any production credential migration.
+1. Create the next small Stats branch from `5684a15...`.
+2. Wire dual-scheme login verification while keeping legacy support.
+3. Make bootstrap create `pbkdf2-sha256-v1` users.
+4. Add tests proving successful legacy login upgrades exactly one user and failed login never mutates password fields.
+5. Validate unit + browser QA.
+6. Checkpoint before any production owner login or credential migration.
