@@ -32,9 +32,9 @@ Long reports belong in `.md` / ZIP artifacts; chat should contain only a short s
 ### Stats
 - Repo: `kl4ne/mpdgi-hub`
 - Branch: `mpdgi-stats-v1.0`
-- Stable HEAD: `c492355da3849e656e722a90927f7ade92814c16`
+- Stable HEAD: `5684a15a24837bcf70846cbc4e1a9425019ae1f3`
 - Stable version: `1.4.6`
-- Post-merge validation run: `37242557183` — SUCCESS.
+- Post-merge validation run: `37243600952` — SUCCESS.
 - 26 browser tests passed.
 - Production Pages endpoint verified with HSTS, nosniff, X-Frame-Options DENY and noindex.
 - Production Pages endpoint: `https://mpdgi-stats.pages.dev`
@@ -89,11 +89,11 @@ Long reports belong in `.md` / ZIP artifacts; chat should contain only a short s
 - failed login never mutates password fields;
 - rollback must use code that understands both schemes.
 
-No production credential has been migrated yet.
+PBKDF2 helper/parser support is merged and validated, but production login still remains legacy-only. No production credential has been migrated.
 
 ## Exact next action
 
-Implement dual-scheme password support and tests on a small Stats branch. Validate and checkpoint before any production owner login or credential migration.
+Create a small Stats branch from `5684a15...` and wire dual-scheme login plus bootstrap behavior with focused migration tests. Validate and checkpoint before any real production owner login.
 
 ## Approved decisions that must not be re-asked or redone
 
