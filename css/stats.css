@@ -76,7 +76,7 @@
 .status-green{background:#18b847;box-shadow:0 0 0 5px rgba(24,184,71,.12),0 0 12px rgba(24,184,71,.38)}
 .status-red{background:#d92d20;box-shadow:0 0 0 5px rgba(217,45,32,.12),0 0 12px rgba(217,45,32,.3)}
 .status-neutral{background:#a9b5c5}
-.developer-credit{font-weight:700;color:#49617e;text-align:center;text-decoration:none}.developer-credit:hover,.developer-credit:focus-visible{text-decoration:underline;text-underline-offset:3px}
+.developer-credit{font-weight:700;color:#49617e;text-align:center}.developer-name-link{color:inherit;text-decoration:none}.developer-name-link:hover,.developer-name-link:focus-visible{text-decoration:underline;text-underline-offset:3px}
 .stats-footer{gap:12px;align-items:center;flex-wrap:wrap}
 .view-panel>.section-heading{margin:18px 0 12px}
 .view-panel>.grid-two,.view-panel>.grid-three{margin-top:12px}
