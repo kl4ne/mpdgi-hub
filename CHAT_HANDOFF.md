@@ -78,9 +78,22 @@ Long reports belong in `.md` / ZIP artifacts; chat should contain only a short s
 4. Hub production header audit showed HSTS but did not show response-header nosniff/clickjacking protection. Hosting-layer remediation remains open.
 5. Historical Hub pinned runtime files must not be deleted until old PWA update/recovery behavior is verified.
 
+## Password migration design checkpoint
+
+`SECURITY_MODEL.md` defines the approved migration:
+- legacy `hmac-sha256-v1` remains readable during transition;
+- target `pbkdf2-sha256-v1`;
+- PBKDF2-HMAC-SHA256 with a 600,000-iteration floor subject to runtime benchmark;
+- unchanged `AUTH_PEPPER`;
+- successful legacy login upgrades only that user;
+- failed login never mutates password fields;
+- rollback must use code that understands both schemes.
+
+No production credential has been migrated yet.
+
 ## Exact next action
 
-Create and validate `KNOWN_ISSUES.md` and `DECISIONS.md` as the next atomic continuity phase. Then checkpoint before any further production remediation.
+Implement dual-scheme password support and tests on a small Stats branch. Validate and checkpoint before any production owner login or credential migration.
 
 ## Approved decisions that must not be re-asked or redone
 
