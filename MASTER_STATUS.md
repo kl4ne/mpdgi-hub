@@ -30,10 +30,9 @@ Long technical reports should be delivered as `.md` files, and grouped in a ZIP 
 ### MPDGI Stats
 - Repository: `kl4ne/mpdgi-hub`
 - Branch: `mpdgi-stats-v1.0`
-- Last fully production-validated HEAD before schema hardening: `28641cd96c54b3885edcfcc8f0fa09122ba75da1`
-- Newly merged candidate HEAD: `c492355da3849e656e722a90927f7ade92814c16`
-- Candidate version: `1.4.6`
-- Post-merge validation run: `37242557183` — IN PROGRESS at this checkpoint
+- Stable HEAD: `c492355da3849e656e722a90927f7ade92814c16`
+- Stable version: `1.4.6`
+- Post-merge validation run: `37242557183` — SUCCESS
 - Production endpoint: `https://mpdgi-stats.pages.dev`
 - Latest validated work:
   - `public/` is the single deployed static source
@@ -76,8 +75,9 @@ Long technical reports should be delivered as `.md` files, and grouped in a ZIP 
   - DDL only as compatibility fallback
   - explicit `migrations/0003_collector_metrics.sql`
   - documentation aligned to v1.4.6
-- The post-merge GitHub Actions run `37242557183` is still validating this candidate.
-- Until that run is green, the previous production-validated Stats checkpoint remains the fallback reference.
+- Post-merge GitHub Actions run `37242557183` completed successfully.
+- Production smoke verified `mpdgi-stats.pages.dev` at v1.4.6 with HSTS, nosniff, X-Frame-Options DENY and noindex.
+- `stats.mpdgi.org` was not reachable at the expected version from GitHub Actions; Pages remains the verified production endpoint.
 - No destructive D1 operation was performed.
 
 ## Open audit items
@@ -101,8 +101,8 @@ Long technical reports should be delivered as `.md` files, and grouped in a ZIP 
 
 ## Exact next action
 
-1. Check GitHub Actions run `37242557183` for merged Stats HEAD `c492355da3849e656e722a90927f7ade92814c16`.
-2. If green, mark Stats v1.4.6 / `c492355...` as the new stable checkpoint.
-3. Capture the production smoke result, including `mpdgi-stats.pages.dev` and the observation for `stats.mpdgi.org`.
-4. Update this file plus `CHAT_HANDOFF.md` and `NEXT_ACTION.md`.
-5. Only then continue to the next audit remediation item.
+1. Create/update `KNOWN_ISSUES.md` and `DECISIONS.md` with the remaining verified items.
+2. Do not start password-KDF migration yet; first design a compatibility-safe migration plan.
+3. Verify `stats.mpdgi.org` and `npcard.mpdgi.org` at the Cloudflare/DNS layer before declaring those custom domains active.
+4. Review Hub hosting-layer security headers; do not add a useless `_headers` file to GitHub Pages.
+5. Continue remediation one small validated phase at a time.
