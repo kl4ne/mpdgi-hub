@@ -30,9 +30,9 @@ Long technical reports should be delivered as `.md` files, and grouped in a ZIP 
 ### MPDGI Stats
 - Repository: `kl4ne/mpdgi-hub`
 - Branch: `mpdgi-stats-v1.0`
-- Stable HEAD: `5684a15a24837bcf70846cbc4e1a9425019ae1f3`
-- Stable version: `1.4.6`
-- Post-merge validation run: `37243600952` — SUCCESS
+- Stable HEAD: `e3b237c46350352b183d40a172eee0a0a8667319`
+- Stable version: `1.4.7`
+- Post-merge validation run: `37244493810` — SUCCESS
 - Production endpoint: `https://mpdgi-stats.pages.dev`
 - Latest validated work:
   - `public/` is the single deployed static source
@@ -109,9 +109,8 @@ Long technical reports should be delivered as `.md` files, and grouped in a ZIP 
 
 ## Exact next action
 
-1. Create the next small Stats branch from `5684a15...`.
-2. Wire dual-scheme login verification while keeping legacy support.
-3. Make bootstrap create `pbkdf2-sha256-v1` users.
-4. Add tests proving successful legacy login upgrades exactly one user and failed login never mutates password fields.
-5. Validate unit + browser QA.
-6. Checkpoint before any production owner login or credential migration.
+1. Benchmark PBKDF2 cost using the closest available runtime without exposing a public benchmark endpoint.
+2. Record p50/p95 or repeated timing evidence and keep the 600,000-iteration floor unless evidence shows unacceptable latency.
+3. Do not perform or force a production owner login solely to trigger migration.
+4. Verify `stats.mpdgi.org` and `npcard.mpdgi.org` at Cloudflare/DNS when access is available.
+5. Continue one atomic validated phase at a time.
