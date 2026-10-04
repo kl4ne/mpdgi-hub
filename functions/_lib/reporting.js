@@ -96,7 +96,25 @@ export async function getDashboardData(env,urlString){
     db.prepare('SELECT COALESCE(SUM(received),0) AS received,COALESCE(SUM(accepted),0) AS accepted,COALESCE(SUM(duplicates),0) AS duplicates,COALESCE(SUM(rejected),0) AS rejected,COALESCE(SUM(delayed),0) AS delayed,MAX(last_received_at) AS last_received_at FROM collector_metrics WHERE day_et BETWEEN ? AND ?').bind(range.from,range.to),
     db.prepare(`SELECT COUNT(*) AS stored,COUNT(DISTINCT event_id) AS unique_event_ids,
       COALESCE(SUM(CASE WHEN client_ts<>'' AND julianday(server_ts)-julianday(client_ts)>0.0013888889 THEN 1 ELSE 0 END),0) AS delayed_events
-      FROM events WHERE server_day_et BETWEEN ? AND ?`).bind(range.from,range.to)
+      FROM events WHERE server_day_et BETWEEN ? AND ?`).bind(range.from,range.to),
+    db.prepare(`SELECT substr(target,15) AS card_id,
+      COUNT(DISTINCT session_id) AS sessions,
+      COUNT(DISTINCT visitor_id) AS visitors,
+      SUM(CASE WHEN event_type='page_view' THEN 1 ELSE 0 END) AS opens,
+      SUM(CASE WHEN event_type='action' AND action_name='bc_save_contact' THEN 1 ELSE 0 END) AS save_contact,
+      SUM(CASE WHEN event_type='action' AND action_name='bc_call' THEN 1 ELSE 0 END) AS calls,
+      SUM(CASE WHEN event_type='action' AND action_name='bc_text' THEN 1 ELSE 0 END) AS texts,
+      SUM(CASE WHEN event_type='action' AND action_name='bc_directions' THEN 1 ELSE 0 END) AS directions,
+      SUM(CASE WHEN event_type='action' AND action_name='bc_website' THEN 1 ELSE 0 END) AS website,
+      SUM(CASE WHEN event_type='action' AND action_name='bc_share' THEN 1 ELSE 0 END) AS shares,
+      SUM(CASE WHEN event_type='action' AND action_name='bc_flip' THEN 1 ELSE 0 END) AS flips,
+      COUNT(DISTINCT CASE WHEN session_entry='nfc' THEN session_id END) AS nfc_sessions,
+      COUNT(DISTINCT CASE WHEN session_entry='link' THEN session_id END) AS link_sessions,
+      COUNT(DISTINCT CASE WHEN session_entry='web' THEN session_id END) AS web_sessions,
+      MAX(server_ts) AS last_activity_at
+      FROM events
+      WHERE server_day_et BETWEEN ? AND ? AND target LIKE 'business_card:%'
+      GROUP BY target ORDER BY sessions DESC,visitors DESC LIMIT 100`).bind(range.from,range.to)
   ];
   const result=await db.batch(statements);
   const current=one(result[0]),previous=one(result[1]),last=one(result[12]);
@@ -135,6 +153,23 @@ export async function getDashboardData(env,urlString){
     languages:normalize(rows(result[8]),['es','en','other']),
     top_actions:rows(result[9]).map(r=>({key:String(r.key),value:Number(r.value)||0})),
     visitor_mix:normalize(rows(result[10]),['new','returning']),
+    digital_cards:rows(result[16]).map(r=>({
+      card_id:String(r.card_id||''),
+      sessions:Number(r.sessions)||0,
+      visitors:Number(r.visitors)||0,
+      opens:Number(r.opens)||0,
+      save_contact:Number(r.save_contact)||0,
+      calls:Number(r.calls)||0,
+      texts:Number(r.texts)||0,
+      directions:Number(r.directions)||0,
+      website:Number(r.website)||0,
+      shares:Number(r.shares)||0,
+      flips:Number(r.flips)||0,
+      nfc_sessions:Number(r.nfc_sessions)||0,
+      link_sessions:Number(r.link_sessions)||0,
+      web_sessions:Number(r.web_sessions)||0,
+      last_activity_at:r.last_activity_at||null
+    })),
     campaigns:rows(result[11]).map(r=>({
       id:String(r.id||''),name:String(r.name||r.slug||''),slug:String(r.slug||''),source:String(r.source||''),
       created_at:r.created_at||null,sessions:Number(r.sessions)||0,visitors:Number(r.visitors)||0,
@@ -215,6 +250,20 @@ export function dashboardCsv(data){
   for(const item of data.languages)lines.push(['Languages',item.key,item.value]);
   for(const item of data.top_actions)lines.push(['Top Actions',item.key,item.value]);
   for(const item of data.visitor_mix)lines.push(['Visitor Mix',item.key,item.value]);
+  for(const item of (data.digital_cards||[])){
+    const label=item.card_id||'unknown';
+    lines.push(['Digital Card Sessions',label,item.sessions]);
+    lines.push(['Digital Card Estimated Visitors',label,item.visitors]);
+    lines.push(['Digital Card NFC Sessions',label,item.nfc_sessions]);
+    lines.push(['Digital Card Shared-link Sessions',label,item.link_sessions]);
+    lines.push(['Digital Card Direct-web Sessions',label,item.web_sessions]);
+    lines.push(['Digital Card Save Contact',label,item.save_contact]);
+    lines.push(['Digital Card Calls',label,item.calls]);
+    lines.push(['Digital Card Texts',label,item.texts]);
+    lines.push(['Digital Card Directions',label,item.directions]);
+    lines.push(['Digital Card Website',label,item.website]);
+    lines.push(['Digital Card Shares',label,item.shares]);
+  }
   for(const item of data.campaigns){
     const label=item.name+' ['+item.source+']';
     lines.push(['Campaign Sessions',label,item.sessions]);
