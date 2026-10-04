@@ -45,6 +45,7 @@ jobs:
           const manifest=JSON.parse(read('public/manifest.json'));
           const migration=read('migrations/0001_initial.sql');
           const migration2=read('migrations/0002_campaigns.sql');
+          const migration3=read('migrations/0003_collector_metrics.sql');
           const statsVersion=read('public/js/stats-version.js');
           const headers=read('public/_headers');
           const pkg=JSON.parse(read('package.json'));
@@ -55,7 +56,8 @@ jobs:
           if(manifest.name!=='MPDGI Stats • Private Analytics Center'||manifest.display!=='standalone')throw Error('Stats manifest mismatch');
           if(!migration.includes('events')||!migration.includes('event_id TEXT PRIMARY KEY')||!migration.includes('server_day_et'))throw Error('D1 event schema mismatch');
           if(!migration2.includes('CREATE TABLE IF NOT EXISTS campaigns')||!migration2.includes('session_campaign'))throw Error('Campaign migration missing');
-          if(pkg.version!=='1.4.5'||!statsVersion.includes("MPDGI_STATS_VERSION='1.4.5'"))throw Error('Stats version mismatch');
+          if(!migration3.includes('CREATE TABLE IF NOT EXISTS collector_metrics')||!migration3.includes('idx_collector_metrics_day'))throw Error('Collector metrics migration missing');
+          if(pkg.version!=='1.4.6'||!statsVersion.includes("MPDGI_STATS_VERSION='1.4.6'"))throw Error('Stats version mismatch');
           if(!headers.includes('X-Robots-Tag: noindex')||!headers.includes("frame-ancestors 'none'")||!headers.includes('Strict-Transport-Security: max-age=31536000'))throw Error('Stats security headers missing');
 
           const deploy=read('STATS_DEPLOYMENT.md');
@@ -75,7 +77,7 @@ jobs:
           if(!campaignApi.includes("context.request.method==='POST'&&!isSameOrigin(context.request)"))throw Error('Campaign POST same-origin guard missing');
           if(!authApi.includes('export async function requireRole')||!campaignApi.includes("requireRole(context,['owner','admin'])"))throw Error('Campaign write RBAC missing');
           if(!bootstrapApi.includes("BOOTSTRAP_ENABLED!=='true'")||!bootstrapApi.includes('isSameOrigin(context.request)'))throw Error('Bootstrap explicit-enable guard missing');
-          if(!read('README.md').startsWith('# MPDGI Stats — v1.4.5'))throw Error('Stats README version stale');
+          if(!read('README.md').startsWith('# MPDGI Stats — v1.4.6'))throw Error('Stats README version stale');
 
           const reporting=read('functions/_lib/reporting.js');
           if(!reporting.includes('COUNT(DISTINCT session_id)')||!reporting.includes("['nfc','qr','link','unattributed']"))throw Error('Reporting definitions drifted');
@@ -85,6 +87,7 @@ jobs:
           if(!reporting.includes('/^\\s*[=+\\-@]/'))throw Error('CSV formula neutralization missing');
 
           const schema=read('functions/_lib/schema.js');
+          if(!schema.includes('async function schemaCurrent')||!schema.includes("if(await schemaCurrent(env.STATS_DB))return"))throw Error('Read-first schema guard missing');
           if(!schema.includes('CREATE TABLE IF NOT EXISTS collector_metrics'))throw Error('Collector metrics schema missing');
           if(!/CREATE TABLE IF NOT EXISTS collector_metrics\s*\([\s\S]*?last_received_at TEXT\s*\)/.test(schema))throw Error('Collector metrics CREATE TABLE statement is malformed');
           if(!reporting.includes('session_campaign=c.slug')||!reporting.includes('acquired_visitors'))throw Error('Saved campaign reporting missing');
@@ -93,7 +96,7 @@ jobs:
           const sw=read('public/sw.js');
           if(!statsJs.includes("registration.update()")||!statsJs.includes("'controllerchange'")||!statsJs.includes("'visibilitychange'")||!statsJs.includes("15*60*1000"))throw Error('Silent Stats auto-update checks missing');
           if(!statsJs.includes('mpdgiStatsSwReloadAt')||!statsJs.includes('window.location.reload()'))throw Error('Stats update reload-loop guard missing');
-          if(!sw.includes("const VERSION='1.4.5'")||!sw.includes("type==='SKIP_WAITING'"))throw Error('Stats service worker activation/version mismatch');
+          if(!sw.includes("const VERSION='1.4.6'")||!sw.includes("type==='SKIP_WAITING'"))throw Error('Stats service worker activation/version mismatch');
           if(!index.includes('data-view="cards"')||!index.includes('data-view-panel="cards"')||!index.includes('digital-cards-list'))throw Error('Digital Cards view missing');
           if(!collector.includes('rscard.mpdgi.org')||!collector.includes('npcard.mpdgi.org')||!collector.includes('npcard.pages.dev'))throw Error('Digital card collector origins missing');
           if(collector.includes("[a-z0-9-]+card\\\\.mpdgi\\\\.org"))throw Error('Digital card collector must use explicit origins, not a card-domain regex');
@@ -131,7 +134,7 @@ jobs:
             for(const re of secretPatterns)if(re.test(body))throw Error('Potential secret detected in '+p+': '+re);
           }
 
-          console.log('MPDGI Stats v1.4.5 static validation passed');
+          console.log('MPDGI Stats v1.4.6 static validation passed');
           NODE
 
       - name: Install Chromium and WebKit
@@ -164,7 +167,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/mpdgi-stats-v1.0'
         shell: bash
         run: |
-          EXPECTED="1.4.5"
+          EXPECTED="1.4.6"
           READY=0
           for i in {1..20}; do
             VERSION="$(curl -fsSL https://mpdgi-stats.pages.dev/js/stats-version.js 2>/dev/null || true)"
@@ -186,3 +189,10 @@ jobs:
 
           SESSION_HEADERS="$(curl -fsSI https://mpdgi-stats.pages.dev/api/auth/session 2>/dev/null || true)"
           grep -qi '^cache-control:.*no-store' <<<"$SESSION_HEADERS" || echo "::warning::Could not confirm no-store on unauthenticated session response with HEAD."
+
+          CUSTOM_VERSION="$(curl -fsSL https://stats.mpdgi.org/js/stats-version.js 2>/dev/null || true)"
+          if grep -q "MPDGI_STATS_VERSION='$EXPECTED'" <<<"$CUSTOM_VERSION"; then
+            echo "Stats custom domain is active at v$EXPECTED."
+          else
+            echo "::warning::stats.mpdgi.org is not reachable at the expected version; Pages production remains the verified endpoint."
+          fi

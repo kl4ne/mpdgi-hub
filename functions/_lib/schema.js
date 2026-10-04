@@ -14,6 +14,27 @@ async function addColumnIfMissing(db,table,column,definition){
   }
 }
 
+async function schemaCurrent(db){
+  const sessions=await db.prepare('PRAGMA table_info(sessions)').all();
+  const events=await db.prepare('PRAGMA table_info(events)').all();
+  if(!hasColumn(sessions,'session_campaign')||!hasColumn(events,'session_campaign'))return false;
+
+  const objects=await db.prepare(`SELECT name FROM sqlite_master
+    WHERE name IN (
+      'campaigns','collector_metrics',
+      'idx_campaigns_slug_source','idx_campaigns_created',
+      'idx_sessions_campaign','idx_events_session_campaign',
+      'idx_collector_metrics_day'
+    )`).all();
+  const names=new Set((objects?.results||[]).map(row=>String(row.name||'')));
+  return [
+    'campaigns','collector_metrics',
+    'idx_campaigns_slug_source','idx_campaigns_created',
+    'idx_sessions_campaign','idx_events_session_campaign',
+    'idx_collector_metrics_day'
+  ].every(name=>names.has(name));
+}
+
 async function upgrade(db){
   await db.prepare(`CREATE TABLE IF NOT EXISTS campaigns (
     id TEXT PRIMARY KEY,
@@ -54,7 +75,10 @@ async function upgrade(db){
 export function ensureCampaignSchema(env){
   if(!env?.STATS_DB)throw Object.assign(new Error('database_not_configured'),{status:503});
   if(!schemaReadyPromise){
-    schemaReadyPromise=upgrade(env.STATS_DB).catch(error=>{schemaReadyPromise=null;throw error;});
+    schemaReadyPromise=(async()=>{
+      if(await schemaCurrent(env.STATS_DB))return;
+      await upgrade(env.STATS_DB);
+    })().catch(error=>{schemaReadyPromise=null;throw error;});
   }
   return schemaReadyPromise;
 }
