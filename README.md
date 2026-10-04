@@ -1,4 +1,4 @@
-# MPDGI Stats — v1.4.5
+# MPDGI Stats — v1.4.6
 
 Private analytics PWA for **Ministerio Plenitud de Gracia**.
 
@@ -54,7 +54,7 @@ Designed for Cloudflare Pages Functions + D1 Free and the existing MPDGI domain.
 
 See `STATS_DEPLOYMENT.md` for deployment instructions.
 
-See `ANALYTICS_METHODOLOGY.md` for metric definitions and `DATA_RETENTION_POLICY.md` for the retention baseline. v1.4.5 does not automatically delete historical analytics data.
+See `ANALYTICS_METHODOLOGY.md` for metric definitions and `DATA_RETENTION_POLICY.md` for the retention baseline. v1.4.6 does not automatically delete historical analytics data.
 
 ## Important
 
