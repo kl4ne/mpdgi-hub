@@ -37,18 +37,7 @@ jobs:
             'assets/brands/social/facebook.svg',
             'assets/brands/social/instagram.svg',
             'assets/brands/social/youtube.svg',
-            'assets/brands/social/tiktok.svg',
-            'assets/brands/payments/tithely.svg',
-            'assets/brands/payments/square.svg',
-            'assets/brands/payments/visa.svg',
-            'assets/brands/payments/mastercard.svg',
-            'assets/brands/payments/amex.svg',
-            'assets/brands/payments/discover.svg',
-            'assets/brands/payments/jcb.svg',
-            'assets/brands/payments/unionpay.svg',
-            'assets/brands/payments/applepay.svg',
-            'assets/brands/payments/googlepay.svg',
-            'assets/brands/payments/cashapp.svg'
+            'assets/brands/social/tiktok.svg'
           ];
           const must=[
             'index.html','sw.js','manifest.json','README.md','.nojekyll','CNAME',
@@ -88,13 +77,10 @@ jobs:
           for(const p of brandAssets){
             if(fs.statSync(p).size<100)throw Error('Brand asset too small: '+p);
             const rel=p.replace(/^assets\//,'assets/');
-            if(p.includes('/social/')){
-              if(!app.includes(rel))throw Error('Social brand asset not referenced by app: '+p);
-              if(!sw.includes("'./"+p+"'"))throw Error('Social brand asset not precached: '+p);
-            }else{
-              if(app.includes(rel)||sw.includes("'./"+p+"'"))throw Error('External payment asset still used at runtime: '+p);
-            }
+            if(!app.includes(rel))throw Error('Social brand asset not referenced by app: '+p);
+            if(!sw.includes("'./"+p+"'"))throw Error('Social brand asset not precached: '+p);
           }
+          if(fs.existsSync('assets/brands/payments'))throw Error('Dead external payment asset directory returned');
 
           if(css.includes('.modal-action.primary'))throw Error('Dead primary-button CSS returned');
           if(!css.includes('.payment-brand-logo svg')||!css.includes('.social-facebook .brand-mark img'))throw Error('Brand rendering CSS mismatch');
