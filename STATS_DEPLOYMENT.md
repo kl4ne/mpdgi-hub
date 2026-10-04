@@ -35,8 +35,9 @@ Apply for a fresh/manual setup:
 
 - `migrations/0001_initial.sql`
 - `migrations/0002_campaigns.sql`
+- `migrations/0003_collector_metrics.sql`
 
-Stats v1.1.1 also checks and applies the campaign/session columns safely at runtime so the existing production D1 database can upgrade without losing analytics data.
+Stats v1.4.5 treats these migrations as the authoritative schema. Runtime compatibility code first performs read-only schema checks and only runs its idempotent upgrade fallback when required objects are actually missing. This keeps normal request handling free of DDL while preserving a safe upgrade path for an older D1 database.
 
 ## Required server-side secrets
 
