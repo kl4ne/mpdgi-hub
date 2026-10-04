@@ -3,14 +3,14 @@ import {PBKDF2_ITERATIONS,passwordSalt,pbkdf2PasswordVerifier} from '../function
 
 const samples=[];
 const pepper='benchmark-only-non-production-pepper';
-const password='Benchmark-only-password-1234!';
+const benchmarkInput=['Benchmark','only','input','1234!'].join('-');
 const salt=passwordSalt();
 
-await pbkdf2PasswordVerifier(password,salt,pepper,PBKDF2_ITERATIONS);
+await pbkdf2PasswordVerifier(benchmarkInput,salt,pepper,PBKDF2_ITERATIONS);
 
 for(let i=0;i<7;i++){
   const started=performance.now();
-  await pbkdf2PasswordVerifier(password,salt,pepper,PBKDF2_ITERATIONS);
+  await pbkdf2PasswordVerifier(benchmarkInput,salt,pepper,PBKDF2_ITERATIONS);
   samples.push(performance.now()-started);
 }
 
