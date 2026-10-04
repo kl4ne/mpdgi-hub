@@ -174,3 +174,64 @@
 .methodology-list dd{margin-top:3px;color:#526274;line-height:1.45}
 .methodology-bullets{margin:10px 0 0 1.1rem;color:#526274;line-height:1.55}
 .methodology-bullets li+li{margin-top:6px}
+
+
+/* v1.4.0 digital business cards */
+.digital-cards-panel{padding:18px}
+.digital-cards-list{display:grid;gap:14px}
+.digital-card-result{
+  border:1px solid #dce5f1;
+  border-radius:16px;
+  padding:16px;
+  background:linear-gradient(180deg,#fff,#f8fbff);
+  display:grid;
+  gap:14px
+}
+.digital-card-head{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.digital-card-head>div:first-child{min-width:0}
+.digital-card-head strong{display:block;font-size:1.08rem;color:#10233f}
+.digital-card-head small{display:block;margin-top:3px;color:#7b8ba1;font-size:.72rem}
+.digital-card-session-total{
+  min-width:88px;
+  text-align:right;
+  padding:9px 11px;
+  border-radius:12px;
+  background:#071a36;
+  color:#fff
+}
+.digital-card-session-total b{display:block;font-size:1.25rem}
+.digital-card-session-total span{display:block;color:#d7e2ef;font-size:.65rem;margin-top:2px}
+.digital-card-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.digital-card-metrics>div{
+  padding:10px;
+  border:1px solid #e1e8f1;
+  border-radius:11px;
+  background:#fff;
+  min-width:0
+}
+.digital-card-metrics span{
+  display:block;
+  color:#667792;
+  font-size:.66rem;
+  font-weight:750;
+  line-height:1.2
+}
+.digital-card-metrics strong{display:block;margin-top:4px;font-size:1.05rem;color:#10233f}
+.digital-card-metrics .metric-accent{background:#fff9e7;border-color:#ead28c}
+.digital-card-foot{color:#667792;font-size:.73rem;border-top:1px solid #e8edf4;padding-top:10px}
+.digital-cards-note{margin-top:14px}
+
+@media(max-width:1100px){
+  .digital-card-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:760px){
+  .digital-card-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:430px){
+  .digital-card-head{align-items:flex-start}
+  .digital-card-metrics{grid-template-columns:1fr 1fr}
+}
+@media print{
+  .digital-card-metrics{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .digital-card-result{break-inside:avoid}
+}
