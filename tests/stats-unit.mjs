@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {validateEvent,validateCollectorIdentity,isLikelyBot,easternDay} from '../functions/_lib/validation.js';
 import {resolveRange} from '../functions/_lib/reporting.js';
-import {randomToken,sha256,passwordSalt,passwordVerifier,pbkdf2PasswordVerifier,parsePbkdf2Verifier,createTargetPasswordRecord,verifyPasswordRecord,PBKDF2_ITERATIONS,LEGACY_PASSWORD_SCHEME,TARGET_PASSWORD_SCHEME,PASSWORD_SCHEME,constantTimeEqual} from '../functions/_lib/auth.js';
+import {randomToken,sha256,passwordSalt,passwordVerifier,pbkdf2PasswordVerifier,parsePbkdf2Verifier,createTargetPasswordRecord,verifyPasswordRecord,maybeUpgradePasswordRecord,PBKDF2_ITERATIONS,LEGACY_PASSWORD_SCHEME,TARGET_PASSWORD_SCHEME,PASSWORD_SCHEME,constantTimeEqual} from '../functions/_lib/auth.js';
 
 const valid={
   schema_version:1,
@@ -57,7 +57,7 @@ assert.equal(constantTimeEqual(verifier,await passwordVerifier('A-very-long-demo
 assert.equal(constantTimeEqual(verifier,await passwordVerifier('different-password-value',salt,'server-side-test-pepper')),false);
 assert.notEqual(await sha256('a'),await sha256('b'));
 
-assert.equal(PASSWORD_SCHEME,LEGACY_PASSWORD_SCHEME,'helper phase must not change the production login scheme');
+assert.equal(PASSWORD_SCHEME,TARGET_PASSWORD_SCHEME,'new password records must use the PBKDF2 target scheme');
 assert.equal(TARGET_PASSWORD_SCHEME,'pbkdf2-sha256-v1');
 assert.equal(PBKDF2_ITERATIONS,600000);
 
@@ -104,6 +104,60 @@ assert.equal(
   (await verifyPasswordRecord('anything',{...targetRecord,password_scheme:'future-scheme'},'server-side-test-pepper')).error,
   'unsupported_password_scheme'
 );
+
+const weakModernSalt=passwordSalt();
+const weakModernRecord={
+  password_hash:await pbkdf2PasswordVerifier('Modern-password-1234!',weakModernSalt,'server-side-test-pepper',100000),
+  password_salt:weakModernSalt,
+  password_scheme:TARGET_PASSWORD_SCHEME
+};
+assert.deepEqual(
+  await verifyPasswordRecord('Modern-password-1234!',weakModernRecord,'server-side-test-pepper'),
+  {ok:true,needsUpgrade:true,error:null}
+);
+
+const writes=[];
+const fakeDb={
+  prepare(sql){
+    return {
+      bind(...args){
+        return {
+          async run(){
+            writes.push({sql,args});
+            return {meta:{changes:1}};
+          }
+        };
+      }
+    };
+  }
+};
+const verifiedLegacy=await verifyPasswordRecord('Legacy-password-1234!',legacyRecord,'server-side-test-pepper');
+assert.equal(await maybeUpgradePasswordRecord(
+  fakeDb,{id:'owner-1',...legacyRecord},'Legacy-password-1234!','server-side-test-pepper',verifiedLegacy
+),true);
+assert.equal(writes.length,1);
+assert.match(writes[0].sql,/UPDATE admin_users SET password_hash=/);
+assert.equal(writes[0].args[2],TARGET_PASSWORD_SCHEME);
+assert.equal(writes[0].args[3],'owner-1');
+assert.equal(writes[0].args[4],LEGACY_PASSWORD_SCHEME);
+
+const failedLegacy=await verifyPasswordRecord('wrong-password-1234!',legacyRecord,'server-side-test-pepper');
+assert.equal(await maybeUpgradePasswordRecord(
+  fakeDb,{id:'owner-1',...legacyRecord},'wrong-password-1234!','server-side-test-pepper',failedLegacy
+),false);
+assert.equal(writes.length,1,'failed authentication must not mutate password fields');
+
+const verifiedModern=await verifyPasswordRecord('Modern-password-1234!',targetRecord,'server-side-test-pepper');
+assert.equal(await maybeUpgradePasswordRecord(
+  fakeDb,{id:'owner-2',...targetRecord},'Modern-password-1234!','server-side-test-pepper',verifiedModern
+),false);
+assert.equal(writes.length,1,'current modern verifier must not be rewritten or downgraded');
+
+const loginSource=readFileSync(new URL('../functions/api/auth/login.js',import.meta.url),'utf8');
+assert.match(loginSource,/verifyPasswordRecord\(password,user,context\.env\.AUTH_PEPPER\)/);
+assert.match(loginSource,/maybeUpgradePasswordRecord\(context\.env\.STATS_DB,user,password,context\.env\.AUTH_PEPPER,verification\)/);
+const bootstrapSource=readFileSync(new URL('../functions/api/auth/bootstrap.js',import.meta.url),'utf8');
+assert.match(bootstrapSource,/createTargetPasswordRecord\(password,context\.env\.AUTH_PEPPER\)/);
 
 console.log('MPDGI Stats unit validation passed');
 

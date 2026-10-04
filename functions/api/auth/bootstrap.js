@@ -1,5 +1,5 @@
 import {json,readJson,isSameOrigin,methodNotAllowed} from '../../_lib/http.js';
-import {PASSWORD_SCHEME,passwordSalt,passwordVerifier,randomToken,constantTimeEqual} from '../../_lib/auth.js';
+import {createTargetPasswordRecord,randomToken,constantTimeEqual} from '../../_lib/auth.js';
 
 export async function onRequest(context){
   if(context.request.method!=='POST')return methodNotAllowed('POST');
@@ -18,10 +18,9 @@ export async function onRequest(context){
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return json({error:'invalid_email'},400);
   if(password.length<16||password.length>128)return json({error:'password_must_be_16_to_128_characters'},400);
 
-  const salt=passwordSalt();
-  const passwordHash=await passwordVerifier(password,salt,context.env.AUTH_PEPPER);
+  const record=await createTargetPasswordRecord(password,context.env.AUTH_PEPPER);
   const id=randomToken(18);
   await context.env.STATS_DB.prepare('INSERT INTO admin_users(id,email,password_hash,password_salt,password_scheme,role,active) VALUES(?,?,?,?,?,?,1)')
-    .bind(id,email,passwordHash,salt,PASSWORD_SCHEME,'owner').run();
+    .bind(id,email,record.password_hash,record.password_salt,record.password_scheme,'owner').run();
   return json({ok:true,email,role:'owner'},201);
 }
