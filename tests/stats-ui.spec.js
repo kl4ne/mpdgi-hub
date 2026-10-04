@@ -70,15 +70,22 @@ test('Digital Cards view renders NFC business-card usage and actions',async({pag
   await page.locator('.nav-item[data-view="cards"]').click();
   const panel=page.locator('[data-view-panel="cards"]');
   await expect(panel).toBeVisible();
-  await expect(panel).toContainText('Pastor Ruben Suárez');
-  await expect(panel).toContainText('Pastora Nancy Pagán');
-  await expect(panel).toContainText('41');
-  await expect(panel).toContainText('Guardar contacto');
-  await expect(panel).toContainText('Llamar (toques)');
-  await expect(panel).toContainText('Dirección (toques)');
-  await expect(panel.locator('[data-tooltip-key="tipCardNfc"]')).toHaveAttribute('title',/NFC/);
-  await expect(panel.locator('[data-tooltip-key="tipCardSave"]')).toHaveAttribute('title',/no confirma/);
-  await expect(panel).toContainText('31');
+  const cards=panel.locator('.digital-card-result');
+  await expect(cards).toHaveCount(2);
+  const ruben=cards.filter({hasText:'Pastor Ruben Suárez'});
+  const nancy=cards.filter({hasText:'Pastora Nancy Pagán'});
+  await expect(ruben).toHaveCount(1);
+  await expect(nancy).toHaveCount(1);
+  await expect(ruben).toContainText('41');
+  await expect(ruben).toContainText('Guardar contacto');
+  await expect(ruben).toContainText('Llamar (toques)');
+  await expect(ruben).toContainText('Dirección (toques)');
+  await expect(ruben.locator('[data-tooltip-key="tipCardNfc"]')).toHaveAttribute('title',/NFC/);
+  await expect(ruben.locator('[data-tooltip-key="tipCardSave"]')).toHaveAttribute('title',/no confirma/);
+  await expect(ruben).toContainText('31');
+  await expect(nancy).toContainText('12');
+  await expect(nancy.locator('[data-tooltip-key="tipCardNfc"]')).toHaveAttribute('title',/NFC/);
+  await expect(nancy.locator('[data-tooltip-key="tipCardSave"]')).toHaveAttribute('title',/no confirma/);
 });
 
 test('print layout exposes the professional report header and hides navigation',async({page})=>{
