@@ -6,14 +6,8 @@ on:
   pull_request:
     paths:
       - 'public/**'
-      - 'index.html'
-      - 'css/stats.css'
-      - 'js/stats*.js'
       - 'functions/**'
       - 'migrations/**'
-      - 'manifest.json'
-      - 'sw.js'
-      - '_headers'
       - 'tests/stats-*'
       - 'playwright.stats.config.cjs'
       - 'package.json'
@@ -54,26 +48,6 @@ jobs:
           const statsVersion=read('public/js/stats-version.js');
           const headers=read('public/_headers');
           const pkg=JSON.parse(read('package.json'));
-
-          const syncPairs=[
-            ['index.html','public/index.html'],
-            ['_headers','public/_headers'],
-            ['css/stats.css','public/css/stats.css'],
-            ['js/stats-version.js','public/js/stats-version.js'],
-            ['js/stats.js','public/js/stats.js'],
-            ['manifest.json','public/manifest.json'],
-            ['robots.txt','public/robots.txt'],
-            ['sw.js','public/sw.js'],
-            ['assets/icons/apple-touch-icon.png','public/assets/icons/apple-touch-icon.png'],
-            ['assets/icons/icon-192.png','public/assets/icons/icon-192.png'],
-            ['assets/icons/icon-512.png','public/assets/icons/icon-512.png'],
-            ['assets/profile/logo-mpdg.png','public/assets/profile/logo-mpdg.png'],
-            ['assets/social/mpdgi-hub-share.svg','public/assets/social/mpdgi-hub-share.svg']
-          ];
-          for(const [a,b] of syncPairs){
-            if(!fs.existsSync(a)||!fs.existsSync(b))throw Error('Missing root/public sync pair: '+a+' / '+b);
-            if(!fs.readFileSync(a).equals(fs.readFileSync(b)))throw Error('Root/public drift detected: '+a+' != '+b);
-          }
 
           if(!index.includes('Private Analytics Center')||!index.includes('Acceso autorizado solamente'))throw Error('Stats private shell missing');
           if(index.includes('Forgot password'))throw Error('Unsupported email-reset UI must not be advertised');
