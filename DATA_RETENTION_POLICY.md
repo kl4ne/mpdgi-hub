@@ -1,6 +1,6 @@
 # MPDGI Stats — Data Retention Policy
 
-Version: 1.4.6  
+Version: 1.4.7  
 Status: documented baseline; automatic deletion is **not enabled** in this release.
 
 ## Retention baseline
