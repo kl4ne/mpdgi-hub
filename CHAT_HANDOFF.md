@@ -32,12 +32,11 @@ Long reports belong in `.md` / ZIP artifacts; chat should contain only a short s
 ### Stats
 - Repo: `kl4ne/mpdgi-hub`
 - Branch: `mpdgi-stats-v1.0`
-- Last fully validated stable HEAD before current candidate: `28641cd96c54b3885edcfcc8f0fa09122ba75da1`
-- Last fully validated stable version before current candidate: `1.4.5`
-- Candidate now merged: `c492355da3849e656e722a90927f7ade92814c16`
-- Candidate version: `1.4.6`
-- Post-merge validation run: `37242557183`
-- Status at this handoff: still running.
+- Stable HEAD: `c492355da3849e656e722a90927f7ade92814c16`
+- Stable version: `1.4.6`
+- Post-merge validation run: `37242557183` — SUCCESS.
+- 26 browser tests passed.
+- Production Pages endpoint verified with HSTS, nosniff, X-Frame-Options DENY and noindex.
 - Production Pages endpoint: `https://mpdgi-stats.pages.dev`
 
 ### Digital Cards
@@ -81,19 +80,7 @@ Long reports belong in `.md` / ZIP artifacts; chat should contain only a short s
 
 ## Exact next action
 
-Open/check run **37242557183**.
-
-If green:
-- promote Stats v1.4.6 / `c492355...` to stable;
-- record production smoke results;
-- update `MASTER_STATUS.md`, `NEXT_ACTION.md`, and this file;
-- continue to the next remediation item.
-
-If failed:
-- inspect only the failing step;
-- fix only that issue;
-- validate again;
-- do not redo completed work.
+Create and validate `KNOWN_ISSUES.md` and `DECISIONS.md` as the next atomic continuity phase. Then checkpoint before any further production remediation.
 
 ## Approved decisions that must not be re-asked or redone
 
