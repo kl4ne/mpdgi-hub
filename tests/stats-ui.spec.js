@@ -74,6 +74,8 @@ test('Digital Cards view renders NFC business-card usage and actions',async({pag
   await expect(panel).toContainText('Guardar contacto');
   await expect(panel).toContainText('Llamar (toques)');
   await expect(panel).toContainText('Dirección (toques)');
+  await expect(panel.locator('[data-tooltip-key="tipCardNfc"]')).toHaveAttribute('title',/NFC/);
+  await expect(panel.locator('[data-tooltip-key="tipCardSave"]')).toHaveAttribute('title',/no confirma/);
   await expect(panel).toContainText('31');
 });
 
