@@ -88,3 +88,17 @@ Updated: 2026-10-04
 25. **Long audits/plans/handoffs belong in files.**
     - Prefer `.md` and ZIP bundles.
     - Keep chat concise.
+
+
+## Password verifier migration decision
+
+26. **Stats will migrate by dual-scheme login-time rehash, not by bulk rewrite.**
+    - Legacy: `hmac-sha256-v1`.
+    - Target: `pbkdf2-sha256-v1`.
+    - Target algorithm: PBKDF2-HMAC-SHA256.
+    - Initial security floor: 600,000 iterations, subject to target-runtime benchmarking.
+    - Existing `AUTH_PEPPER` remains unchanged.
+    - A successful legacy login may transparently rehash that user's supplied plaintext password into the new scheme.
+    - Failed logins must never mutate password fields.
+    - Legacy support remains until every active admin is migrated or deliberately reset.
+    - Production rollout requires a dual-scheme rollback checkpoint first.

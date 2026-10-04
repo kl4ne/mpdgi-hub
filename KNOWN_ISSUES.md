@@ -22,10 +22,11 @@ Updated: 2026-10-04
 - Required next step: review the actual hosting/proxy layer before changing code.
 
 ### 4. Password verifier still uses the legacy HMAC-SHA256 scheme
-- Current scheme: `hmac-sha256-v1`.
+- Current production scheme: `hmac-sha256-v1`.
 - This is not an active authentication break.
-- It remains a hardening opportunity because a slow password KDF would provide better offline resistance.
-- Required next step: design a compatibility-safe migration that does not lock out the current owner account.
+- Migration design is now documented in `SECURITY_MODEL.md`.
+- Approved target: `pbkdf2-sha256-v1` with dual-scheme login-time migration and unchanged `AUTH_PEPPER`.
+- Required next step: implement and test dual-scheme support on a branch without migrating production credentials yet.
 
 ### 5. Historical Hub pinned runtime files remain
 - Older version-pinned JS/CSS assets still exist.
