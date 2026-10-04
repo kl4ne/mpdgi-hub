@@ -243,7 +243,7 @@ test('Methodology view documents definitions, privacy and retention without auto
   await expect(panel).toBeVisible();
   await expect(panel).toContainText('Estimated Visitor');
   await expect(panel).toContainText('24 meses');
-  await expect(panel).toContainText('v1.4.5');
+  await expect(panel).toContainText('v1.4.6');
   await expect(panel).toContainText('no activa borrado automático');
-  await expect(page.locator('#sidebar-version')).toHaveText('v1.4.5');
+  await expect(page.locator('#sidebar-version')).toHaveText('v1.4.6');
 });
