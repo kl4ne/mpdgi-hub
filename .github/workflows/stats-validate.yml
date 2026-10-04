@@ -189,3 +189,10 @@ jobs:
 
           SESSION_HEADERS="$(curl -fsSI https://mpdgi-stats.pages.dev/api/auth/session 2>/dev/null || true)"
           grep -qi '^cache-control:.*no-store' <<<"$SESSION_HEADERS" || echo "::warning::Could not confirm no-store on unauthenticated session response with HEAD."
+
+          CUSTOM_VERSION="$(curl -fsSL https://stats.mpdgi.org/js/stats-version.js 2>/dev/null || true)"
+          if grep -q "MPDGI_STATS_VERSION='$EXPECTED'" <<<"$CUSTOM_VERSION"; then
+            echo "Stats custom domain is active at v$EXPECTED."
+          else
+            echo "::warning::stats.mpdgi.org is not reachable at the expected version; Pages production remains the verified endpoint."
+          fi
