@@ -57,7 +57,8 @@ export async function pbkdf2PasswordVerifier(password,salt,pepper,iterations=PBK
     keyMaterial,
     256
   );
-  return 'i='+iterations+'
+  return 'i='+iterations+String.fromCharCode(36)+bytesToBase64Url(new Uint8Array(derived));
+}
 export function passwordSalt(){return randomToken(18);}
 export function constantTimeEqual(a,b){
   const x=new TextEncoder().encode(String(a||'')),y=new TextEncoder().encode(String(b||''));let diff=x.length^y.length;
