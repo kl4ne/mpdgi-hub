@@ -1,8 +1,10 @@
-import {json,readJson,methodNotAllowed} from '../../_lib/http.js';
+import {json,readJson,isSameOrigin,methodNotAllowed} from '../../_lib/http.js';
 import {PASSWORD_SCHEME,passwordSalt,passwordVerifier,randomToken,constantTimeEqual} from '../../_lib/auth.js';
 
 export async function onRequest(context){
   if(context.request.method!=='POST')return methodNotAllowed('POST');
+  if(context.env.BOOTSTRAP_ENABLED!=='true')return json({error:'not_found'},404);
+  if(!isSameOrigin(context.request))return json({error:'origin_not_allowed'},403);
   if(!context.env.STATS_DB||!context.env.AUTH_PEPPER||!context.env.BOOTSTRAP_SECRET)return json({error:'service_not_configured'},503);
   const supplied=context.request.headers.get('X-Bootstrap-Secret')||'';
   if(!constantTimeEqual(supplied,context.env.BOOTSTRAP_SECRET))return json({error:'forbidden'},403);
