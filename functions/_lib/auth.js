@@ -48,3 +48,10 @@ export async function requireUser(context){
   if(!user)return {user:null,response:json({error:'unauthorized'},401)};
   return {user,response:null};
 }
+export async function requireRole(context,roles){
+  const auth=await requireUser(context);
+  if(auth.response)return auth;
+  const allowed=new Set(Array.isArray(roles)?roles:[roles]);
+  if(!allowed.has(String(auth.user.role||'')))return {user:auth.user,response:json({error:'forbidden'},403)};
+  return auth;
+}

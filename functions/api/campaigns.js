@@ -1,5 +1,5 @@
 import {json,isSameOrigin,methodNotAllowed} from '../_lib/http.js';
-import {requireUser} from '../_lib/auth.js';
+import {requireUser,requireRole} from '../_lib/auth.js';
 import {ensureCampaignSchema} from '../_lib/schema.js';
 
 const VALID_SOURCES=new Set(['link','qr','nfc']);
@@ -25,7 +25,10 @@ export async function onRequest(context){
   if(!['GET','POST'].includes(context.request.method))return methodNotAllowed('GET, POST');
   if(!context.env.STATS_DB)return json({error:'service_not_configured'},503);
   if(context.request.method==='POST'&&!isSameOrigin(context.request))return json({error:'origin_not_allowed'},403);
-  const auth=await requireUser(context);if(auth.response)return auth.response;
+  const auth=context.request.method==='POST'
+    ?await requireRole(context,['owner','admin'])
+    :await requireUser(context);
+  if(auth.response)return auth.response;
   await ensureCampaignSchema(context.env);
   const db=context.env.STATS_DB;
 

@@ -1,4 +1,4 @@
-# MPDGI Stats — v1.3.0
+# MPDGI Stats — v1.4.5
 
 Private analytics PWA for **Ministerio Plenitud de Gracia**.
 
@@ -38,6 +38,8 @@ Anonymous visitor and session IDs exist only to deduplicate and aggregate usage.
 ## Security
 
 - Dashboard APIs require an authenticated admin session.
+- Mutating campaign APIs additionally enforce authorized write roles (`owner` or `admin`).
+- The bootstrap endpoint is disabled unless `BOOTSTRAP_ENABLED=true` is explicitly present for initial setup.
 - Session cookies are HttpOnly, Secure and SameSite=Strict.
 - Password verification uses a strong user password plus a Cloudflare-only secret pepper.
 - Login attempts are rate limited.
@@ -52,7 +54,7 @@ Designed for Cloudflare Pages Functions + D1 Free and the existing MPDGI domain.
 
 See `STATS_DEPLOYMENT.md` for deployment instructions.
 
-See `ANALYTICS_METHODOLOGY.md` for metric definitions and `DATA_RETENTION_POLICY.md` for the retention baseline. v1.3.0 does not automatically delete historical analytics data.
+See `ANALYTICS_METHODOLOGY.md` for metric definitions and `DATA_RETENTION_POLICY.md` for the retention baseline. v1.4.5 does not automatically delete historical analytics data.
 
 ## Important
 

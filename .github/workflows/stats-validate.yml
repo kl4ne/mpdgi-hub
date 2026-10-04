@@ -69,8 +69,13 @@ jobs:
           if(!collector.includes('validateCollectorIdentity')||!collector.includes('session_visitor_mismatch'))throw Error('Collector identity integrity guards missing');
 
           const campaignApi=read('functions/api/campaigns.js');
+          const authApi=read('functions/_lib/auth.js');
+          const bootstrapApi=read('functions/api/auth/bootstrap.js');
           if(!campaignApi.includes("['GET','POST']")||!campaignApi.includes('INSERT INTO campaigns'))throw Error('Saved campaign API missing');
           if(!campaignApi.includes("context.request.method==='POST'&&!isSameOrigin(context.request)"))throw Error('Campaign POST same-origin guard missing');
+          if(!authApi.includes('export async function requireRole')||!campaignApi.includes("requireRole(context,['owner','admin'])"))throw Error('Campaign write RBAC missing');
+          if(!bootstrapApi.includes("BOOTSTRAP_ENABLED!=='true'")||!bootstrapApi.includes('isSameOrigin(context.request)'))throw Error('Bootstrap explicit-enable guard missing');
+          if(!read('README.md').startsWith('# MPDGI Stats — v1.4.5'))throw Error('Stats README version stale');
 
           const reporting=read('functions/_lib/reporting.js');
           if(!reporting.includes('COUNT(DISTINCT session_id)')||!reporting.includes("['nfc','qr','link','unattributed']"))throw Error('Reporting definitions drifted');
@@ -154,3 +159,30 @@ jobs:
         env:
           BASE_URL: http://127.0.0.1:4173
         run: npm run test:stats
+
+      - name: Production smoke and response-header verification
+        if: github.event_name == 'push' && github.ref == 'refs/heads/mpdgi-stats-v1.0'
+        shell: bash
+        run: |
+          EXPECTED="1.4.5"
+          READY=0
+          for i in {1..20}; do
+            VERSION="$(curl -fsSL https://mpdgi-stats.pages.dev/js/stats-version.js 2>/dev/null || true)"
+            if grep -q "MPDGI_STATS_VERSION='$EXPECTED'" <<<"$VERSION"; then
+              READY=1
+              break
+            fi
+            echo "Stats production not ready yet (attempt $i/20); retrying..."
+            sleep 15
+          done
+          [[ "$READY" == "1" ]] || { echo "Stats production did not reach v$EXPECTED in time."; exit 1; }
+
+          HEADERS="$(curl -fsSI https://mpdgi-stats.pages.dev/)"
+          printf '%s\n' "$HEADERS"
+          grep -qi '^strict-transport-security:[[:space:]]*max-age=31536000' <<<"$HEADERS" || { echo "Missing Stats HSTS header"; exit 1; }
+          grep -qi '^x-content-type-options:[[:space:]]*nosniff' <<<"$HEADERS" || { echo "Missing Stats nosniff header"; exit 1; }
+          grep -qi '^x-frame-options:[[:space:]]*DENY' <<<"$HEADERS" || { echo "Missing Stats X-Frame-Options DENY"; exit 1; }
+          grep -qi '^x-robots-tag:.*noindex' <<<"$HEADERS" || { echo "Missing Stats noindex response header"; exit 1; }
+
+          SESSION_HEADERS="$(curl -fsSI https://mpdgi-stats.pages.dev/api/auth/session 2>/dev/null || true)"
+          grep -qi '^cache-control:.*no-store' <<<"$SESSION_HEADERS" || echo "::warning::Could not confirm no-store on unauthenticated session response with HEAD."

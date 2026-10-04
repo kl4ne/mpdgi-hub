@@ -44,19 +44,20 @@ Set these only in Cloudflare Pages > Settings > Environment variables / secrets:
 
 - `AUTH_PEPPER` — a long random secret used as the server-side key for admin password verification.
 - `BOOTSTRAP_SECRET` — a separate one-time setup secret used only to create the first owner account.
+- `BOOTSTRAP_ENABLED` — set to the literal `true` only during the short first-owner bootstrap window; remove or set false immediately afterward.
 - `ANALYTICS_ALLOWED_ORIGIN` — `https://hub.mpdgi.org`
 
 Never place either secret in a URL, GitHub file, client-side JavaScript or printed report.
 
 ## First owner account
 
-After the database, migration and secrets are configured, call the one-time endpoint:
+After the database, migration and secrets are configured, temporarily set `BOOTSTRAP_ENABLED=true`, then call the one-time endpoint:
 
 `POST /api/auth/bootstrap`
 
 with the `X-Bootstrap-Secret` request header and a JSON body containing the approved owner email and a password of at least 16 characters.
 
-Bootstrap closes automatically after the first admin user exists.
+Bootstrap closes automatically after the first admin user exists. After the owner is created, remove `BOOTSTRAP_ENABLED` and `BOOTSTRAP_SECRET` from the active production environment so the endpoint remains disabled by default.
 
 ## Custom domain
 
