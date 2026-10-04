@@ -69,7 +69,7 @@ test('Digital Cards view renders NFC business-card usage and actions',async({pag
   await page.locator('.nav-item[data-view="cards"]').click();
   const panel=page.locator('[data-view-panel="cards"]');
   await expect(panel).toBeVisible();
-  await expect(panel).toContainText('Ruben Suárez');
+  await expect(panel).toContainText('Pastor Ruben Suárez');
   await expect(panel).toContainText('41');
   await expect(panel).toContainText('Guardar contacto');
   await expect(panel).toContainText('Llamar (toques)');
@@ -234,5 +234,7 @@ test('Methodology view documents definitions, privacy and retention without auto
   await expect(panel).toBeVisible();
   await expect(panel).toContainText('Estimated Visitor');
   await expect(panel).toContainText('24 meses');
+  await expect(panel).toContainText('v1.4.1');
   await expect(panel).toContainText('no activa borrado automático');
+  await expect(page.locator('#sidebar-version')).toHaveText('v1.4.1');
 });

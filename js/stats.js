@@ -26,7 +26,7 @@ const I18N={
     defCampaignTitle:'Campaign',defCampaign:'Etiqueta de la sesión actual, separada de la adquisición original.',
     defPwaTitle:'PWA Session',defPwa:'Sesión observada cuando el Hub corre en modo standalone instalado.',
     privacyMethodTitle:'Privacidad y límites',privacyMethod:'No se almacenan nombres de visitantes, emails, pagos, IP cruda, ubicación precisa ni User-Agent completo. La zona oficial de reportes es America/New_York.',
-    retentionTitle:'Política de retención',retentionAggregates:'Agregados y reportes: conservación indefinida.',retentionEvents:'Eventos anónimos detallados: hasta 24 meses como política objetivo.',retentionRate:'Datos de rate control: retención corta y operativa.',retentionCampaigns:'Campañas: hasta archivo o eliminación administrativa.',retentionNoDelete:'v1.3.0 no activa borrado automático; cualquier purga futura requiere revisión del volumen D1 y aprobación administrativa.',
+    retentionTitle:'Política de retención',retentionAggregates:'Agregados y reportes: conservación indefinida.',retentionEvents:'Eventos anónimos detallados: hasta 24 meses como política objetivo.',retentionRate:'Datos de rate control: retención corta y operativa.',retentionCampaigns:'Campañas: hasta archivo o eliminación administrativa.',retentionNoDelete:'v{version} no activa borrado automático; cualquier purga futura requiere revisión del volumen D1 y aprobación administrativa.',
     noData:'Sin datos para este período.',sessions:'sesiones',generated:'Generado',previousPeriod:'vs. período anterior',allOperational:'● Todos los sistemas operacionales',attentionRequired:'● Atención requerida',operational:'Operacional',review:'Revisar',noEvents:'Sin eventos',
     loginError:'Correo o contraseña incorrectos.',rateError:'Demasiados intentos. Intenta nuevamente en unos minutos.',validRange:'Selecciona un rango de fechas válido.',exportError:'No fue posible generar el CSV.',copied:'URL copiada.',copyFailed:'No fue posible copiar automáticamente. Selecciona y copia la URL.',campaignPlaceholder:'reunion-lideres-octubre',createCampaignButton:'Crear campaña',campaignCreated:'Campaña creada y guardada.',campaignExists:'La campaña ya existía; se usará el registro existente.',campaignCreateError:'No fue posible guardar la campaña.',campaignNameRequired:'Escribe un nombre de campaña.',campaignSessions:'Sesiones',campaignVisitors:'Visitantes estimados',campaignFirstTouch:'Adquisición inicial',campaignCreatedOn:'Creada',campaignLastActivity:'Última actividad',campaignNoActivity:'Sin actividad en este período',
     executiveSummary:(visits,users,change,source,action,hour,day,sunday,wednesday)=>'Durante el período seleccionado se registraron '+visits+' sesiones y '+users+' visitantes estimados'+(change?' ('+change+')':'')+'. La fuente principal fue '+source+' y la acción más utilizada fue '+action+'. La mayor actividad se observó alrededor de '+hour+' el '+day+'. Domingo registró '+sunday+' sesiones y miércoles '+wednesday+'.',
@@ -75,7 +75,7 @@ const I18N={
     defCampaignTitle:'Campaign',defCampaign:'Tag for the current session, kept separate from original acquisition.',
     defPwaTitle:'PWA Session',defPwa:'Session observed while the Hub runs in installed standalone mode.',
     privacyMethodTitle:'Privacy & limits',privacyMethod:'Visitor names, visitor emails, payment data, raw IP addresses, precise location and full User-Agent strings are not stored. Official reporting timezone is America/New_York.',
-    retentionTitle:'Data retention policy',retentionAggregates:'Aggregates and reports: retained indefinitely.',retentionEvents:'Detailed anonymous events: target retention up to 24 months.',retentionRate:'Rate-control data: short operational retention.',retentionCampaigns:'Campaigns: retained until administratively archived or deleted.',retentionNoDelete:'v1.3.0 does not enable automatic deletion; any future purge requires D1 volume review and administrative approval.',
+    retentionTitle:'Data retention policy',retentionAggregates:'Aggregates and reports: retained indefinitely.',retentionEvents:'Detailed anonymous events: target retention up to 24 months.',retentionRate:'Rate-control data: short operational retention.',retentionCampaigns:'Campaigns: retained until administratively archived or deleted.',retentionNoDelete:'v{version} does not enable automatic deletion; any future purge requires D1 volume review and administrative approval.',
     noData:'No data for this period.',sessions:'sessions',generated:'Generated',previousPeriod:'vs. previous period',allOperational:'● All systems operational',attentionRequired:'● Attention required',operational:'Operational',review:'Review',noEvents:'No events',
     loginError:'Incorrect email or password.',rateError:'Too many attempts. Try again in a few minutes.',validRange:'Select a valid date range.',exportError:'The CSV could not be generated.',copied:'URL copied.',copyFailed:'Automatic copy failed. Select and copy the URL.',campaignPlaceholder:'leaders-meeting-october',createCampaignButton:'Create campaign',campaignCreated:'Campaign created and saved.',campaignExists:'This campaign already existed; the existing record will be used.',campaignCreateError:'The campaign could not be saved.',campaignNameRequired:'Enter a campaign name.',campaignSessions:'Sessions',campaignVisitors:'Estimated visitors',campaignFirstTouch:'Initial acquisition',campaignCreatedOn:'Created',campaignLastActivity:'Last activity',campaignNoActivity:'No activity in this period',
     executiveSummary:(visits,users,change,source,action,hour,day,sunday,wednesday)=>'The selected period recorded '+visits+' sessions and '+users+' estimated visitors'+(change?' ('+change+')':'')+'. The top source was '+source+' and the most-used action was '+action+'. Peak activity occurred around '+hour+' on '+day+'. Sunday recorded '+sunday+' sessions and Wednesday '+wednesday+'.',
@@ -139,7 +139,10 @@ function storageSet(key,value){try{localStorage.setItem(key,value);}catch{}}
 let currentLang=storageGet(LANGUAGE_KEY)==='en'?'en':'es';
 
 const $=id=>document.getElementById(id);
-const t=key=>I18N[currentLang][key]??key;
+const t=key=>{
+  const value=I18N[currentLang][key]??key;
+  return typeof value==='string'?value.replaceAll('{version}',STATS_VERSION):value;
+};
 const number=value=>new Intl.NumberFormat(currentLang==='es'?'es-US':'en-US').format(Number(value)||0);
 const dateTime=value=>new Date(value).toLocaleString(currentLang==='es'?'es-US':'en-US');
 const dateLong=value=>new Date(value+'T12:00:00').toLocaleDateString(currentLang==='es'?'es-US':'en-US',{month:'short',day:'numeric',year:'numeric'});
@@ -311,7 +314,7 @@ function renderCampaigns(items){
 }
 
 function cardDisplayName(id){
-  const known={'ruben-suarez':'Ruben Suárez'};
+  const known={'ruben-suarez':'Pastor Ruben Suárez'};
   if(known[id])return known[id];
   return String(id||'').split('-').filter(Boolean).map(part=>part.charAt(0).toUpperCase()+part.slice(1)).join(' ')||'—';
 }
@@ -606,6 +609,7 @@ async function setupServiceWorker(){
 
 async function init(){
   changeText('stats-version',STATS_VERSION);
+  changeText('sidebar-version','v'+STATS_VERSION);
   applyTranslations();setupLogin();setupDashboard();updateCampaignUrl();void setupServiceWorker();
   await checkSession();
 }
