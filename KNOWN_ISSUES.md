@@ -21,12 +21,14 @@ Updated: 2026-10-04
 - Because the Hub is on GitHub Pages/custom-domain infrastructure, adding Cloudflare Pages-style `_headers` to the repository would not solve this by itself.
 - Required next step: review the actual hosting/proxy layer before changing code.
 
-### 4. Password verifier still uses the legacy HMAC-SHA256 scheme
-- Current production scheme: `hmac-sha256-v1`.
-- This is not an active authentication break.
-- Migration design is now documented in `SECURITY_MODEL.md`.
-- Approved target: `pbkdf2-sha256-v1` with dual-scheme login-time migration and unchanged `AUTH_PEPPER`.
-- Required next step: implement and test dual-scheme support on a branch without migrating production credentials yet.
+### 4. Password migration is deployed but production-user migration status is intentionally unknown
+- Stats v1.4.7 supports both legacy `hmac-sha256-v1` and target `pbkdf2-sha256-v1`.
+- New bootstrap users use PBKDF2.
+- Successful legacy login can transparently upgrade only that authenticated user.
+- No production owner login was intentionally performed during remediation, so the current owner's stored scheme is not assumed.
+- `AUTH_PEPPER` remains unchanged.
+- Rollback checkpoint: `checkpoint/stats-v1.4.7-dual-scheme`.
+- Required next step: benchmark the 600,000-iteration PBKDF2 cost, then allow migration to occur naturally on a normal successful login.
 
 ### 5. Historical Hub pinned runtime files remain
 - Older version-pinned JS/CSS assets still exist.
