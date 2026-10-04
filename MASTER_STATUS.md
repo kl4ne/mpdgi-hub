@@ -30,8 +30,10 @@ Long technical reports should be delivered as `.md` files, and grouped in a ZIP 
 ### MPDGI Stats
 - Repository: `kl4ne/mpdgi-hub`
 - Branch: `mpdgi-stats-v1.0`
-- Current stable HEAD: `28641cd96c54b3885edcfcc8f0fa09122ba75da1`
-- Current stable version: `1.4.5`
+- Last fully production-validated HEAD before schema hardening: `28641cd96c54b3885edcfcc8f0fa09122ba75da1`
+- Newly merged candidate HEAD: `c492355da3849e656e722a90927f7ade92814c16`
+- Candidate version: `1.4.6`
+- Post-merge validation run: `37242557183` — IN PROGRESS at this checkpoint
 - Production endpoint: `https://mpdgi-stats.pages.dev`
 - Latest validated work:
   - `public/` is the single deployed static source
@@ -68,14 +70,15 @@ Long technical reports should be delivered as `.md` files, and grouped in a ZIP 
 ## In progress
 
 ### Stats schema hardening
-- Branch: `audit-fix/stats-schema-hardening`
-- Goal:
-  - make schema handling read-first
-  - keep DDL only as compatibility fallback
-  - add explicit `migrations/0003_collector_metrics.sql`
-  - align documentation with the current release
-- This work must be validated before merge.
-- Do not apply destructive D1 operations.
+- PR #22 was merged to `mpdgi-stats-v1.0` as `c492355da3849e656e722a90927f7ade92814c16`.
+- Implemented:
+  - read-first schema checks
+  - DDL only as compatibility fallback
+  - explicit `migrations/0003_collector_metrics.sql`
+  - documentation aligned to v1.4.6
+- The post-merge GitHub Actions run `37242557183` is still validating this candidate.
+- Until that run is green, the previous production-validated Stats checkpoint remains the fallback reference.
+- No destructive D1 operation was performed.
 
 ## Open audit items
 
@@ -98,9 +101,8 @@ Long technical reports should be delivered as `.md` files, and grouped in a ZIP 
 
 ## Exact next action
 
-1. Check the latest HEAD and CI result for `audit-fix/stats-schema-hardening`.
-2. If green, merge it to `mpdgi-stats-v1.0`.
-3. Wait for post-merge Stats production smoke to complete.
-4. Record the new stable Stats HEAD/version here.
-5. Create/update `CHAT_HANDOFF.md` and `NEXT_ACTION.md`.
-6. Only then continue to the next audit remediation item.
+1. Check GitHub Actions run `37242557183` for merged Stats HEAD `c492355da3849e656e722a90927f7ade92814c16`.
+2. If green, mark Stats v1.4.6 / `c492355...` as the new stable checkpoint.
+3. Capture the production smoke result, including `mpdgi-stats.pages.dev` and the observation for `stats.mpdgi.org`.
+4. Update this file plus `CHAT_HANDOFF.md` and `NEXT_ACTION.md`.
+5. Only then continue to the next audit remediation item.
