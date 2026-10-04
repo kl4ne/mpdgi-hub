@@ -72,6 +72,8 @@ test('Digital Cards view renders NFC business-card usage and actions',async({pag
   await expect(panel).toContainText('Ruben Suárez');
   await expect(panel).toContainText('41');
   await expect(panel).toContainText('Guardar contacto');
+  await expect(panel).toContainText('Llamar (toques)');
+  await expect(panel).toContainText('Dirección (toques)');
   await expect(panel).toContainText('31');
 });
 

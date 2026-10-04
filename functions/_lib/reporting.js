@@ -257,12 +257,12 @@ export function dashboardCsv(data){
     lines.push(['Digital Card NFC Sessions',label,item.nfc_sessions]);
     lines.push(['Digital Card Shared-link Sessions',label,item.link_sessions]);
     lines.push(['Digital Card Direct-web Sessions',label,item.web_sessions]);
-    lines.push(['Digital Card Save Contact',label,item.save_contact]);
-    lines.push(['Digital Card Calls',label,item.calls]);
-    lines.push(['Digital Card Texts',label,item.texts]);
-    lines.push(['Digital Card Directions',label,item.directions]);
-    lines.push(['Digital Card Website',label,item.website]);
-    lines.push(['Digital Card Shares',label,item.shares]);
+    lines.push(['Digital Card Save Contact Taps',label,item.save_contact]);
+    lines.push(['Digital Card Call Taps',label,item.calls]);
+    lines.push(['Digital Card Text Taps',label,item.texts]);
+    lines.push(['Digital Card Directions Taps',label,item.directions]);
+    lines.push(['Digital Card Website Taps',label,item.website]);
+    lines.push(['Digital Card Share Taps',label,item.shares]);
   }
   for(const item of data.campaigns){
     const label=item.name+' ['+item.source+']';
