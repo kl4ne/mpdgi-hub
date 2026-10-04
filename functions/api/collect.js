@@ -32,7 +32,7 @@ function allowedOrigin(context){
   const origin=context.request.headers.get('Origin')||'';
   const configured=String(context.env.ANALYTICS_ALLOWED_ORIGINS||context.env.ANALYTICS_ALLOWED_ORIGIN||'')
     .split(',').map(value=>value.trim()).filter(Boolean);
-  const defaults=['https://hub.mpdgi.org','https://rscard.mpdgi.org','https://npcard.mpdgi.org'];
+  const defaults=['https://hub.mpdgi.org','https://rscard.mpdgi.org','https://npcard.mpdgi.org','https://npcard.pages.dev'];
   const allowed=new Set([...defaults,...configured]);
   if(allowed.has(origin))return origin;
   if(context.env.ALLOW_LOCAL_ANALYTICS==='true'&&(origin==='http://127.0.0.1:4173'||origin==='http://localhost:4173'))return origin;
