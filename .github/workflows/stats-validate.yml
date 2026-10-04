@@ -45,6 +45,7 @@ jobs:
           const manifest=JSON.parse(read('public/manifest.json'));
           const migration=read('migrations/0001_initial.sql');
           const migration2=read('migrations/0002_campaigns.sql');
+          const migration3=read('migrations/0003_collector_metrics.sql');
           const statsVersion=read('public/js/stats-version.js');
           const headers=read('public/_headers');
           const pkg=JSON.parse(read('package.json'));
@@ -55,6 +56,7 @@ jobs:
           if(manifest.name!=='MPDGI Stats • Private Analytics Center'||manifest.display!=='standalone')throw Error('Stats manifest mismatch');
           if(!migration.includes('events')||!migration.includes('event_id TEXT PRIMARY KEY')||!migration.includes('server_day_et'))throw Error('D1 event schema mismatch');
           if(!migration2.includes('CREATE TABLE IF NOT EXISTS campaigns')||!migration2.includes('session_campaign'))throw Error('Campaign migration missing');
+          if(!migration3.includes('CREATE TABLE IF NOT EXISTS collector_metrics')||!migration3.includes('idx_collector_metrics_day'))throw Error('Collector metrics migration missing');
           if(pkg.version!=='1.4.5'||!statsVersion.includes("MPDGI_STATS_VERSION='1.4.5'"))throw Error('Stats version mismatch');
           if(!headers.includes('X-Robots-Tag: noindex')||!headers.includes("frame-ancestors 'none'")||!headers.includes('Strict-Transport-Security: max-age=31536000'))throw Error('Stats security headers missing');
 
@@ -85,6 +87,7 @@ jobs:
           if(!reporting.includes('/^\\s*[=+\\-@]/'))throw Error('CSV formula neutralization missing');
 
           const schema=read('functions/_lib/schema.js');
+          if(!schema.includes('async function schemaCurrent')||!schema.includes("if(await schemaCurrent(env.STATS_DB))return"))throw Error('Read-first schema guard missing');
           if(!schema.includes('CREATE TABLE IF NOT EXISTS collector_metrics'))throw Error('Collector metrics schema missing');
           if(!/CREATE TABLE IF NOT EXISTS collector_metrics\s*\([\s\S]*?last_received_at TEXT\s*\)/.test(schema))throw Error('Collector metrics CREATE TABLE statement is malformed');
           if(!reporting.includes('session_campaign=c.slug')||!reporting.includes('acquired_visitors'))throw Error('Saved campaign reporting missing');
