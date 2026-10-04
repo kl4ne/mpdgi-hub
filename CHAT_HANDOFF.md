@@ -32,9 +32,9 @@ Long reports belong in `.md` / ZIP artifacts; chat should contain only a short s
 ### Stats
 - Repo: `kl4ne/mpdgi-hub`
 - Branch: `mpdgi-stats-v1.0`
-- Stable HEAD: `5684a15a24837bcf70846cbc4e1a9425019ae1f3`
-- Stable version: `1.4.6`
-- Post-merge validation run: `37243600952` — SUCCESS.
+- Stable HEAD: `e3b237c46350352b183d40a172eee0a0a8667319`
+- Stable version: `1.4.7`
+- Post-merge validation run: `37244493810` — SUCCESS.
 - 26 browser tests passed.
 - Production Pages endpoint verified with HSTS, nosniff, X-Frame-Options DENY and noindex.
 - Production Pages endpoint: `https://mpdgi-stats.pages.dev`
@@ -89,11 +89,11 @@ Long reports belong in `.md` / ZIP artifacts; chat should contain only a short s
 - failed login never mutates password fields;
 - rollback must use code that understands both schemes.
 
-PBKDF2 helper/parser support is merged and validated, but production login still remains legacy-only. No production credential has been migrated.
+Stats v1.4.7 now has dual-scheme password verification. Legacy records remain readable; new records use PBKDF2; successful legacy login can migrate only that user; failed login cannot rewrite password fields. A rollback checkpoint exists at `checkpoint/stats-v1.4.7-dual-scheme`. No production owner login was intentionally performed to force migration.
 
 ## Exact next action
 
-Create a small Stats branch from `5684a15...` and wire dual-scheme login plus bootstrap behavior with focused migration tests. Validate and checkpoint before any real production owner login.
+Benchmark PBKDF2 at 600,000 iterations in a non-production CI/WebCrypto context, record the timing as proxy evidence, and checkpoint before any further authentication change.
 
 ## Approved decisions that must not be re-asked or redone
 
