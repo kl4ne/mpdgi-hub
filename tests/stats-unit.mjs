@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {validateEvent,isLikelyBot,easternDay} from '../functions/_lib/validation.js';
+import {validateEvent,validateCollectorIdentity,isLikelyBot,easternDay} from '../functions/_lib/validation.js';
 import {resolveRange} from '../functions/_lib/reporting.js';
 import {randomToken,sha256,passwordSalt,passwordVerifier,constantTimeEqual} from '../functions/_lib/auth.js';
 
@@ -27,6 +27,11 @@ assert.equal(validateEvent(valid).ok,true);
 assert.equal(validateEvent(valid).event.session_campaign,'leaders-meeting');
 assert.equal(validateEvent({...valid,acquisition_source:'magic'}).ok,false);
 assert.equal(validateEvent({...valid,event_type:'action',action_name:''}).ok,false);
+assert.deepEqual(validateCollectorIdentity('https://rscard.mpdgi.org',{...valid,target:'business_card:ruben-suarez'}),{ok:true});
+assert.equal(validateCollectorIdentity('https://rscard.mpdgi.org',{...valid,target:'business_card:nancy-pagan'}).error,'invalid_target');
+assert.equal(validateCollectorIdentity('https://npcard.pages.dev',{...valid,event_type:'action',action_name:'bc_call',target:'business_card:nancy-pagan'}).ok,true);
+assert.equal(validateCollectorIdentity('https://npcard.mpdgi.org',{...valid,event_type:'action',action_name:'unknown_action',target:'business_card:nancy-pagan'}).error,'invalid_action');
+assert.equal(validateCollectorIdentity('https://hub.mpdgi.org',{...valid,target:'https://mpdgi.org/'}).ok,true);
 assert.equal(isLikelyBot('Mozilla/5.0 HeadlessChrome Lighthouse'),true);
 assert.equal(isLikelyBot('Mozilla/5.0 iPhone Version/26.0 Mobile Safari/605.1.15'),false);
 assert.equal(easternDay(new Date('2026-09-29T16:00:00Z')),'2026-09-29');
