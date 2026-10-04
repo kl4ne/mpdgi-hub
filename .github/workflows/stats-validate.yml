@@ -137,6 +137,10 @@ jobs:
           console.log('MPDGI Stats v1.4.7 static validation passed');
           NODE
 
+      - name: PBKDF2 benchmark proxy
+        if: github.event_name == 'pull_request' && github.head_ref == 'audit-fix/stats-benchmark-v1.4.7'
+        run: npm run benchmark:kdf
+
       - name: Install Chromium and WebKit
         run: |
           for attempt in 1 2; do
