@@ -54,6 +54,18 @@ jobs:
           if(scores['best-practices'] < .90) throw Error('Lighthouse best-practices below 0.90');
           NODE
 
+      - name: Observe production security headers
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        shell: bash
+        run: |
+          HEADERS="$(curl -fsSI https://hub.mpdgi.org/ || true)"
+          printf '%s\n' "$HEADERS"
+          grep -qi '^strict-transport-security:' <<<"$HEADERS" || echo "::warning::Production does not expose an HSTS response header."
+          grep -qi '^x-content-type-options:[[:space:]]*nosniff' <<<"$HEADERS" || echo "::warning::Production does not expose X-Content-Type-Options: nosniff."
+          if ! grep -qi '^x-frame-options:' <<<"$HEADERS" && ! grep -qi '^content-security-policy:.*frame-ancestors' <<<"$HEADERS"; then
+            echo "::warning::Production response headers do not expose clickjacking protection (X-Frame-Options or CSP frame-ancestors)."
+          fi
+
       - name: Production smoke after Pages deployment
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: bash
