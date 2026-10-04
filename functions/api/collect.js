@@ -1,5 +1,5 @@
 import {json,NO_STORE_HEADERS,methodNotAllowed} from '../_lib/http.js';
-import {validateEvent,isLikelyBot,easternDay} from '../_lib/validation.js';
+import {validateEvent,validateCollectorIdentity,isLikelyBot,easternDay} from '../_lib/validation.js';
 import {sha256} from '../_lib/auth.js';
 import {ensureCampaignSchema} from '../_lib/schema.js';
 
@@ -47,12 +47,13 @@ export async function onRequest(context){
   }
   if(context.request.method!=='POST')return methodNotAllowed('POST, OPTIONS');
   if(!origin)return json({error:'origin_not_allowed'},403);
-  if(!context.env.STATS_DB)return json({error:'collector_unavailable'},503,corsHeaders(origin));
+  if(!context.env.STATS_DB||!context.env.AUTH_PEPPER)return json({error:'collector_unavailable'},503,corsHeaders(origin));
   if(isLikelyBot(context.request.headers.get('User-Agent')))return new Response(null,{status:204,headers:corsHeaders(origin)});
 
   const raw=await context.request.text();
   try{await ensureCampaignSchema(context.env);}catch(error){console.error('[MPDGI Stats] schema upgrade failed',error);return json({error:'collector_unavailable'},503,corsHeaders(origin));}
   const now=new Date(),serverTs=now.toISOString(),day=easternDay(now);
+  await bumpCollectorMetric(context.env.STATS_DB,day,{received:1,timestamp:serverTs});
   if(raw.length>8192){
     await bumpCollectorMetric(context.env.STATS_DB,day,{rejected:1,timestamp:serverTs});
     return json({error:'payload_too_large'},413,corsHeaders(origin));
@@ -68,15 +69,23 @@ export async function onRequest(context){
   }
 
   const event=checked.event;
+  const identityCheck=validateCollectorIdentity(origin,event);
+  if(!identityCheck.ok){
+    await bumpCollectorMetric(context.env.STATS_DB,day,{rejected:1,timestamp:serverTs});
+    return json({error:identityCheck.error},400,corsHeaders(origin));
+  }
 
   // Anonymous rate control: raw IP is never persisted.
-  if(context.env.AUTH_PEPPER){
+  {
     const ip=context.request.headers.get('CF-Connecting-IP')||'unknown';
     const nowSeconds=Math.floor(now.getTime()/1000);
     const windowStarted=Math.floor(nowSeconds/600)*600;
     const rateKey=await sha256('collector-rate|'+ip+'|'+windowStarted+'|'+context.env.AUTH_PEPPER);
     const rate=await context.env.STATS_DB.prepare('SELECT event_count FROM collector_rate WHERE rate_key=?').bind(rateKey).first();
-    if(Number(rate?.event_count||0)>=200)return new Response(null,{status:204,headers:corsHeaders(origin)});
+    if(Number(rate?.event_count||0)>=200){
+      await bumpCollectorMetric(context.env.STATS_DB,day,{rejected:1,timestamp:serverTs});
+      return new Response(null,{status:204,headers:corsHeaders(origin)});
+    }
     await context.env.STATS_DB.prepare(
       'INSERT INTO collector_rate(rate_key,window_started,event_count) VALUES(?,?,1) ON CONFLICT(rate_key) DO UPDATE SET event_count=event_count+1'
     ).bind(rateKey,windowStarted).run();
@@ -84,6 +93,13 @@ export async function onRequest(context){
   }
 
   try{
+    // Reject a forged reuse of an existing session under a different anonymous visitor.
+    const existingSession=await context.env.STATS_DB.prepare('SELECT visitor_id FROM sessions WHERE session_id=? LIMIT 1').bind(event.session_id).first();
+    if(existingSession&&String(existingSession.visitor_id)!==event.visitor_id){
+      await bumpCollectorMetric(context.env.STATS_DB,day,{rejected:1,timestamp:serverTs});
+      return json({error:'session_visitor_mismatch'},409,corsHeaders(origin));
+    }
+
     // Server-side canonical truth: first acquisition and session-entry values never mutate.
     await context.env.STATS_DB.batch([
       context.env.STATS_DB.prepare(
@@ -103,7 +119,7 @@ export async function onRequest(context){
     const clientTime=event.client_ts?Date.parse(event.client_ts):NaN;
     const delayed=Number.isFinite(clientTime)&&now.getTime()-clientTime>120000?1:0;
     await bumpCollectorMetric(context.env.STATS_DB,day,{
-      received:1,accepted:inserted?1:0,duplicates:inserted?0:1,delayed,timestamp:serverTs
+      accepted:inserted?1:0,duplicates:inserted?0:1,delayed,timestamp:serverTs
     });
     return new Response(null,{status:204,headers:corsHeaders(origin)});
   }catch(error){

@@ -16,6 +16,7 @@ export async function onRequest(context){
   const ip=context.request.headers.get('CF-Connecting-IP')||'unknown';
   const rateKey=await sha256(ip+'|'+email+'|'+context.env.AUTH_PEPPER);
   const now=Math.floor(Date.now()/1000);
+  await context.env.STATS_DB.prepare('DELETE FROM login_rate WHERE window_started<?').bind(now-86400).run();
   const rate=await context.env.STATS_DB.prepare('SELECT window_started,attempts FROM login_rate WHERE rate_key=?').bind(rateKey).first();
   if(rate&&now-Number(rate.window_started)<WINDOW_SECONDS&&Number(rate.attempts)>=MAX_ATTEMPTS)return json({error:'too_many_attempts'},429,{'Retry-After':'600'});
   if(!rate||now-Number(rate.window_started)>=WINDOW_SECONDS){

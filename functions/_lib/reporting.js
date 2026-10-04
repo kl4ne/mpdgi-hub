@@ -234,7 +234,8 @@ function buildActivityInsights(sessionRows){
 
 function csvCell(value){
   const text=String(value??'');
-  return /[",\n]/.test(text)?'"'+text.replace(/"/g,'""')+'"':text;
+  const safe=/^\s*[=+\-@]/.test(text)?"'"+text:text;
+  return /[",\n]/.test(safe)?'"'+safe.replace(/"/g,'""')+'"':safe;
 }
 export function dashboardCsv(data){
   const lines=[['Section','Category','Value']];

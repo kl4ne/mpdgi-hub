@@ -5,6 +5,7 @@ on:
     branches: [mpdgi-stats-v1.0]
   pull_request:
     paths:
+      - 'public/**'
       - 'index.html'
       - 'css/stats.css'
       - 'js/stats*.js'
@@ -16,6 +17,10 @@ on:
       - 'tests/stats-*'
       - 'playwright.stats.config.cjs'
       - 'package.json'
+      - 'package-lock.json'
+      - 'wrangler.example.toml'
+      - 'STATS_DEPLOYMENT.md'
+      - '.github/workflows/stats-validate.yml'
 
 permissions:
   contents: read
@@ -24,53 +29,92 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: '24'
           package-manager-cache: false
+
       - name: Install QA dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
+
       - name: Syntax and unit validation
         run: |
-          node --check js/stats.js
-          node --check sw.js
+          node --check public/js/stats.js
+          node --check public/sw.js
           find functions -name '*.js' -print0 | xargs -0 -n1 node --check
           npm run validate:stats
           node <<'NODE'
           const fs=require('fs');
-          const index=fs.readFileSync('index.html','utf8');
-          const manifest=JSON.parse(fs.readFileSync('manifest.json','utf8'));
-          const migration=fs.readFileSync('migrations/0001_initial.sql','utf8');
-          const migration2=fs.readFileSync('migrations/0002_campaigns.sql','utf8');
-          const statsVersion=fs.readFileSync('js/stats-version.js','utf8');
-          const headers=fs.readFileSync('_headers','utf8');
+          const read=p=>fs.readFileSync(p,'utf8');
+          const index=read('public/index.html');
+          const manifest=JSON.parse(read('public/manifest.json'));
+          const migration=read('migrations/0001_initial.sql');
+          const migration2=read('migrations/0002_campaigns.sql');
+          const statsVersion=read('public/js/stats-version.js');
+          const headers=read('public/_headers');
+          const pkg=JSON.parse(read('package.json'));
+
+          const syncPairs=[
+            ['index.html','public/index.html'],
+            ['_headers','public/_headers'],
+            ['css/stats.css','public/css/stats.css'],
+            ['js/stats-version.js','public/js/stats-version.js'],
+            ['js/stats.js','public/js/stats.js'],
+            ['manifest.json','public/manifest.json'],
+            ['robots.txt','public/robots.txt'],
+            ['sw.js','public/sw.js'],
+            ['assets/icons/apple-touch-icon.png','public/assets/icons/apple-touch-icon.png'],
+            ['assets/icons/icon-192.png','public/assets/icons/icon-192.png'],
+            ['assets/icons/icon-512.png','public/assets/icons/icon-512.png'],
+            ['assets/profile/logo-mpdg.png','public/assets/profile/logo-mpdg.png'],
+            ['assets/social/mpdgi-hub-share.svg','public/assets/social/mpdgi-hub-share.svg']
+          ];
+          for(const [a,b] of syncPairs){
+            if(!fs.existsSync(a)||!fs.existsSync(b))throw Error('Missing root/public sync pair: '+a+' / '+b);
+            if(!fs.readFileSync(a).equals(fs.readFileSync(b)))throw Error('Root/public drift detected: '+a+' != '+b);
+          }
+
           if(!index.includes('Private Analytics Center')||!index.includes('Acceso autorizado solamente'))throw Error('Stats private shell missing');
           if(index.includes('Forgot password'))throw Error('Unsupported email-reset UI must not be advertised');
+          if(!index.includes('minlength="16"'))throw Error('Login UI password minimum must match backend');
           if(manifest.name!=='MPDGI Stats • Private Analytics Center'||manifest.display!=='standalone')throw Error('Stats manifest mismatch');
           if(!migration.includes('events')||!migration.includes('event_id TEXT PRIMARY KEY')||!migration.includes('server_day_et'))throw Error('D1 event schema mismatch');
           if(!migration2.includes('CREATE TABLE IF NOT EXISTS campaigns')||!migration2.includes('session_campaign'))throw Error('Campaign migration missing');
-          if(!statsVersion.includes("MPDGI_STATS_VERSION='1.4.4'"))throw Error('Stats version mismatch');
-          if(!headers.includes('X-Robots-Tag: noindex')||!headers.includes('frame-ancestors \'none\''))throw Error('Stats private/no-index headers missing');
-          const collector=fs.readFileSync('functions/api/collect.js','utf8');
+          if(pkg.version!=='1.4.5'||!statsVersion.includes("MPDGI_STATS_VERSION='1.4.5'"))throw Error('Stats version mismatch');
+          if(!headers.includes('X-Robots-Tag: noindex')||!headers.includes("frame-ancestors 'none'")||!headers.includes('Strict-Transport-Security: max-age=31536000'))throw Error('Stats security headers missing');
+
+          const deploy=read('STATS_DEPLOYMENT.md');
+          const wrangler=read('wrangler.example.toml');
+          if(!deploy.includes('Build output directory: `public`')||!wrangler.includes('pages_build_output_dir = "public"'))throw Error('Stats deploy root documentation drift');
+
+          const collector=read('functions/api/collect.js');
           if(!collector.includes('INSERT OR IGNORE INTO events')||collector.includes('CF-Connecting-IP')&&collector.includes('INSERT')&&collector.includes('ip_address'))throw Error('Collector privacy/dedupe invariant failed');
           if(!collector.includes('session_campaign')||!collector.includes('ensureCampaignSchema'))throw Error('Per-session campaign collector support missing');
-          const campaignApi=fs.readFileSync('functions/api/campaigns.js','utf8');
+          if(!collector.includes('!context.env.STATS_DB||!context.env.AUTH_PEPPER'))throw Error('Collector must fail closed when rate-control secret is missing');
+          if(!collector.includes('validateCollectorIdentity')||!collector.includes('session_visitor_mismatch'))throw Error('Collector identity integrity guards missing');
+
+          const campaignApi=read('functions/api/campaigns.js');
           if(!campaignApi.includes("['GET','POST']")||!campaignApi.includes('INSERT INTO campaigns'))throw Error('Saved campaign API missing');
-          const reporting=fs.readFileSync('functions/_lib/reporting.js','utf8');
+          if(!campaignApi.includes("context.request.method==='POST'&&!isSameOrigin(context.request)"))throw Error('Campaign POST same-origin guard missing');
+
+          const reporting=read('functions/_lib/reporting.js');
           if(!reporting.includes('COUNT(DISTINCT session_id)')||!reporting.includes("['nfc','qr','link','unattributed']"))throw Error('Reporting definitions drifted');
-          if(!reporting.includes('buildActivityInsights')||!reporting.includes('collector_metrics'))throw Error('reporting quality features missing');
+          if(!reporting.includes('buildActivityInsights')||!reporting.includes('collector_metrics'))throw Error('Reporting quality features missing');
           if(reporting.includes("health:{collector:'operational',database:'operational'"))throw Error('System Health must not be hard-coded');
           if(!reporting.includes("SELECT 1 AS ok")||!reporting.includes('database_latency_ms')||!reporting.includes('no_recent_activity')||!reporting.includes('event_pipeline'))throw Error('Real System Health checks missing');
-          const schema=fs.readFileSync('functions/_lib/schema.js','utf8');
+          if(!reporting.includes('/^\\s*[=+\\-@]/'))throw Error('CSV formula neutralization missing');
+
+          const schema=read('functions/_lib/schema.js');
           if(!schema.includes('CREATE TABLE IF NOT EXISTS collector_metrics'))throw Error('Collector metrics schema missing');
           if(!/CREATE TABLE IF NOT EXISTS collector_metrics\s*\([\s\S]*?last_received_at TEXT\s*\)/.test(schema))throw Error('Collector metrics CREATE TABLE statement is malformed');
           if(!reporting.includes('session_campaign=c.slug')||!reporting.includes('acquired_visitors'))throw Error('Saved campaign reporting missing');
-          const statsJs=fs.readFileSync('js/stats.js','utf8');
-          const sw=fs.readFileSync('sw.js','utf8');
+
+          const statsJs=read('public/js/stats.js');
+          const sw=read('public/sw.js');
           if(!statsJs.includes("registration.update()")||!statsJs.includes("'controllerchange'")||!statsJs.includes("'visibilitychange'")||!statsJs.includes("15*60*1000"))throw Error('Silent Stats auto-update checks missing');
           if(!statsJs.includes('mpdgiStatsSwReloadAt')||!statsJs.includes('window.location.reload()'))throw Error('Stats update reload-loop guard missing');
-          if(!sw.includes("const VERSION='1.4.4'")||!sw.includes("type==='SKIP_WAITING'"))throw Error('Stats service worker activation/version mismatch');
+          if(!sw.includes("const VERSION='1.4.5'")||!sw.includes("type==='SKIP_WAITING'"))throw Error('Stats service worker activation/version mismatch');
           if(!index.includes('data-view="cards"')||!index.includes('data-view-panel="cards"')||!index.includes('digital-cards-list'))throw Error('Digital Cards view missing');
           if(!collector.includes('rscard.mpdgi.org')||!collector.includes('npcard.mpdgi.org')||!collector.includes('npcard.pages.dev'))throw Error('Digital card collector origins missing');
           if(collector.includes("[a-z0-9-]+card\\\\.mpdgi\\\\.org"))throw Error('Digital card collector must use explicit origins, not a card-domain regex');
@@ -83,8 +127,34 @@ jobs:
           if(!index.includes('data-view="methodology"')||!index.includes('data-view-panel="methodology"'))throw Error('Methodology view missing');
           if(!statsJs.includes("navMethodology:'Metodología'")||!statsJs.includes("navMethodology:'Methodology'"))throw Error('Bilingual methodology navigation missing');
           if(!fs.existsSync('ANALYTICS_METHODOLOGY.md')||!fs.existsSync('DATA_RETENTION_POLICY.md'))throw Error('Analytics governance documentation missing');
-          console.log('MPDGI Stats static validation passed');
+
+          const walk=dir=>fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>{
+            const p=require('path').join(dir,e.name);
+            if(e.name==='.git'||e.name==='node_modules')return[];
+            return e.isDirectory()?walk(p):[p];
+          });
+          const allFiles=walk('.');
+          for(const p of allFiles){
+            const base=require('path').basename(p);
+            if(base==='.env'||base.startsWith('.env.'))throw Error('Secret env file detected: '+p);
+          }
+          const textFiles=allFiles.filter(p=>/\.(?:js|mjs|cjs|json|html|css|md|yml|yaml|toml|txt|xml|svg)$/i.test(p));
+          const secretPatterns=[
+            /AKIA[0-9A-Z]{16}/,
+            /gh[pousr]_[A-Za-z0-9]{36,255}/,
+            /AIza[0-9A-Za-z_-]{35}/,
+            /sk-[A-Za-z0-9_-]{20,}/,
+            /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/,
+            /(?:api[_-]?key|client[_-]?secret|access[_-]?token|auth[_-]?token|password)\s*[:=]\s*["'][^"'\n]{12,}["']/i
+          ];
+          for(const p of textFiles){
+            const body=read(p);
+            for(const re of secretPatterns)if(re.test(body))throw Error('Potential secret detected in '+p+': '+re);
+          }
+
+          console.log('MPDGI Stats v1.4.5 static validation passed');
           NODE
+
       - name: Install Chromium and WebKit
         run: |
           for attempt in 1 2; do
@@ -94,8 +164,10 @@ jobs:
             echo "Playwright browser install attempt $attempt failed or timed out; retrying..."
           done
           exit 1
-      - name: Start static Stats shell
+
+      - name: Start deployed Stats shell
         run: |
+          cd public
           nohup python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/mpdgi-stats-http.log 2>&1 &
           for i in {1..30}; do
             if curl -fsS http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
@@ -103,6 +175,7 @@ jobs:
           done
           cat /tmp/mpdgi-stats-http.log
           exit 1
+
       - name: Playwright Chromium and WebKit
         env:
           BASE_URL: http://127.0.0.1:4173
