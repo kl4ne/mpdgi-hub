@@ -45,7 +45,7 @@ const I18N={
     tipCampaignBuilder:'Genera URLs etiquetadas para que MPDGI Stats pueda distinguir enlaces compartidos, QR y NFC.',
     tipCampaignResults:'Campañas guardadas y resultados del período: sesiones atribuidas, visitantes estimados y adquisición inicial.',
     tipGeneralLink:'Enlace listo para compartir. El parámetro src=link permite clasificar la entrada como Enlace.',
-    tipActions:'Acciones más utilizadas dentro del Hub, como Portal de Miembros, Ofrendar, Biblia, redes o GPS.',tipDigitalCards:'Métricas agregadas de las tarjetas digitales NFC: sesiones, visitantes estimados, fuente de entrada y acciones principales.',
+    tipActions:'Acciones más utilizadas dentro del Hub, como Portal de Miembros, Ofrendar, Biblia, redes o GPS.',tipDigitalCards:'Métricas agregadas de las tarjetas digitales NFC: sesiones, visitantes estimados, fuente de entrada y acciones principales.',tipCardSessions:'Sesiones registradas para esta tarjeta digital durante el período seleccionado.',tipCardVisitors:'Estimación anónima de visitantes únicos que abrieron esta tarjeta digital.',tipCardNfc:'Sesiones que comenzaron al tocar una tarjeta NFC y entrar con src=nfc.',tipCardShared:'Sesiones que llegaron mediante un enlace compartido de esta tarjeta.',tipCardDirect:'Sesiones que abrieron esta tarjeta directamente desde la web sin NFC ni enlace etiquetado.',tipCardSave:'Toques en Guardar contacto. Mide la intención de abrir el contacto; no confirma que se haya guardado.',tipCardCalls:'Toques en Llamar. No confirma que la llamada se haya completado.',tipCardTexts:'Toques en Mensaje. No confirma que el SMS se haya enviado.',tipCardDirections:'Toques en Dirección para abrir el mapa o GPS.',tipCardWebsite:'Toques en Website para abrir mpdgi.org desde la tarjeta.',tipCardShares:'Toques en Compartir tarjeta. No confirma que el destinatario haya abierto el enlace.',tipCardLast:'Fecha y hora de la actividad más reciente registrada para esta tarjeta.',
     tipDevices:'Categoría del dispositivo reportada por el Hub: móvil, computadora, tableta u otro.',
     tipBrowsers:'Familia de navegador observada en las sesiones.',
     tipLanguages:'Idioma activo del Hub durante las sesiones observadas.',
@@ -94,7 +94,7 @@ const I18N={
     tipCampaignBuilder:'Creates tagged URLs so MPDGI Stats can distinguish shared links, QR and NFC.',
     tipCampaignResults:'Saved campaigns and period results: attributed sessions, estimated visitors and initial acquisition.',
     tipGeneralLink:'Ready-to-share URL. The src=link parameter classifies the entry as Link.',
-    tipActions:'Most-used Hub actions, such as Member Portal, Give, Bible, social media or GPS.',tipDigitalCards:'Aggregated NFC digital-card metrics: sessions, estimated visitors, entry source and primary actions.',
+    tipActions:'Most-used Hub actions, such as Member Portal, Give, Bible, social media or GPS.',tipDigitalCards:'Aggregated NFC digital-card metrics: sessions, estimated visitors, entry source and primary actions.',tipCardSessions:'Sessions recorded for this digital card during the selected period.',tipCardVisitors:'Anonymous estimate of unique visitors who opened this digital card.',tipCardNfc:'Sessions that began by tapping an NFC card and entering with src=nfc.',tipCardShared:'Sessions that arrived through a shared link for this card.',tipCardDirect:'Sessions that opened this card directly on the web without NFC or a tagged shared link.',tipCardSave:'Taps on Save Contact. Measures intent to open the contact; it does not confirm the contact was saved.',tipCardCalls:'Taps on Call. It does not confirm that a call was completed.',tipCardTexts:'Taps on Text. It does not confirm that an SMS was sent.',tipCardDirections:'Taps on Directions to open maps or GPS.',tipCardWebsite:'Taps on Website to open mpdgi.org from the card.',tipCardShares:'Taps on Share Card. It does not confirm that a recipient opened the link.',tipCardLast:'Date and time of the most recent activity recorded for this card.',
     tipDevices:'Device category reported by the Hub: mobile, desktop, tablet or other.',
     tipBrowsers:'Browser family observed during sessions.',
     tipLanguages:'Active Hub language during observed sessions.',
@@ -325,32 +325,33 @@ function renderDigitalCards(items){
     const title=document.createElement('strong');title.textContent=cardDisplayName(item.card_id);
     const slug=document.createElement('small');slug.textContent=item.card_id||'';
     identity.append(title,slug);
-    const sessions=document.createElement('div');sessions.className='digital-card-session-total';
+    const sessions=document.createElement('div');sessions.className='digital-card-session-total';sessions.dataset.tooltipKey='tipCardSessions';sessions.title=t('tipCardSessions');
     const sessionValue=document.createElement('b');sessionValue.textContent=number(item.sessions);
     const sessionLabel=document.createElement('span');sessionLabel.textContent=t('cardsSessions');
     sessions.append(sessionValue,sessionLabel);
     head.append(identity,sessions);
 
     const metrics=document.createElement('div');metrics.className='digital-card-metrics';
-    const metric=(label,value,accent=false)=>{
+    const metric=(label,value,accent=false,tipKey='')=>{
       const box=document.createElement('div');if(accent)box.classList.add('metric-accent');
+      if(tipKey){box.dataset.tooltipKey=tipKey;box.title=t(tipKey);}
       const k=document.createElement('span');k.textContent=label;
       const v=document.createElement('strong');v.textContent=number(value);
       box.append(k,v);return box;
     };
     metrics.append(
-      metric(t('cardsVisitors'),item.visitors,true),
-      metric(t('cardsNfc'),item.nfc_sessions,true),
-      metric(t('cardsShared'),item.link_sessions),
-      metric(t('cardsDirect'),item.web_sessions),
-      metric(t('cardsSave'),item.save_contact,true),
-      metric(t('cardsCalls'),item.calls),
-      metric(t('cardsTexts'),item.texts),
-      metric(t('cardsDirections'),item.directions),
-      metric(t('cardsWebsite'),item.website),
-      metric(t('cardsShares'),item.shares)
+      metric(t('cardsVisitors'),item.visitors,true,'tipCardVisitors'),
+      metric(t('cardsNfc'),item.nfc_sessions,true,'tipCardNfc'),
+      metric(t('cardsShared'),item.link_sessions,false,'tipCardShared'),
+      metric(t('cardsDirect'),item.web_sessions,false,'tipCardDirect'),
+      metric(t('cardsSave'),item.save_contact,true,'tipCardSave'),
+      metric(t('cardsCalls'),item.calls,false,'tipCardCalls'),
+      metric(t('cardsTexts'),item.texts,false,'tipCardTexts'),
+      metric(t('cardsDirections'),item.directions,false,'tipCardDirections'),
+      metric(t('cardsWebsite'),item.website,false,'tipCardWebsite'),
+      metric(t('cardsShares'),item.shares,false,'tipCardShares')
     );
-    const foot=document.createElement('div');foot.className='digital-card-foot';
+    const foot=document.createElement('div');foot.className='digital-card-foot';foot.dataset.tooltipKey='tipCardLast';foot.title=t('tipCardLast');
     foot.textContent=t('cardsLast')+': '+(item.last_activity_at?dateTime(item.last_activity_at):t('noEvents'));
     card.append(head,metrics,foot);root.append(card);
   }
