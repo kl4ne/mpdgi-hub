@@ -57,7 +57,7 @@ jobs:
           if(!migration.includes('events')||!migration.includes('event_id TEXT PRIMARY KEY')||!migration.includes('server_day_et'))throw Error('D1 event schema mismatch');
           if(!migration2.includes('CREATE TABLE IF NOT EXISTS campaigns')||!migration2.includes('session_campaign'))throw Error('Campaign migration missing');
           if(!migration3.includes('CREATE TABLE IF NOT EXISTS collector_metrics')||!migration3.includes('idx_collector_metrics_day'))throw Error('Collector metrics migration missing');
-          if(pkg.version!=='1.4.6'||!statsVersion.includes("MPDGI_STATS_VERSION='1.4.6'"))throw Error('Stats version mismatch');
+          if(pkg.version!=='1.4.7'||!statsVersion.includes("MPDGI_STATS_VERSION='1.4.7'"))throw Error('Stats version mismatch');
           if(!headers.includes('X-Robots-Tag: noindex')||!headers.includes("frame-ancestors 'none'")||!headers.includes('Strict-Transport-Security: max-age=31536000'))throw Error('Stats security headers missing');
 
           const deploy=read('STATS_DEPLOYMENT.md');
@@ -77,7 +77,7 @@ jobs:
           if(!campaignApi.includes("context.request.method==='POST'&&!isSameOrigin(context.request)"))throw Error('Campaign POST same-origin guard missing');
           if(!authApi.includes('export async function requireRole')||!campaignApi.includes("requireRole(context,['owner','admin'])"))throw Error('Campaign write RBAC missing');
           if(!bootstrapApi.includes("BOOTSTRAP_ENABLED!=='true'")||!bootstrapApi.includes('isSameOrigin(context.request)'))throw Error('Bootstrap explicit-enable guard missing');
-          if(!read('README.md').startsWith('# MPDGI Stats — v1.4.6'))throw Error('Stats README version stale');
+          if(!read('README.md').startsWith('# MPDGI Stats — v1.4.7'))throw Error('Stats README version stale');
 
           const reporting=read('functions/_lib/reporting.js');
           if(!reporting.includes('COUNT(DISTINCT session_id)')||!reporting.includes("['nfc','qr','link','unattributed']"))throw Error('Reporting definitions drifted');
@@ -96,7 +96,7 @@ jobs:
           const sw=read('public/sw.js');
           if(!statsJs.includes("registration.update()")||!statsJs.includes("'controllerchange'")||!statsJs.includes("'visibilitychange'")||!statsJs.includes("15*60*1000"))throw Error('Silent Stats auto-update checks missing');
           if(!statsJs.includes('mpdgiStatsSwReloadAt')||!statsJs.includes('window.location.reload()'))throw Error('Stats update reload-loop guard missing');
-          if(!sw.includes("const VERSION='1.4.6'")||!sw.includes("type==='SKIP_WAITING'"))throw Error('Stats service worker activation/version mismatch');
+          if(!sw.includes("const VERSION='1.4.7'")||!sw.includes("type==='SKIP_WAITING'"))throw Error('Stats service worker activation/version mismatch');
           if(!index.includes('data-view="cards"')||!index.includes('data-view-panel="cards"')||!index.includes('digital-cards-list'))throw Error('Digital Cards view missing');
           if(!collector.includes('rscard.mpdgi.org')||!collector.includes('npcard.mpdgi.org')||!collector.includes('npcard.pages.dev'))throw Error('Digital card collector origins missing');
           if(collector.includes("[a-z0-9-]+card\\\\.mpdgi\\\\.org"))throw Error('Digital card collector must use explicit origins, not a card-domain regex');
@@ -134,7 +134,7 @@ jobs:
             for(const re of secretPatterns)if(re.test(body))throw Error('Potential secret detected in '+p+': '+re);
           }
 
-          console.log('MPDGI Stats v1.4.6 static validation passed');
+          console.log('MPDGI Stats v1.4.7 static validation passed');
           NODE
 
       - name: Install Chromium and WebKit
@@ -167,7 +167,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/mpdgi-stats-v1.0'
         shell: bash
         run: |
-          EXPECTED="1.4.6"
+          EXPECTED="1.4.7"
           READY=0
           for i in {1..20}; do
             VERSION="$(curl -fsSL https://mpdgi-stats.pages.dev/js/stats-version.js 2>/dev/null || true)"
