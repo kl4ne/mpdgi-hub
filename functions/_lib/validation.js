@@ -9,6 +9,12 @@ export const VALID_LANGUAGES=new Set(['es','en','other']);
 const UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const ACTION_RE=/^[a-z0-9_:-]{0,80}$/;
 const VERSION_RE=/^[0-9]+\.[0-9]+\.[0-9]+(?:[-+][a-z0-9.-]+)?$/i;
+const CARD_ORIGIN_TARGETS=new Map([
+  ['https://rscard.mpdgi.org','business_card:ruben-suarez'],
+  ['https://npcard.mpdgi.org','business_card:nancy-pagan'],
+  ['https://npcard.pages.dev','business_card:nancy-pagan']
+]);
+const CARD_ACTIONS=new Set(['bc_save_contact','bc_call','bc_text','bc_directions','bc_website','bc_share','bc_flip','bc_language']);
 
 function clean(value,max=160){return String(value||'').trim().slice(0,max);}
 function campaign(value){return clean(value,64).toLowerCase().replace(/[^a-z0-9_-]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');}
@@ -48,6 +54,15 @@ export function validateEvent(input){
   if(event.event_type==='action'&&!event.action_name)return {ok:false,error:'missing_action'};
   if(event.client_ts&&Number.isNaN(Date.parse(event.client_ts)))event.client_ts='';
   return {ok:true,event};
+}
+
+export function validateCollectorIdentity(origin,event){
+  const expectedTarget=CARD_ORIGIN_TARGETS.get(String(origin||''));
+  if(!expectedTarget)return {ok:true};
+  if(event.target!==expectedTarget)return {ok:false,error:'invalid_target'};
+  if(event.event_type==='action'&&!CARD_ACTIONS.has(event.action_name))return {ok:false,error:'invalid_action'};
+  if(event.event_type!=='action'&&event.action_name)return {ok:false,error:'invalid_action'};
+  return {ok:true};
 }
 
 export function isLikelyBot(userAgent){
