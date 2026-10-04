@@ -65,7 +65,7 @@ export async function getDashboardData(env,urlString){
     COUNT(DISTINCT CASE WHEN s.display_mode='pwa' THEN e.session_id END) AS pwa_sessions,
     SUM(CASE WHEN e.event_type='page_view' THEN 1 ELSE 0 END) AS page_views
     FROM events e LEFT JOIN sessions s ON s.session_id=e.session_id
-    WHERE e.server_day_et BETWEEN ? AND ?`;
+    WHERE e.server_day_et BETWEEN ? AND ? AND e.target NOT LIKE 'business_card:%'`;
   const db=env.STATS_DB;
   const dbHealthStarted=Date.now();
   const dbHealthRow=await db.prepare('SELECT 1 AS ok').first();
@@ -74,15 +74,15 @@ export async function getDashboardData(env,urlString){
   const statements=[
     db.prepare(summarySql).bind(range.from,range.to),
     db.prepare(summarySql).bind(range.previous_from,range.previous_to),
-    db.prepare('SELECT server_day_et AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? GROUP BY server_day_et ORDER BY server_day_et').bind(range.from,range.to),
-    db.prepare('SELECT v.acquisition_source AS key,COUNT(DISTINCT e.visitor_id) AS value FROM events e JOIN visitors v ON v.visitor_id=e.visitor_id WHERE e.server_day_et BETWEEN ? AND ? GROUP BY v.acquisition_source').bind(range.from,range.to),
-    db.prepare('SELECT s.session_entry AS key,COUNT(DISTINCT e.session_id) AS value FROM events e JOIN sessions s ON s.session_id=e.session_id WHERE e.server_day_et BETWEEN ? AND ? GROUP BY s.session_entry').bind(range.from,range.to),
-    db.prepare('SELECT s.display_mode AS key,COUNT(DISTINCT e.session_id) AS value FROM events e JOIN sessions s ON s.session_id=e.session_id WHERE e.server_day_et BETWEEN ? AND ? GROUP BY s.display_mode').bind(range.from,range.to),
-    db.prepare('SELECT device_category AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? GROUP BY device_category').bind(range.from,range.to),
-    db.prepare('SELECT browser AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? GROUP BY browser').bind(range.from,range.to),
-    db.prepare('SELECT language AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? GROUP BY language').bind(range.from,range.to),
-    db.prepare("SELECT action_name AS key,COUNT(*) AS value FROM events WHERE server_day_et BETWEEN ? AND ? AND event_type='action' AND action_name<>'' GROUP BY action_name ORDER BY value DESC LIMIT 12").bind(range.from,range.to),
-    db.prepare("SELECT CASE WHEN v.first_seen_day_et BETWEEN ? AND ? THEN 'new' ELSE 'returning' END AS key,COUNT(DISTINCT e.visitor_id) AS value FROM events e JOIN visitors v ON v.visitor_id=e.visitor_id WHERE e.server_day_et BETWEEN ? AND ? GROUP BY key").bind(range.from,range.to,range.from,range.to),
+    db.prepare(`SELECT server_day_et AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? AND target NOT LIKE 'business_card:%' GROUP BY server_day_et ORDER BY server_day_et`).bind(range.from,range.to),
+    db.prepare(`SELECT v.acquisition_source AS key,COUNT(DISTINCT e.visitor_id) AS value FROM events e JOIN visitors v ON v.visitor_id=e.visitor_id WHERE e.server_day_et BETWEEN ? AND ? AND e.target NOT LIKE 'business_card:%' GROUP BY v.acquisition_source`).bind(range.from,range.to),
+    db.prepare(`SELECT s.session_entry AS key,COUNT(DISTINCT e.session_id) AS value FROM events e JOIN sessions s ON s.session_id=e.session_id WHERE e.server_day_et BETWEEN ? AND ? AND e.target NOT LIKE 'business_card:%' GROUP BY s.session_entry`).bind(range.from,range.to),
+    db.prepare(`SELECT s.display_mode AS key,COUNT(DISTINCT e.session_id) AS value FROM events e JOIN sessions s ON s.session_id=e.session_id WHERE e.server_day_et BETWEEN ? AND ? AND e.target NOT LIKE 'business_card:%' GROUP BY s.display_mode`).bind(range.from,range.to),
+    db.prepare(`SELECT device_category AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? AND target NOT LIKE 'business_card:%' GROUP BY device_category`).bind(range.from,range.to),
+    db.prepare(`SELECT browser AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? AND target NOT LIKE 'business_card:%' GROUP BY browser`).bind(range.from,range.to),
+    db.prepare(`SELECT language AS key,COUNT(DISTINCT session_id) AS value FROM events WHERE server_day_et BETWEEN ? AND ? AND target NOT LIKE 'business_card:%' GROUP BY language`).bind(range.from,range.to),
+    db.prepare("SELECT action_name AS key,COUNT(*) AS value FROM events WHERE server_day_et BETWEEN ? AND ? AND target NOT LIKE 'business_card:%' AND event_type='action' AND action_name<>'' GROUP BY action_name ORDER BY value DESC LIMIT 12").bind(range.from,range.to),
+    db.prepare("SELECT CASE WHEN v.first_seen_day_et BETWEEN ? AND ? THEN 'new' ELSE 'returning' END AS key,COUNT(DISTINCT e.visitor_id) AS value FROM events e JOIN visitors v ON v.visitor_id=e.visitor_id WHERE e.server_day_et BETWEEN ? AND ? AND e.target NOT LIKE 'business_card:%' GROUP BY key").bind(range.from,range.to,range.from,range.to),
     db.prepare(`SELECT c.id,c.name,c.slug,c.source,c.created_at,
       (SELECT COUNT(DISTINCT s.session_id) FROM sessions s WHERE s.session_campaign=c.slug AND s.session_entry=c.source AND s.first_seen_day_et BETWEEN ? AND ?) AS sessions,
       (SELECT COUNT(DISTINCT s.visitor_id) FROM sessions s WHERE s.session_campaign=c.slug AND s.session_entry=c.source AND s.first_seen_day_et BETWEEN ? AND ?) AS visitors,
@@ -92,11 +92,29 @@ export async function getDashboardData(env,urlString){
         range.from,range.to,range.from,range.to,range.from,range.to,range.from,range.to
       ),
     db.prepare('SELECT MAX(server_ts) AS last_event_at FROM events'),
-    db.prepare('SELECT session_id,first_seen_at FROM sessions WHERE first_seen_day_et BETWEEN ? AND ?').bind(range.from,range.to),
+    db.prepare("SELECT DISTINCT s.session_id,s.first_seen_at FROM sessions s JOIN events e ON e.session_id=s.session_id WHERE s.first_seen_day_et BETWEEN ? AND ? AND e.target NOT LIKE 'business_card:%'").bind(range.from,range.to),
     db.prepare('SELECT COALESCE(SUM(received),0) AS received,COALESCE(SUM(accepted),0) AS accepted,COALESCE(SUM(duplicates),0) AS duplicates,COALESCE(SUM(rejected),0) AS rejected,COALESCE(SUM(delayed),0) AS delayed,MAX(last_received_at) AS last_received_at FROM collector_metrics WHERE day_et BETWEEN ? AND ?').bind(range.from,range.to),
     db.prepare(`SELECT COUNT(*) AS stored,COUNT(DISTINCT event_id) AS unique_event_ids,
       COALESCE(SUM(CASE WHEN client_ts<>'' AND julianday(server_ts)-julianday(client_ts)>0.0013888889 THEN 1 ELSE 0 END),0) AS delayed_events
-      FROM events WHERE server_day_et BETWEEN ? AND ?`).bind(range.from,range.to)
+      FROM events WHERE server_day_et BETWEEN ? AND ?`).bind(range.from,range.to),
+    db.prepare(`SELECT substr(target,15) AS card_id,
+      COUNT(DISTINCT session_id) AS sessions,
+      COUNT(DISTINCT visitor_id) AS visitors,
+      SUM(CASE WHEN event_type='page_view' THEN 1 ELSE 0 END) AS opens,
+      SUM(CASE WHEN event_type='action' AND action_name='bc_save_contact' THEN 1 ELSE 0 END) AS save_contact,
+      SUM(CASE WHEN event_type='action' AND action_name='bc_call' THEN 1 ELSE 0 END) AS calls,
+      SUM(CASE WHEN event_type='action' AND action_name='bc_text' THEN 1 ELSE 0 END) AS texts,
+      SUM(CASE WHEN event_type='action' AND action_name='bc_directions' THEN 1 ELSE 0 END) AS directions,
+      SUM(CASE WHEN event_type='action' AND action_name='bc_website' THEN 1 ELSE 0 END) AS website,
+      SUM(CASE WHEN event_type='action' AND action_name='bc_share' THEN 1 ELSE 0 END) AS shares,
+      SUM(CASE WHEN event_type='action' AND action_name='bc_flip' THEN 1 ELSE 0 END) AS flips,
+      COUNT(DISTINCT CASE WHEN session_entry='nfc' THEN session_id END) AS nfc_sessions,
+      COUNT(DISTINCT CASE WHEN session_entry='link' THEN session_id END) AS link_sessions,
+      COUNT(DISTINCT CASE WHEN session_entry='web' THEN session_id END) AS web_sessions,
+      MAX(server_ts) AS last_activity_at
+      FROM events
+      WHERE server_day_et BETWEEN ? AND ? AND target LIKE 'business_card:%'
+      GROUP BY target ORDER BY sessions DESC,visitors DESC LIMIT 100`).bind(range.from,range.to)
   ];
   const result=await db.batch(statements);
   const current=one(result[0]),previous=one(result[1]),last=one(result[12]);
@@ -135,6 +153,23 @@ export async function getDashboardData(env,urlString){
     languages:normalize(rows(result[8]),['es','en','other']),
     top_actions:rows(result[9]).map(r=>({key:String(r.key),value:Number(r.value)||0})),
     visitor_mix:normalize(rows(result[10]),['new','returning']),
+    digital_cards:rows(result[16]).map(r=>({
+      card_id:String(r.card_id||''),
+      sessions:Number(r.sessions)||0,
+      visitors:Number(r.visitors)||0,
+      opens:Number(r.opens)||0,
+      save_contact:Number(r.save_contact)||0,
+      calls:Number(r.calls)||0,
+      texts:Number(r.texts)||0,
+      directions:Number(r.directions)||0,
+      website:Number(r.website)||0,
+      shares:Number(r.shares)||0,
+      flips:Number(r.flips)||0,
+      nfc_sessions:Number(r.nfc_sessions)||0,
+      link_sessions:Number(r.link_sessions)||0,
+      web_sessions:Number(r.web_sessions)||0,
+      last_activity_at:r.last_activity_at||null
+    })),
     campaigns:rows(result[11]).map(r=>({
       id:String(r.id||''),name:String(r.name||r.slug||''),slug:String(r.slug||''),source:String(r.source||''),
       created_at:r.created_at||null,sessions:Number(r.sessions)||0,visitors:Number(r.visitors)||0,
@@ -215,6 +250,20 @@ export function dashboardCsv(data){
   for(const item of data.languages)lines.push(['Languages',item.key,item.value]);
   for(const item of data.top_actions)lines.push(['Top Actions',item.key,item.value]);
   for(const item of data.visitor_mix)lines.push(['Visitor Mix',item.key,item.value]);
+  for(const item of (data.digital_cards||[])){
+    const label=item.card_id||'unknown';
+    lines.push(['Digital Card Sessions',label,item.sessions]);
+    lines.push(['Digital Card Estimated Visitors',label,item.visitors]);
+    lines.push(['Digital Card NFC Sessions',label,item.nfc_sessions]);
+    lines.push(['Digital Card Shared-link Sessions',label,item.link_sessions]);
+    lines.push(['Digital Card Direct-web Sessions',label,item.web_sessions]);
+    lines.push(['Digital Card Save Contact Taps',label,item.save_contact]);
+    lines.push(['Digital Card Call Taps',label,item.calls]);
+    lines.push(['Digital Card Text Taps',label,item.texts]);
+    lines.push(['Digital Card Directions Taps',label,item.directions]);
+    lines.push(['Digital Card Website Taps',label,item.website]);
+    lines.push(['Digital Card Share Taps',label,item.shares]);
+  }
   for(const item of data.campaigns){
     const label=item.name+' ['+item.source+']';
     lines.push(['Campaign Sessions',label,item.sessions]);

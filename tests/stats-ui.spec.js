@@ -21,6 +21,9 @@ const sample={
     {id:'c1',name:'Credential Test',slug:'credential-test',source:'nfc',created_at:'2026-09-20T14:00:00.000Z',sessions:22,visitors:18,acquired_visitors:16,last_activity_at:'2026-09-29T18:40:00.000Z'},
     {id:'c2',name:'Youth Campaign 2026',slug:'youth-campaign-2026',source:'link',created_at:'2026-09-24T14:00:00.000Z',sessions:9,visitors:8,acquired_visitors:6,last_activity_at:'2026-09-28T18:40:00.000Z'}
   ],
+  digital_cards:[
+    {card_id:'ruben-suarez',sessions:41,visitors:29,opens:43,save_contact:16,calls:7,texts:5,directions:4,website:9,shares:3,flips:24,nfc_sessions:31,link_sessions:6,web_sessions:4,last_activity_at:'2026-09-29T18:57:00.000Z'}
+  ],
   activity:{
     hourly_sessions:Array.from({length:24},(_,hour)=>({key:String(hour),value:hour===10?31:hour===19?22:1})),
     weekday_sessions:[{key:'0',value:44},{key:'1',value:8},{key:'2',value:11},{key:'3',value:29},{key:'4',value:9},{key:'5',value:7},{key:'6',value:20}],
@@ -57,6 +60,21 @@ test('authenticated dashboard renders the same server aggregates including zero-
   await expect(page.locator('#health-db-light')).toHaveClass(/status-green/);
   await expect(page.locator('#health-pipeline-light')).toHaveClass(/status-green/);
   await expect(page.locator('#health-db')).toContainText('18 ms');
+});
+
+test('Digital Cards view renders NFC business-card usage and actions',async({page})=>{
+  await page.route('**/api/auth/session',r=>r.fulfill({status:200,contentType:'application/json',body:'{"authenticated":true,"user":{"email":"owner@example.com","role":"owner"}}'}));
+  await page.route('**/api/dashboard**',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(sample)}));
+  await page.goto('/',{waitUntil:'domcontentloaded'});
+  await page.locator('.nav-item[data-view="cards"]').click();
+  const panel=page.locator('[data-view-panel="cards"]');
+  await expect(panel).toBeVisible();
+  await expect(panel).toContainText('Ruben Suárez');
+  await expect(panel).toContainText('41');
+  await expect(panel).toContainText('Guardar contacto');
+  await expect(panel).toContainText('Llamar (toques)');
+  await expect(panel).toContainText('Dirección (toques)');
+  await expect(panel).toContainText('31');
 });
 
 test('print layout exposes the professional report header and hides navigation',async({page})=>{

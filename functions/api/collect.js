@@ -30,8 +30,12 @@ function corsHeaders(origin){
 }
 function allowedOrigin(context){
   const origin=context.request.headers.get('Origin')||'';
-  const configured=context.env.ANALYTICS_ALLOWED_ORIGIN||'https://hub.mpdgi.org';
-  if(origin===configured)return origin;
+  const configured=String(context.env.ANALYTICS_ALLOWED_ORIGINS||context.env.ANALYTICS_ALLOWED_ORIGIN||'')
+    .split(',').map(value=>value.trim()).filter(Boolean);
+  const defaults=['https://hub.mpdgi.org','https://rscard.mpdgi.org'];
+  const allowed=new Set([...defaults,...configured]);
+  if(allowed.has(origin))return origin;
+  if(/^https:\/\/[a-z0-9-]+card\.mpdgi\.org$/i.test(origin))return origin;
   if(context.env.ALLOW_LOCAL_ANALYTICS==='true'&&(origin==='http://127.0.0.1:4173'||origin==='http://localhost:4173'))return origin;
   return '';
 }

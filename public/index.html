@@ -68,6 +68,7 @@
         <button class="nav-item" type="button" data-view="sources">↗ <span data-i18n="navSources">Fuentes</span></button>
         <button class="nav-item" type="button" data-view="campaigns">⌁ <span data-i18n="navCampaigns">Campañas</span></button>
         <button class="nav-item" type="button" data-view="engagement">◎ <span data-i18n="navEngagement">Interacción</span></button>
+        <button class="nav-item" type="button" data-view="cards">◇ <span data-i18n="navCards">Tarjetas Digitales</span></button>
         <button class="nav-item" type="button" data-view="technology">▣ <span data-i18n="navTechnology">Tecnología</span></button>
         <button class="nav-item" type="button" data-view="system">● <span data-i18n="navSystem">Sistema</span></button>
         <button class="nav-item" type="button" data-view="methodology">ⓘ <span data-i18n="navMethodology">Metodología</span></button>
@@ -256,6 +257,23 @@
           <article class="panel" data-tooltip-key="tipActions"><div class="panel-head"><h2 data-i18n="topActions">Acciones principales</h2></div><div id="actions-list" class="bar-list"></div></article>
           <article class="panel" data-tooltip-key="tipVisitorMix"><div class="panel-head"><h2 data-i18n="newReturning">Visitantes nuevos vs recurrentes</h2><span data-i18n="anonymousEstimate">Estimación anónima</span></div><div id="visitor-mix-list-secondary" class="bar-list"></div></article>
         </div>
+      </section>
+
+      <section class="view-panel" data-view-panel="cards" hidden>
+        <div class="section-heading">
+          <div><h2 data-i18n="cardsTitle">Tarjetas Digitales</h2><p data-i18n="cardsIntro">Uso de las business cards NFC de los líderes de MPDGI.</p></div>
+        </div>
+        <article class="panel digital-cards-panel" data-tooltip-key="tipDigitalCards">
+          <div class="panel-head">
+            <h2 data-i18n="cardsPerformance">Rendimiento por tarjeta</h2>
+            <span data-i18n="anonymousEstimate">Estimación anónima</span>
+          </div>
+          <div id="digital-cards-list" class="digital-cards-list"></div>
+        </article>
+        <article class="panel report-note digital-cards-note">
+          <h2 data-i18n="cardsMeasurementTitle">Qué mide esta sección</h2>
+          <p data-i18n="cardsMeasurementNote">Guardar contacto, llamar y otras acciones cuentan el toque dentro de la tarjeta digital; no confirman que la acción se completó fuera del navegador.</p>
+        </article>
       </section>
 
       <section class="view-panel" data-view-panel="technology" hidden>

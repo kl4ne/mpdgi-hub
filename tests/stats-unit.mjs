@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {validateEvent,isLikelyBot,easternDay} from '../functions/_lib/validation.js';
 import {resolveRange} from '../functions/_lib/reporting.js';
 import {randomToken,sha256,passwordSalt,passwordVerifier,constantTimeEqual} from '../functions/_lib/auth.js';
@@ -52,3 +53,10 @@ assert.equal(constantTimeEqual(verifier,await passwordVerifier('different-passwo
 assert.notEqual(await sha256('a'),await sha256('b'));
 
 console.log('MPDGI Stats unit validation passed');
+
+
+const reportingSource=readFileSync(new URL('../functions/_lib/reporting.js',import.meta.url),'utf8');
+const hubIsolationFilters=(reportingSource.match(/NOT LIKE 'business_card:%'/g)||[]).length;
+assert.ok(hubIsolationFilters>=11,'Hub reporting must exclude business-card events from Hub-centric metrics');
+assert.match(reportingSource,/target LIKE 'business_card:%'/,'Digital Cards reporting must keep its dedicated business-card query');
+assert.match(reportingSource,/SELECT DISTINCT s\.session_id,s\.first_seen_at[\s\S]*?e\.target NOT LIKE 'business_card:%'/,'Activity insights must exclude Digital Card sessions');
