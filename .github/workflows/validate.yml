@@ -28,6 +28,7 @@ jobs:
           node --check sw.js
           node --check playwright.config.js
           node tests/branch-cleanup-unit.mjs
+          node tests/lighthouse-unit.mjs
           node <<'NODE'
           const fs=require('fs');
           const path=require('path');
