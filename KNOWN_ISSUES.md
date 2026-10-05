@@ -19,21 +19,14 @@ Required:
 - inspect Cloudflare plan/runtime metrics before considering KDF performance fully closed.
 - do not reduce iterations or rotate AUTH_PEPPER without evidence and an explicit security decision.
 
-### 2. Stats custom domain has no public DNS resolution
-
-- `stats.mpdgi.org` failed public resolution in run `37247974058`.
-- `curl: (6) Could not resolve host: stats.mpdgi.org`.
-- Verified production fallback is `https://mpdgi-stats.pages.dev`.
-- This is a Cloudflare Pages/DNS configuration blocker, not an application-code blocker.
-
-### 3. NPCard custom domain has no public DNS resolution
+### 2. NPCard custom domain has no public DNS resolution
 
 - `npcard.mpdgi.org` failed public resolution in run `37248236928`.
 - `curl: (6) Could not resolve host: npcard.mpdgi.org`.
 - Verified fallback is `https://npcard.pages.dev` at v1.0.3.
 - Real-phone/NFC validation is required after the custom domain becomes active.
 
-### 4. Hub response-header hardening is incomplete at the hosting layer
+### 3. Hub response-header hardening is incomplete at the hosting layer
 
 Verified:
 - HSTS present.
@@ -45,7 +38,7 @@ Not observed:
 
 The public response is served directly by GitHub Pages. A repository-only Cloudflare Pages `_headers` file is not a valid fix.
 
-### 5. Production branches are not protected
+### 4. Production branches are not protected
 
 Observed during re-audit:
 - Hub `main`: `protected:false`
