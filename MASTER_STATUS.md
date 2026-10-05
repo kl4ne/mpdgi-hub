@@ -30,9 +30,11 @@ Long technical reports should be delivered as `.md` files, and grouped in a ZIP 
 ### MPDGI Stats
 - Repository: `kl4ne/mpdgi-hub`
 - Branch: `mpdgi-stats-v1.0`
-- Stable HEAD: `e3b237c46350352b183d40a172eee0a0a8667319`
-- Stable version: `1.4.7`
-- Post-merge validation run: `37244493810` — SUCCESS
+- Stable HEAD before benchmark utility merge: `e3b237c46350352b183d40a172eee0a0a8667319`
+- Current merged HEAD: `6213978d83d57eb236422c9e10290ae61e15cd99`
+- Stable runtime version: `1.4.7`
+- Benchmark PR run: `37244913868` — SUCCESS
+- Post-merge validation run: `37246063157` — SUCCESS
 - Production endpoint: `https://mpdgi-stats.pages.dev`
 - Latest validated work:
   - `public/` is the single deployed static source

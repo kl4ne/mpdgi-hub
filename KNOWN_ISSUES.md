@@ -28,7 +28,8 @@ Updated: 2026-10-04
 - No production owner login was intentionally performed during remediation, so the current owner's stored scheme is not assumed.
 - `AUTH_PEPPER` remains unchanged.
 - Rollback checkpoint: `checkpoint/stats-v1.4.7-dual-scheme`.
-- Required next step: benchmark the 600,000-iteration PBKDF2 cost, then allow migration to occur naturally on a normal successful login.
+- Benchmark complete in CI/WebCrypto proxy at 600,000 iterations: p50 92.43 ms, p95 94.05 ms. This is not Cloudflare production timing.
+- Required next step: keep 600,000 unchanged for now and allow migration to occur naturally on a normal successful login; do not force a production login solely for migration.
 
 ### 5. Historical Hub pinned runtime files remain
 - Older version-pinned JS/CSS assets still exist.
