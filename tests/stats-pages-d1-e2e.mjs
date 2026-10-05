@@ -58,7 +58,7 @@ async function waitUntilReady(){
   let lastError;
   while(Date.now()<deadline){
     try{
-      const response=await fetch(BASE+'/',{cache:'no-store'});
+      const response=await fetch(BASE+'/',{cache:'no-store',signal:AbortSignal.timeout(5000)});
       if(response.ok)return;
     }catch(error){lastError=error;}
     await new Promise(resolve=>setTimeout(resolve,500));
@@ -74,7 +74,8 @@ async function login(email,password,ip='203.0.113.10'){
       'Origin':BASE,
       'CF-Connecting-IP':ip
     },
-    body:JSON.stringify({email,password,remember:false})
+    body:JSON.stringify({email,password,remember:false}),
+    signal:AbortSignal.timeout(10000)
   });
 }
 
@@ -88,7 +89,8 @@ function cookiePair(response){
 async function verifySession(cookie){
   const response=await fetch(BASE+'/api/auth/session',{
     headers:{Cookie:cookie,'Origin':BASE},
-    cache:'no-store'
+    cache:'no-store',
+    signal:AbortSignal.timeout(5000)
   });
   assert.equal(response.status,200);
   const body=await response.json();
