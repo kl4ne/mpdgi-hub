@@ -113,7 +113,7 @@ writeFileSync(PAGES_CONFIG,JSON.stringify({
 },null,2));
 
 const server=spawn('npx',[
-  ...WRANGLER,'pages','dev','public',
+  ...WRANGLER,'pages','dev',
   '--ip','127.0.0.1',
   '--port','8788',
   '--binding','AUTH_PEPPER='+PEPPER
