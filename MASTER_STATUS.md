@@ -17,7 +17,7 @@ Long technical reports should be delivered as `.md` files, and grouped in a ZIP 
 ### MPDGI Hub
 - Repository: `kl4ne/mpdgi-hub`
 - Branch: `main`
-- Current stable HEAD: `a3ecd2636f4a816d38e29a5035e0af393ee85d6d`
+- Current stable HEAD: `7663c175b6532934924017d17eac84b153421f7f`
 - Runtime version: `1.6.0`
 - Production URL: `https://hub.mpdgi.org`
 - Latest validated work:
@@ -25,6 +25,7 @@ Long technical reports should be delivered as `.md` files, and grouped in a ZIP 
   - pinned GitHub Actions
   - production smoke checks
   - dead external payment SVG assets removed
+  - unreferenced Hub runtime assets v1.4.7 through v1.5.2 removed after current HTML/SW/CI reference audit
 - CI / Pages deployment: validated green after latest merged changes.
 
 ### MPDGI Stats
@@ -88,7 +89,7 @@ Long technical reports should be delivered as `.md` files, and grouped in a ZIP 
 2. Decide whether to migrate password verification from fast HMAC-SHA256 to a slow password KDF; this requires a controlled compatibility/migration plan and must not invalidate existing access.
 3. Verify Nancy custom domain `npcard.mpdgi.org` from a real browser / Cloudflare configuration before declaring it active.
 4. Hub production currently exposes HSTS, but the last header audit reported no response-header `X-Content-Type-Options: nosniff` and no response-header clickjacking protection. Because Hub is served through GitHub Pages/custom-domain infrastructure, remediation needs hosting-layer review rather than adding a useless `_headers` file.
-5. Historical Hub runtime files may still exist. Do not remove old pinned runtime assets blindly because installed PWA clients may depend on them during update/recovery.
+5. Historical Hub runtime cleanup is complete for v1.4.7–v1.5.2. Current v1.6.0 runtime remains intact. Git history retains rollback/reference copies.
 
 ## Things that must not be redone
 

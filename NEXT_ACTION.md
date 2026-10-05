@@ -2,31 +2,29 @@
 
 Updated: 2026-10-04
 
-## Last validated checkpoint
+## Last validated checkpoints
 
-- Stats latest validated HEAD: `6213978d83d57eb236422c9e10290ae61e15cd99`
-- Stats version: `1.4.7`
-- PBKDF2 benchmark: SUCCESS at 600,000 iterations
-- CI proxy timing: p50 92.43 ms, p95 94.05 ms
-- Benchmark is not Cloudflare production timing
+### Hub
+- Stable HEAD: `7663c175b6532934924017d17eac84b153421f7f`
+- Version: `1.6.0`
+- Historical runtime cleanup PR #33: merged after Validate + QA success
+- v1.4.7–v1.5.2 unreferenced runtime assets removed
+- Current v1.6.0 PWA/runtime remains intact
+
+### Stats
+- Latest validated HEAD: `6213978d83d57eb236422c9e10290ae61e15cd99`
+- Version: `1.4.7`
+- PBKDF2 benchmark: 600,000 iterations; p50 92.43 ms, p95 94.05 ms in CI WebCrypto proxy
+- Dual-scheme authentication remains deployed
 - No forced owner migration
 - `AUTH_PEPPER` unchanged
 
-## Custom-domain status
+## Remaining blockers / next exact phase
 
-- `stats.mpdgi.org`: not verified active; run `37246063157` did not reach expected v1.4.7 content
-- Verified Stats endpoint: `https://mpdgi-stats.pages.dev`
-- `npcard.mpdgi.org`: not reachable in run `37241538514`
-- Verified NPCard fallback: `https://npcard.pages.dev` v1.0.3
-- Cloudflare/DNS admin access is required to resolve those two custom-domain items
-
-## Exact next phase
-
-Review Hub hosting-layer security headers and historical runtime/PWA safety.
-
-Scope:
-1. Re-check current production-header evidence from Hub QA logs.
-2. Determine what can be fixed in repository code vs what requires hosting/proxy configuration.
-3. Audit old version-pinned Hub assets against current HTML and service-worker references.
-4. Do not delete historical assets until PWA update/recovery safety is demonstrated.
-5. Checkpoint findings before any cleanup.
+1. Hub security-response headers remain incomplete at the hosting layer:
+   - HSTS present
+   - X-Content-Type-Options: nosniff not observed
+   - response-header clickjacking protection not observed
+2. Because GitHub Pages does not consume Cloudflare Pages-style `_headers`, do not add a fake repository fix.
+3. `stats.mpdgi.org` and `npcard.mpdgi.org` remain unresolved until Cloudflare/DNS admin configuration can be inspected.
+4. Next safe phase: document the infrastructure changes required for these blockers and stop short of inventing DNS/Cloudflare state.

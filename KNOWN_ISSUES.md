@@ -33,10 +33,12 @@ Updated: 2026-10-04
 - Benchmark complete in CI/WebCrypto proxy at 600,000 iterations: p50 92.43 ms, p95 94.05 ms. This is not Cloudflare production timing.
 - Required next step: keep 600,000 unchanged for now and allow migration to occur naturally on a normal successful login; do not force a production login solely for migration.
 
-### 5. Historical Hub pinned runtime files remain
-- Older version-pinned JS/CSS assets still exist.
-- Some are likely historical only, but they are not yet classified safe-to-delete because old PWA clients may rely on them during update/recovery.
-- Required next step: prove PWA update/recovery safety before deleting.
+### 5. Historical Hub pinned runtime cleanup
+- Closed.
+- v1.4.7 through v1.5.2 CSS/app/version files were confirmed unreferenced by current index.html, current service worker, validator and QA workflows.
+- Current service worker precaches only v1.6.0 assets and purges old MPDGI Hub caches on activation.
+- PR #33 removed the unreferenced historical runtime files and QA passed before merge.
+- Git history retains rollback/reference copies.
 
 ## Closed by remediation
 
