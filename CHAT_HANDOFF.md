@@ -13,7 +13,7 @@ Never restart because of timeout.
 ### Hub
 - repo: `kl4ne/mpdgi-hub`
 - branch: `main`
-- HEAD: `8f3c5ea233d5984d713433a3b924038345c5bd2b`
+- HEAD: `bb4d8953b2b7e8931c4906385dc4dbe7fa3a172d`
 - version: `1.6.0`
 - historical runtime cleanup complete
 - HSTS present
@@ -76,7 +76,7 @@ These are infrastructure-only until Cloudflare/DNS access exists:
 
 ## Latest checkpoint
 
-PR #39 merged successfully. Main is now `8f3c5ea233d5984d713433a3b924038345c5bd2b`. Remaining work is infrastructure-only.
+PR #39 merged successfully. Main is now `bb4d8953b2b7e8931c4906385dc4dbe7fa3a172d`. Remaining work is infrastructure-only.
 
 
 ## Repository remediation closure
@@ -84,7 +84,7 @@ PR #39 merged successfully. Main is now `8f3c5ea233d5984d713433a3b924038345c5bd2
 Repository remediation is complete.
 
 Latest Hub/main checkpoint:
-`8f3c5ea233d5984d713433a3b924038345c5bd2b`
+`bb4d8953b2b7e8931c4906385dc4dbe7fa3a172d`
 
 PR #40 and PR #41 are merged and their validation/QA were green.
 
@@ -94,3 +94,7 @@ Remaining work is infrastructure-only:
 3. Hub response headers
 
 Use `CLOUDFLARE_FIX_RUNBOOK.md` for the exact next steps. Do not restart the audit or repeat repository remediation.
+
+## Latest merged checkpoint
+
+PR #44 merged successfully. Current main is `bb4d8953b2b7e8931c4906385dc4dbe7fa3a172d`; `INFRASTRUCTURE_EVIDENCE.md` is now part of the repository checkpoint.
