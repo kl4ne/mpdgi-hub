@@ -12,7 +12,7 @@ Do not restart after timeout. Resume from the last validated checkpoint. Keep lo
 
 - Repo: `kl4ne/mpdgi-hub`
 - Branch: `main`
-- Current repository HEAD before this documentation PR: `739d7523e50f3ad9923143c8c922cd495856fd25`
+- Hub v1.6.0 runtime checkpoint: `739d7523e50f3ad9923143c8c922cd495856fd25`
 - Runtime version: `1.6.0`
 - Production: `https://hub.mpdgi.org`
 
@@ -133,6 +133,18 @@ Custom-domain status:
 ## Latest continuity checkpoint
 
 - PR #52 merged successfully.
-- Hub/main checkpoint after PR #52: `739d7523e50f3ad9923143c8c922cd495856fd25`.
+- PR #52 captured Hub v1.6.0 runtime checkpoint `739d7523e50f3ad9923143c8c922cd495856fd25`. Later documentation/governance-only merges may advance `main` without changing the Hub runtime.
 - Stats remains v1.4.10 at `a1a7cd62b6fe1baaa5689cd67cb54ef7cbf44d4c`.
 - Stats post-merge validation run `37258619739`: SUCCESS.
+
+
+## HEAD reference policy
+
+Do not treat a documentation-only merge SHA as a new runtime version/checkpoint.
+
+Before any mutation:
+- query the live branch HEAD from GitHub;
+- use the documented runtime checkpoint only to identify the last validated application state;
+- update runtime checkpoint references only when application/runtime behavior changes and is validated.
+
+This avoids a self-invalidating loop where a documentation PR makes its own recorded main SHA stale immediately after merge.
