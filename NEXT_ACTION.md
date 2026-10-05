@@ -20,8 +20,6 @@ Updated: 2026-10-04
 
 ## Exact next phase
 
-1. Check post-merge Stats run `37246063157`.
-2. If green, promote `6213978d83d57eb236422c9e10290ae61e15cd99` as the latest validated Stats checkpoint.
-3. Record production smoke result.
-4. Then move to custom-domain verification for `stats.mpdgi.org` and `npcard.mpdgi.org`.
-5. Do not change password iterations or force an owner login based only on CI proxy timing.
+1. Treat `6213978d83d57eb236422c9e10290ae61e15cd99` as the latest validated Stats checkpoint.
+2. Move to custom-domain verification for `stats.mpdgi.org` and `npcard.mpdgi.org`.
+3. Do not change password iterations or force an owner login based only on CI proxy timing.
