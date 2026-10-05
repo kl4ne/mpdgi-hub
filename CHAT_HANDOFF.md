@@ -13,7 +13,7 @@ Never restart because of timeout.
 ### Hub
 - repo: `kl4ne/mpdgi-hub`
 - branch: `main`
-- HEAD: `b123f59278bd1791c9ab02d6c92a3ead47a0f0bc`
+- HEAD: `87aa4d8c4eb191ccf4dca695244420cb4e499d79`
 - version: `1.6.0`
 - historical runtime cleanup complete
 - HSTS present
