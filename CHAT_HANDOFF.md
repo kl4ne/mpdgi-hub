@@ -91,9 +91,24 @@ Long reports belong in `.md` / ZIP artifacts; chat should contain only a short s
 
 Stats v1.4.7 now has dual-scheme password verification. Legacy records remain readable; new records use PBKDF2; successful legacy login can migrate only that user; failed login cannot rewrite password fields. A rollback checkpoint exists at `checkpoint/stats-v1.4.7-dual-scheme`. No production owner login was intentionally performed to force migration.
 
+## PBKDF2 benchmark checkpoint
+
+Benchmark run `37244913868` succeeded using GitHub Actions Node.js WebCrypto.
+
+- iterations: 600,000
+- min: 90.93 ms
+- p50: 92.43 ms
+- p95: 94.05 ms
+- max: 94.05 ms
+- this is proxy evidence only, not Cloudflare production timing
+- production iteration count remains unchanged
+- no forced production owner login was performed
+
+Benchmark utility merged as `6213978d83d57eb236422c9e10290ae61e15cd99`.
+
 ## Exact next action
 
-Benchmark PBKDF2 at 600,000 iterations in a non-production CI/WebCrypto context, record the timing as proxy evidence, and checkpoint before any further authentication change.
+Check post-merge Stats validation run `37246063157`. If green, record the new validated checkpoint and continue to custom-domain verification.
 
 ## Approved decisions that must not be re-asked or redone
 
