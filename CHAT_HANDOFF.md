@@ -13,88 +13,71 @@ Never restart because of timeout.
 ### Hub
 - repo: `kl4ne/mpdgi-hub`
 - branch: `main`
-- HEAD: `bb4d8953b2b7e8931c4906385dc4dbe7fa3a172d`
+- HEAD before the current documentation PR: `73155d88e929c996875e5ce113ad13e4cc6ad9ab`
 - version: `1.6.0`
-- historical runtime cleanup complete
+- production smoke/Chromium/WebKit green
 - HSTS present
 - nosniff/clickjacking response headers still require infrastructure-layer remediation
 
 ### Stats
 - repo: `kl4ne/mpdgi-hub`
 - branch: `mpdgi-stats-v1.0`
-- HEAD: `2d018cd07e0ace2d8bc9ed895d6828c88776c490`
-- version: `1.4.7`
-- Pages endpoint verified
+- HEAD: `e31abf679870b6cc3c33826f5178d0f55a48b3e8`
+- version: `1.4.10`
+- post-merge run `37256688785`: SUCCESS
+- verified production fallback: `mpdgi-stats.pages.dev`
 - dual-scheme auth deployed
 - PBKDF2 target: 600,000 iterations
-- benchmark proxy p50 92.43 ms / p95 94.05 ms
+- auth network/service/credential errors are separated
+- real login-handler integration tests exist
+- failed password-upgrade write cannot block a valid login
+- concurrent session/visitor collector race closed
 - AUTH_PEPPER unchanged
-- no forced owner migration
-- `stats.mpdgi.org` failed public DNS resolution in Stats run `37247974058` (`curl: (6) Could not resolve host`)
+- no D1 reset
+- `stats.mpdgi.org` still lacks public DNS resolution
 
 ### Digital Cards
 - repo: `kl4ne/mpdgi-digital-cards`
 - branch: `main`
-- HEAD: `23e6e638e442e61721f7ade6791d4ae10a8cd9dc`
-- RSCard 1.3.2 verified
-- NPCard Pages fallback 1.0.3 verified
-- `npcard.mpdgi.org` failed public DNS resolution in Digital Cards run `37248236928` (`curl: (6) Could not resolve host`)
-- Nancy custom-domain diagnostics merged in PR #10
+- HEAD: `4fc5ef7e07c6f5ab8e4da63015f1a0519e9aaa87`
+- RSCard v1.3.2 verified
+- NPCard Pages v1.0.3 verified
+- latest Cards post-merge validation `37256341259`: SUCCESS
+- lockfile PR trigger and 60-second policy consistency repaired
+- `npcard.mpdgi.org` still lacks public DNS resolution
 
-## Completed remediation
+## Re-audit repairs completed
 
-- audit findings addressed in repository code where safely possible
-- Stats source-of-truth/CI mismatch fixed
-- Cards import workflow hardened
-- secret scanning expanded
-- lockfiles/npm ci added
-- Actions pinned
-- browser QA expanded
-- collector integrity hardened
-- RBAC/bootstrap/schema hardening completed
-- PBKDF2 dual-scheme migration support completed
-- Hub dead assets/historical runtime cleanup completed
-- custom-domain diagnostics completed
+- Stats v1.4.9 auth diagnostics + integration coverage
+- Stats v1.4.10 canonical session/visitor race protection
+- Digital Cards lockfile-trigger + 60-second metadata policy alignment
+- historical/dead Hub runtime cleanup
+- prior Stats/Cards/Hub audit remediations remain intact
 
-## Remaining blockers
+## Remaining findings
 
-These are infrastructure-only until Cloudflare/DNS access exists:
-
-1. `stats.mpdgi.org`
-2. `npcard.mpdgi.org`
-3. Hub response-header hardening
+1. Actual Cloudflare runtime/plan PBKDF2 verification.
+2. `stats.mpdgi.org` DNS/custom-domain repair.
+3. `npcard.mpdgi.org` DNS/custom-domain repair.
+4. Hub response-header hardening.
+5. Branch protection / required checks.
+6. Historical merged-branch cleanup.
 
 ## Do not redo
 
-- do not restart the audit
-- do not repeat completed remediation
-- do not reset D1
-- do not rotate AUTH_PEPPER
-- do not redesign Hub for card-specific issues
-- do not invent DNS records
-- do not replace Nancy artwork
+- do not restart the completed code audit work;
+- do not reset D1;
+- do not rotate AUTH_PEPPER;
+- do not invent DNS records;
+- do not replace Nancy artwork;
+- do not disable Pages fallbacks prematurely.
 
-## Latest checkpoint
-
-PR #39 merged successfully. Main is now `bb4d8953b2b7e8931c4906385dc4dbe7fa3a172d`. Remaining work is infrastructure-only.
-
-
-## Repository remediation closure
-
-Repository remediation is complete.
-
-Latest Hub/main checkpoint:
-`bb4d8953b2b7e8931c4906385dc4dbe7fa3a172d`
-
-PR #40 and PR #41 are merged and their validation/QA were green.
-
-Remaining work is infrastructure-only:
-1. `stats.mpdgi.org`
-2. `npcard.mpdgi.org`
-3. Hub response headers
-
-Use `CLOUDFLARE_FIX_RUNBOOK.md` for the exact next steps. Do not restart the audit or repeat repository remediation.
-
-## Latest merged checkpoint
-
-PR #44 merged successfully. Current main is `bb4d8953b2b7e8931c4906385dc4dbe7fa3a172d`; `INFRASTRUCTURE_EVIDENCE.md` is now part of the repository checkpoint.
+Read next:
+- MASTER_PROJECT_PLAN.md
+- MASTER_STATUS.md
+- NEXT_ACTION.md
+- KNOWN_ISSUES.md
+- ARCHITECTURE.md
+- DATABASE_SCHEMA.md
+- SECURITY_MODEL.md
+- CLOUDFLARE_FIX_RUNBOOK.md
