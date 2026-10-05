@@ -5,7 +5,7 @@ Updated: 2026-10-04
 ## Current checkpoint
 
 Hub:
-- main HEAD: `b123f59278bd1791c9ab02d6c92a3ead47a0f0bc`
+- main HEAD: `87aa4d8c4eb191ccf4dca695244420cb4e499d79`
 - runtime: `1.6.0`
 
 Stats:
