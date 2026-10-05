@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "validate:stats": "node tests/stats-unit.mjs",
+    "benchmark:kdf": "node tests/kdf-benchmark.mjs",
     "test:stats": "playwright test -c playwright.stats.config.cjs",
     "test:stats:chromium": "playwright test -c playwright.stats.config.cjs --project=chromium",
     "test:stats:webkit": "playwright test -c playwright.stats.config.cjs --project=webkit"
