@@ -1,11 +1,11 @@
 # NEXT ACTION — MPDGI Digital Ecosystem
 
-Updated: 2026-10-04
+Updated: 2026-10-05
 
 ## Current checkpoint
 
 Hub:
-- main HEAD: `87aa4d8c4eb191ccf4dca695244420cb4e499d79`
+- main HEAD: `d78a9a6b52ae8a562b799aa70d869bc57a8cdba9`
 - runtime: `1.6.0`
 
 Stats:
@@ -36,3 +36,7 @@ When Cloudflare/DNS access is available:
 8. Validate production after one infrastructure change at a time.
 
 Do not invent CNAME targets or Cloudflare state.
+
+## Continuity note
+
+PR #39 merged successfully. There are no repository-code blockers preventing closure of the audit; remaining work requires Cloudflare/DNS or hosting-layer access.
