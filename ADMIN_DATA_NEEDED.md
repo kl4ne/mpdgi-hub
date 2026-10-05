@@ -60,6 +60,8 @@ Do not migrate the Hub to another host solely for these headers without a separa
 
 ## 5. GitHub repository administration
 
+Branch lifecycle cleanup is already complete and automated. The only remaining GitHub governance item is branch protection / required checks.
+
 Need:
 - whether branch protection can be enabled for kl4ne/mpdgi-hub under the current GitHub plan;
 - whether required status checks can be enforced on main and mpdgi-stats-v1.0;
