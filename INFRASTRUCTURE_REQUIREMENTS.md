@@ -2,18 +2,20 @@
 
 Updated: 2026-10-05
 
-## 1. Hub response-header hardening
+## 1. Hub hosting decision
 
-Verified public state:
-- HSTS present;
-- `X-Content-Type-Options: nosniff` not observed;
-- response-header clickjacking protection not observed.
+Verified:
+- Namecheap `hub` CNAME points to `kl4ne.github.io`;
+- Hub is served directly by GitHub Pages;
+- HSTS is present;
+- `X-Content-Type-Options: nosniff` is not observed;
+- response-level clickjacking protection is not observed.
 
-Required target:
-- `X-Content-Type-Options: nosniff`
-- `X-Frame-Options: DENY` or equivalent response CSP `frame-ancestors 'none'`
-
-The Hub is served through GitHub Pages/custom-domain infrastructure. A Cloudflare Pages-style repository `_headers` file is not a valid GitHub Pages fix.
+Decision:
+- keep Hub on GitHub Pages;
+- do not migrate solely for these two headers;
+- accept the missing response headers as low residual hosting-layer risk;
+- retain existing CSP-in-page, HTTPS/HSTS, CI, QA and branch-protection controls.
 
 ## 2. Stats production endpoint
 
@@ -34,17 +36,13 @@ Do not create or troubleshoot `stats.mpdgi.org`.
 
 ## 3. Nancy Digital Card custom domain
 
-Verified fallback:
+Verified:
+- fallback: `https://npcard.pages.dev`;
+- Namecheap `npcard` CNAME points to `npcard.pages.dev`;
+- `https://npcard.mpdgi.org` works for the user;
+- approved Nancy card completed real-phone functional validation, including `?src=nfc`.
 
-`https://npcard.pages.dev`
-
-Pending:
-- attach/verify `npcard.mpdgi.org` in the intended Cloudflare Pages project;
-- use the exact DNS target Cloudflare provides;
-- add the DNS record in Namecheap;
-- validate TLS, approved build, security headers, analytics and real-phone behavior.
-
-Only after those checks should Nancy's NFC tag be programmed to the custom-domain URL.
+Keep the Pages fallback active as rollback.
 
 ## 4. Password runtime status
 
@@ -59,8 +57,9 @@ Do not reduce PBKDF2 iterations or rotate `AUTH_PEPPER` without new evidence.
 
 ## Exact next infrastructure action
 
-1. configure/validate `npcard.mpdgi.org`;
-2. inspect the actual serving/proxy path for `hub.mpdgi.org`;
-3. add/validate the missing Hub response headers;
-4. complete branch-protection administration;
-5. run the final audit.
+No further DNS/hosting migration is required by the current decisions.
+
+Next:
+1. confirm the Hub QA/Lighthouse re-run;
+2. validate Stats merged-branch cleanup coverage;
+3. run the final zero-assumption audit.
