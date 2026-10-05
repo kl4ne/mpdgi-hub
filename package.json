@@ -1,10 +1,11 @@
 {
   "name": "mpdgi-stats",
-  "version": "1.4.8",
+  "version": "1.4.9",
   "private": true,
   "type": "module",
   "scripts": {
     "validate:stats": "node tests/stats-unit.mjs",
+    "validate:auth": "node tests/stats-auth-integration.mjs",
     "benchmark:kdf": "node tests/kdf-benchmark.mjs",
     "test:stats": "playwright test -c playwright.stats.config.cjs",
     "test:stats:chromium": "playwright test -c playwright.stats.config.cjs --project=chromium",
