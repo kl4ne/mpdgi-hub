@@ -12,39 +12,27 @@ Confirmed:
 
 No change to PBKDF2 600,000 or `AUTH_PEPPER` is required from the current evidence.
 
-## 1. Nancy custom domain
+## Closed: Nancy custom domain validation
 
-For the Cloudflare Pages project serving `https://npcard.pages.dev`, still need:
-- custom-domain status for `npcard.mpdgi.org`;
-- exact DNS record Cloudflare requests;
-- certificate/TLS status;
-- current production deployment branch/root.
+Confirmed:
+- Namecheap CNAME: `npcard` -> `npcard.pages.dev`;
+- `https://npcard.mpdgi.org` works for the user;
+- real-phone validation of the approved Nancy card completed successfully.
 
-DNS for `mpdgi.org` is managed in Namecheap.
+## Closed by decision: Hub hosting/proxy
 
-After activation:
-- test the approved NPCard build on a real phone;
-- verify analytics target `business_card:nancy-pagan`;
-- only then program Nancy's NFC tag to the custom-domain URL.
+Confirmed:
+- Namecheap CNAME: `hub` -> `kl4ne.github.io`;
+- Hub is served directly by GitHub Pages;
+- the Hub will remain on GitHub Pages;
+- missing `nosniff` and response-level anti-clickjacking headers are accepted as low residual hosting risk.
 
-## 2. Hub hosting/proxy status
+## Closed to strongest available level: GitHub governance
 
-Need:
-- current Namecheap DNS record for `hub.mpdgi.org`;
-- whether traffic goes directly to GitHub Pages or through a proxy capable of injecting response headers;
-- availability of a response-header rule at the actual serving layer.
+Confirmed:
+- `Protect Hub Main` active: PR + `validate` + `browser-qa`;
+- `Protect Stats Production` active: PR + `validate`;
+- Digital Cards is private on GitHub Free, where repository rulesets are unavailable;
+- Digital Cards will remain private rather than being made public solely for rulesets.
 
-Target headers:
-- `X-Content-Type-Options: nosniff`
-- `X-Frame-Options: DENY` or equivalent response CSP protection.
-
-## 3. GitHub repository administration
-
-Need:
-- enable branch protection / required checks for Hub `main` and Stats `mpdgi-stats-v1.0` where the plan permits;
-- decide the strongest available protection for private Digital Cards without making it public merely for rulesets.
-
-Observed:
-- Hub `main`: `protected=false`
-- Stats `mpdgi-stats-v1.0`: `protected=false`
-- Digital Cards `main`: `protected=false`
+No additional administrative data is currently required for these three findings.

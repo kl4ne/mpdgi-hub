@@ -4,50 +4,29 @@ Updated: 2026-10-05
 
 ## Open / verified or explicitly unverified
 
-### 1. PBKDF2 production-runtime compatibility needs direct Cloudflare evidence
+No known critical/high/medium defect is currently open from the remediation track. A final zero-assumption audit is still required before declaring the ecosystem fully closed.
 
-Stats v1.4.10 uses PBKDF2-HMAC-SHA256 at 600,000 iterations.
+### Informational: transient Hub Lighthouse variance
 
-Available evidence:
-- CI/Node WebCrypto benchmark: p50 92.43 ms / p95 94.05 ms.
-- Stats v1.4.10 validation and Pages production smoke are green.
+One Hub `browser-qa` attempt reported Lighthouse Performance 0.63 while 30/30 Chromium functional tests, Accessibility 1.00 and Best Practices 1.00 passed. The failed job was re-run without code or threshold changes and workflow run `37267748275`, attempt 2 completed SUCCESS. Treat the 0.63 result as non-reproduced CI variance unless it recurs.
 
-Missing evidence:
-- actual Cloudflare Pages Functions/Workers account plan CPU limit and production-runtime CPU evidence. Local workerd E2E is now green and observed successful auth requests around 79–85 ms wall time, but local wall time is not the account CPU quota.
+## Accepted residual risks / plan limitations
 
-Required:
-- inspect Cloudflare plan/runtime metrics before considering KDF performance fully closed.
-- do not reduce iterations or rotate AUTH_PEPPER without evidence and an explicit security decision.
+### Hub response headers
 
-### 2. NPCard custom domain has no public DNS resolution
+The Hub remains on GitHub Pages by explicit architecture decision.
 
-- `npcard.mpdgi.org` failed public resolution in run `37248236928`.
-- `curl: (6) Could not resolve host: npcard.mpdgi.org`.
-- Verified fallback is `https://npcard.pages.dev` at v1.0.3.
-- Real-phone/NFC validation is required after the custom domain becomes active.
-
-### 3. Hub response-header hardening is incomplete at the hosting layer
-
-Verified:
-- HSTS present.
-- Hub v1.6.0 production smoke is green.
-
-Not observed:
+Not observed at the HTTP response layer:
 - `X-Content-Type-Options: nosniff`
-- clickjacking protection through `X-Frame-Options` or response CSP `frame-ancestors`
+- `X-Frame-Options` or response CSP `frame-ancestors`
 
-The public response is served directly by GitHub Pages. A repository-only Cloudflare Pages `_headers` file is not a valid fix.
+This is accepted as a low residual hosting limitation. The Hub will not be migrated solely to add these two headers.
 
-### 4. Production branches are not protected
+### Digital Cards branch ruleset
 
-Observed during re-audit:
-- Hub `main`: `protected:false`
-- Stats `mpdgi-stats-v1.0`: `protected:false`
-- Digital Cards `main`: `protected:false`
-- no active ruleset was observed for the Hub repository
+Hub and Stats now have active branch rulesets with required CI.
 
-Required:
-- enforce PR + required green checks where GitHub repository settings/plan permit it.
+The private Digital Cards repository cannot use repository rulesets on the current GitHub Free plan. The repository will remain private and will not be made public solely for rulesets. Existing PR-gated workflows, validation and merged-branch cleanup remain in place.
 
 ## Informational: production admin password scheme
 
@@ -56,6 +35,11 @@ Stats supports both legacy and PBKDF2 records. A normal successful legacy login 
 Do not force a login or expose password_hash/password_salt merely to inspect migration status.
 
 ## Closed by remediation
+
+- PBKDF2 production-runtime concern: Workers Free confirmed, Cloudflare Metrics showed `Exceeded CPU Time Limits = 0`, and no active CPU-limit failure was reproduced.
+- NPCard custom domain: Namecheap CNAME is present and the user completed real-phone functional validation on `npcard.mpdgi.org`.
+- Hub `main` branch protection: active ruleset requires PR, `validate`, and `browser-qa`.
+- Stats production branch protection: active ruleset requires PR and `validate`.
 
 - Stats root/public deployment mismatch.
 - duplicate Stats root shell.

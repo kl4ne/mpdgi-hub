@@ -15,14 +15,16 @@ Never restart because of timeout.
 - branch: `main`
 - v1.6.0 runtime checkpoint: `739d7523e50f3ad9923143c8c922cd495856fd25`
 - version: `1.6.0`
-- production smoke/Chromium/WebKit green
+- Hub remains on GitHub Pages by explicit decision
 - HSTS present
-- nosniff/clickjacking response headers still require infrastructure-layer remediation
+- missing nosniff/clickjacking HTTP response headers are accepted as low residual GitHub Pages hosting risk
+- active ruleset `Protect Hub Main`: PR + `validate` + `browser-qa`
+- one Hub QA attempt reported Lighthouse Performance 0.63 while 30 Chromium tests passed; workflow run `37267748275`, attempt 2 then completed SUCCESS without code or threshold changes, so the result is treated as transient unless it recurs
 
 ### Stats
 - repo: `kl4ne/mpdgi-hub`
 - branch: `mpdgi-stats-v1.0`
-- HEAD: `a1a7cd62b6fe1baaa5689cd67cb54ef7cbf44d4c`
+- current branch HEAD after the Stats custom-domain documentation correction: `aade3b343689b65da3de08e62d2fb02df47efc4d`
 - version: `1.4.10`
 - post-merge run `37258619739`: SUCCESS
 - verified production fallback: `mpdgi-stats.pages.dev`
@@ -45,7 +47,9 @@ Never restart because of timeout.
 - NPCard Pages v1.0.3 verified
 - latest Cards post-merge validation `37256341259`: SUCCESS
 - lockfile PR trigger and 60-second policy consistency repaired
-- `npcard.mpdgi.org` still lacks public DNS resolution
+- Namecheap CNAME `npcard` -> `npcard.pages.dev`
+- user confirmed `npcard.mpdgi.org` works and completed real-phone functional validation
+- Digital Cards stays private on GitHub Free; repository rulesets are unavailable on this plan
 
 ## Re-audit repairs completed
 
@@ -59,10 +63,16 @@ Never restart because of timeout.
 
 ## Remaining findings
 
-1. Actual Cloudflare runtime/plan PBKDF2 verification.
-2. `npcard.mpdgi.org` DNS/custom-domain repair.
-3. Hub response-header hardening.
-4. Branch protection / required checks.
+1. Confirm whether the latest Hub Lighthouse Performance 0.63 result is reproducible.
+2. Finish/validate merged-branch cleanup coverage for Stats PRs.
+3. Run the final zero-assumption audit.
+
+Closed/accepted:
+- PBKDF2 runtime concern closed with Workers Free + `Exceeded CPU Time Limits = 0`.
+- NPCard custom domain is working and phone-tested.
+- Hub stays on GitHub Pages; missing two response headers are accepted low residual risk.
+- Hub and Stats production branches have active required-check rulesets.
+- Digital Cards ruleset limitation is accepted under private GitHub Free.
 
 ## Do not redo
 

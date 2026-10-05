@@ -63,13 +63,17 @@ Completed:
 - AUTH_PEPPER unchanged
 - no D1 reset/deletion
 
-Benchmark evidence:
+Benchmark/runtime evidence:
 - CI/Node WebCrypto proxy at 600,000 iterations:
   - min 90.93 ms
   - p50 92.43 ms
   - p95 94.05 ms
   - max 94.05 ms
-- local Cloudflare workerd E2E observed login request wall times around 79–85 ms for successful password verification in the validated run; this still does not prove the account's production CPU-plan compatibility
+- local Cloudflare workerd E2E observed successful login wall times around 79–85 ms
+- account plan confirmed: Workers Free
+- Cloudflare production Metrics showed `Exceeded CPU Time Limits = 0`
+- Pages Functions/deployments were reported healthy during the live verification
+- no current evidence supports reducing PBKDF2 below 600,000 iterations
 
 Production endpoint status:
 - canonical Stats endpoint: `https://mpdgi-stats.pages.dev`
@@ -103,15 +107,25 @@ Verified production:
 - `https://npcard.pages.dev`
 
 Custom-domain status:
-- `npcard.mpdgi.org` failed public DNS resolution in run `37248236928`
-- do not program Nancy NFC to the custom hostname until DNS/TLS + real-device validation pass
+- Namecheap now has `npcard` CNAME -> `npcard.pages.dev`
+- user confirmed `https://npcard.mpdgi.org` loads correctly
+- user completed real-phone validation of approved artwork, ES/EN, flip, Save Contact/photo, Call, Text, Directions, Website, Share and `?src=nfc`
+- Cloudflare dashboard propagation/status may lag behind a functioning hostname; do not treat that UI delay as an application defect
 
 ## Remaining open findings
 
-1. Verify PBKDF2 600,000 behavior against the actual Cloudflare runtime/plan CPU limits before declaring auth performance fully closed.
-2. Repair/validate `npcard.mpdgi.org` in Cloudflare Pages/DNS.
-3. Add Hub nosniff + clickjacking response headers at the actual hosting/proxy layer.
-4. Enforce branch protection / required CI checks where repository settings and plan allow it.
+1. Run the final zero-assumption ecosystem audit.
+
+Latest Hub QA confirmation:
+- workflow run `37267748275`, attempt 2: SUCCESS
+- prior isolated Lighthouse Performance 0.63 result did not reproduce
+- no Hub runtime or QA threshold change was required.
+
+Accepted limitations / decisions:
+- Hub remains on GitHub Pages. Missing `nosniff` and response-level clickjacking headers are accepted as low residual hosting-layer risk; no migration will be performed solely for those headers.
+- Hub `main` is protected by active ruleset `Protect Hub Main` requiring PR + `validate` + `browser-qa`.
+- Stats `mpdgi-stats-v1.0` is protected by active ruleset `Protect Stats Production` requiring PR + `validate`.
+- Digital Cards remains private on GitHub Free; repository rulesets are unavailable on that plan. The repo will not be made public solely to obtain rulesets.
 
 Branch lifecycle cleanup is complete:
 - Hub reduced from 64 branches to 5 deliberate branches.

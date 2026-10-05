@@ -18,8 +18,10 @@ Full ecosystem audit closure is **not yet declared** because infrastructure/runt
 - historical runtime cleanup
 - service-worker cache cleanup guards
 
-Remaining Hub item:
-- response-header hardening at the real hosting/proxy layer
+Accepted Hub hosting limitation:
+- GitHub Pages remains the selected host.
+- Missing `nosniff` and response-level clickjacking headers are accepted as low residual risk rather than a migration requirement.
+- The isolated Lighthouse Performance 0.63 result was re-run without code/threshold changes; workflow run `37267748275`, attempt 2 completed SUCCESS, so no reproducible performance defect is currently open.
 
 ## Stats — closed code findings
 
@@ -49,8 +51,11 @@ Closed:
 - real Pages + local D1 authentication E2E
 - Pages production security headers
 
-Remaining Stats item:
-- actual Cloudflare runtime/plan KDF verification
+Stats runtime verification:
+- Workers Free confirmed.
+- Cloudflare Metrics showed `Exceeded CPU Time Limits = 0`.
+- No active/reproducible CPU-limit failure was observed.
+- PBKDF2 remains at 600,000 iterations and `AUTH_PEPPER` remains unchanged.
 
 ## Digital Cards — closed code findings
 
@@ -69,19 +74,22 @@ Closed:
 - lockfile PR-trigger gap
 - update-interval policy mismatch
 
-Remaining Card item:
-- `npcard.mpdgi.org` custom-domain/DNS + real-phone validation
+NPCard custom-domain status:
+- Namecheap CNAME for `npcard` points to `npcard.pages.dev`.
+- User confirmed `npcard.mpdgi.org` works on a real phone and validated the approved card functions.
 
-## Governance findings still open
+## Governance status
 
-- production branches are not currently protected
-- merged-branch cleanup is closed and automated; only production-branch protection remains open
+- Hub `main`: active ruleset requires PR + `validate` + `browser-qa`.
+- Stats `mpdgi-stats-v1.0`: active ruleset requires PR + `validate`.
+- Digital Cards: private GitHub Free repository; rulesets unavailable without Pro/public visibility. This plan limitation is accepted and the repo stays private.
+- merged-branch cleanup is automated; this checkpoint extends Hub-repo cleanup to merged Stats PR branches as well.
 
 ## Full closure condition
 
 Do not call the full audit closed until:
-1. Cloudflare runtime/KDF compatibility is verified;
-2. NPCard custom domain is validated;
-3. Hub response headers are validated;
-4. branch governance is enforced to the strongest level available;
-5. a final zero-assumption audit is green.
+1. the current Hub QA/Lighthouse status is resolved;
+2. governance/cleanup automation is validated after the latest changes;
+3. a final zero-assumption audit is green.
+
+Accepted hosting/plan limitations do not count as unresolved defects once documented and explicitly accepted.
