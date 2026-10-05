@@ -12,7 +12,7 @@ Do not restart after timeout. Resume from the last validated checkpoint. Keep lo
 
 - Repo: `kl4ne/mpdgi-hub`
 - Branch: `main`
-- Current repository HEAD before this documentation PR: `73155d88e929c996875e5ce113ad13e4cc6ad9ab`
+- Current repository HEAD before this documentation PR: `b98eec711702b9a59ac1e022365667995bda2b3a`
 - Runtime version: `1.6.0`
 - Production: `https://hub.mpdgi.org`
 
@@ -34,10 +34,10 @@ Open Hub infrastructure finding:
 
 - Repo: `kl4ne/mpdgi-hub`
 - Branch: `mpdgi-stats-v1.0`
-- Current HEAD: `e31abf679870b6cc3c33826f5178d0f55a48b3e8`
+- Current HEAD: `a1a7cd62b6fe1baaa5689cd67cb54ef7cbf44d4c`
 - Runtime version: `1.4.10`
 - Verified production fallback: `https://mpdgi-stats.pages.dev`
-- Post-merge validation run: `37256688785` — SUCCESS
+- Post-merge validation run: `37258619739` — SUCCESS
 
 Completed:
 - `public/` is the single deployed/tested static source
@@ -57,6 +57,8 @@ Completed:
 - failed upgrade write does not block an otherwise valid login
 - UI distinguishes invalid credentials, rate limiting, server failure and network failure
 - auth-handler integration tests added
+- real Pages + local D1 authentication E2E added with pinned Wrangler 4.147.0
+- real local D1 E2E covers PBKDF2 login, legacy login, session lookup, invalid password and rate limiting
 - browser coverage for 401 / 429 / 5xx / network failure
 - AUTH_PEPPER unchanged
 - no D1 reset/deletion
@@ -67,7 +69,7 @@ Benchmark evidence:
   - p50 92.43 ms
   - p95 94.05 ms
   - max 94.05 ms
-- this is not yet evidence from the actual Cloudflare production runtime/plan
+- local Cloudflare workerd E2E observed login request wall times around 79–85 ms for successful password verification in the validated run; this still does not prove the account's production CPU-plan compatibility
 
 Custom-domain status:
 - `stats.mpdgi.org` failed public DNS resolution in run `37247974058`
