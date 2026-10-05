@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {spawn,spawnSync} from 'node:child_process';
-import {createTargetPasswordRecord,passwordSalt,passwordVerifier,LEGACY_INPUT_SCHEME} from '../functions/_lib/auth.js';
+import {createTargetPasswordRecord,passwordSalt,passwordVerifier,LEGACY_PASSWORD_SCHEME} from '../functions/_lib/auth.js';
 
 const WRANGLER=['--yes','wrangler@4.147.0'];
 const CONFIG='wrangler.test.toml';
@@ -44,7 +44,7 @@ async function prepareLocalD1(){
       'modern-local','modern@example.test',${sql(modern.password_hash)},${sql(modern.password_salt)},${sql(modern.password_scheme)},'owner',1
     );`,
     `INSERT INTO admin_users(id,email,password_hash,password_salt,password_scheme,role,active) VALUES(
-      'legacy-local','legacy@example.test',${sql(legacyHash)},${sql(legacySalt)},${sql(LEGACY_INPUT_SCHEME)},'admin',1
+      'legacy-local','legacy@example.test',${sql(legacyHash)},${sql(legacySalt)},${sql(LEGACY_PASSWORD_SCHEME)},'admin',1
     );`
   ].join('\n');
 
