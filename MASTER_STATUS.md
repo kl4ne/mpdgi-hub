@@ -12,119 +12,117 @@ Do not restart after timeout. Resume from the last validated checkpoint. Keep lo
 
 - Repo: `kl4ne/mpdgi-hub`
 - Branch: `main`
-- Current repository HEAD: `bb4d8953b2b7e8931c4906385dc4dbe7fa3a172d`
+- Current repository HEAD before this documentation PR: `73155d88e929c996875e5ce113ad13e4cc6ad9ab`
 - Runtime version: `1.6.0`
 - Production: `https://hub.mpdgi.org`
 
-Completed:
+Verified:
 - reproducible npm lockfile + npm ci
 - pinned GitHub Actions
-- production smoke and header observation
-- dead external payment SVG cleanup
-- historical runtime cleanup for v1.4.7 through v1.5.2
-- continuity/security/infrastructure documentation
-
-Verified infrastructure evidence:
-- public response comes directly from GitHub Pages
+- Chromium/WebKit QA + production smoke
+- dead payment assets removed
+- historical runtime 1.4.7–1.5.2 removed
+- service worker purges old MPDGI Hub caches
 - HSTS present
-- `X-Content-Type-Options: nosniff` not observed
-- response-header clickjacking protection not observed
 
-Remaining Hub blocker:
-- missing response headers require hosting/proxy/edge configuration; do not add a fake Cloudflare Pages `_headers` file to GitHub Pages
+Open Hub infrastructure finding:
+- production does not currently expose `X-Content-Type-Options: nosniff`
+- production does not currently expose clickjacking protection as an HTTP response header
+- public response is served directly by GitHub Pages, so a Cloudflare Pages-style repository `_headers` file is not a valid fix
 
 ## MPDGI Stats
 
 - Repo: `kl4ne/mpdgi-hub`
 - Branch: `mpdgi-stats-v1.0`
-- Current repository HEAD: `2d018cd07e0ace2d8bc9ed895d6828c88776c490`
-- Runtime version: `1.4.7`
-- Verified production: `https://mpdgi-stats.pages.dev`
+- Current HEAD: `e31abf679870b6cc3c33826f5178d0f55a48b3e8`
+- Runtime version: `1.4.10`
+- Verified production fallback: `https://mpdgi-stats.pages.dev`
+- Post-merge validation run: `37256688785` — SUCCESS
 
 Completed:
-- `public/` is the deployed and tested source of truth
-- collector integrity hardening
-- HSTS / nosniff / X-Frame-Options / noindex verified in production
-- campaign same-origin protection + RBAC
+- `public/` is the single deployed/tested static source
+- collector fail-closed behavior
+- card origin/target/action integrity
+- session/visitor mismatch rejection
+- concurrent first-request session/visitor race closed with canonical post-insert verification
+- campaign same-origin + write RBAC
 - bootstrap disabled by default
-- inherited Hub baggage removed
-- read-first schema checks + explicit migration 0003
-- dual-scheme auth: legacy HMAC-SHA256 + target PBKDF2-HMAC-SHA256
-- new password records use PBKDF2
-- successful legacy login may transparently upgrade that user
-- failed login does not mutate password fields
-- PBKDF2 iteration count: 600,000
-- CI WebCrypto benchmark: min 90.93 ms, p50 92.43 ms, p95 94.05 ms, max 94.05 ms
-- rollback checkpoint: `checkpoint/stats-v1.4.7-dual-scheme`
-- `AUTH_PEPPER` unchanged
-- no D1 reset/deletion performed
+- read-first schema checks + explicit migrations
+- stale login-rate cleanup
+- CSV formula neutralization
+- HSTS / nosniff / X-Frame-Options DENY / noindex verified on Pages production
+- dual-scheme auth: `hmac-sha256-v1` + `pbkdf2-sha256-v1`
+- PBKDF2 target: 600,000 iterations
+- login-time legacy upgrade
+- failed upgrade write does not block an otherwise valid login
+- UI distinguishes invalid credentials, rate limiting, server failure and network failure
+- auth-handler integration tests added
+- browser coverage for 401 / 429 / 5xx / network failure
+- AUTH_PEPPER unchanged
+- no D1 reset/deletion
+
+Benchmark evidence:
+- CI/Node WebCrypto proxy at 600,000 iterations:
+  - min 90.93 ms
+  - p50 92.43 ms
+  - p95 94.05 ms
+  - max 94.05 ms
+- this is not yet evidence from the actual Cloudflare production runtime/plan
 
 Custom-domain status:
-- `stats.mpdgi.org` failed public DNS resolution in GitHub Actions run `37247974058` (`curl: (6) Could not resolve host`)
-- keep `mpdgi-stats.pages.dev` as verified endpoint until Cloudflare/DNS is fixed
+- `stats.mpdgi.org` failed public DNS resolution in run `37247974058`
+- keep `mpdgi-stats.pages.dev` active until the custom domain is independently validated
 
 ## MPDGI Digital Cards
 
 - Repo: `kl4ne/mpdgi-digital-cards`
 - Branch: `main`
-- Current repository HEAD: `23e6e638e442e61721f7ade6791d4ae10a8cd9dc`
+- Current HEAD: `4fc5ef7e07c6f5ab8e4da63015f1a0519e9aaa87`
 - RSCard: `1.3.2`
 - NPCard fallback: `1.0.3`
+- Post-merge validation run: `37256341259` — SUCCESS
 
 Completed:
-- PR-gated card imports
-- no direct ZIP-to-main replacement
+- PR-gated ZIP imports
+- ZIP traversal protections
 - read-only build metadata verification
 - secret scanning
+- pinned Actions + npm ci + lockfile
 - Chromium + WebKit QA
 - context-safe generator
-- fallback-host support
-- production card smoke tests
+- Pages fallback host support
+- production smoke
 - 60-second update polling
-- NPCard custom-domain diagnostics merged
+- build metadata policy aligned to the same 60-second minimum
+- lockfile changes now trigger pull-request validation
 
 Verified production:
 - `https://rscard.mpdgi.org`
 - `https://npcard.pages.dev`
 
 Custom-domain status:
-- `npcard.mpdgi.org` failed public DNS resolution in Digital Cards run `37248236928` (`curl: (6) Could not resolve host`)
-- do not program Nancy NFC to the custom domain until Cloudflare/DNS + real-device verification are complete
+- `npcard.mpdgi.org` failed public DNS resolution in run `37248236928`
+- do not program Nancy NFC to the custom hostname until DNS/TLS + real-device validation pass
 
-## Remaining blockers
+## Remaining open findings
 
-1. Fix `stats.mpdgi.org` in Cloudflare/DNS.
-2. Fix `npcard.mpdgi.org` in Cloudflare/DNS.
-3. Add Hub nosniff + clickjacking response headers at a real hosting/proxy/edge layer.
-4. Do not force an owner login only to trigger password migration; allow normal successful login to migrate naturally.
+1. Verify PBKDF2 600,000 behavior against the actual Cloudflare runtime/plan CPU limits before declaring auth performance fully closed.
+2. Repair/validate `stats.mpdgi.org` in Cloudflare Pages/DNS.
+3. Repair/validate `npcard.mpdgi.org` in Cloudflare Pages/DNS.
+4. Add Hub nosniff + clickjacking response headers at the actual hosting/proxy layer.
+5. Enforce branch protection / required CI checks where repository settings and plan allow it.
+6. Clean obsolete merged branches after preserving the required rollback checkpoints.
 
-## Non-negotiable safety rules
+## Current closure classification
+
+- Known repository-code defects from the re-audit: **remediated**.
+- Full ecosystem audit: **not yet closed** because infrastructure/runtime/governance findings remain.
+
+## Safety rules
 
 - Do not reset/delete D1.
 - Do not rotate `AUTH_PEPPER` casually.
+- Do not lower PBKDF2 work factor without real runtime evidence and a documented security decision.
+- Do not disable Pages fallbacks before custom-domain verification.
 - Do not reintroduce workers.dev failover unless explicitly requested.
-- Do not change Nancy's approved card art.
-- Do not invent social/contact data.
-- Do not use the GMacfie watermark in this project.
-
-## Latest documentation checkpoint
-
-- PR #39 merged successfully after Validate + QA passed.
-- Main checkpoint: `bb4d8953b2b7e8931c4906385dc4dbe7fa3a172d`.
-- Remaining unresolved items are infrastructure-only.
-
-
-## Repository remediation closure
-
-- Repository remediation status: COMPLETE.
-- Latest main checkpoint: `bb4d8953b2b7e8931c4906385dc4dbe7fa3a172d`.
-- PR #40 merged after Validate + QA success.
-- PR #41 merged after Validate + QA success.
-- `CLOUDFLARE_FIX_RUNBOOK.md` is now in main.
-- Remaining audit blockers are infrastructure-only and require Cloudflare/DNS/hosting access.
-
-## Latest merged checkpoint
-
-- PR #44 merged successfully after Validate + QA passed.
-- Current main checkpoint: `bb4d8953b2b7e8931c4906385dc4dbe7fa3a172d`.
-- `INFRASTRUCTURE_EVIDENCE.md` is now in main.
+- Do not alter Nancy's approved artwork.
