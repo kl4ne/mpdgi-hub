@@ -49,9 +49,8 @@ Closed:
 - real Pages + local D1 authentication E2E
 - Pages production security headers
 
-Remaining Stats items:
+Remaining Stats item:
 - actual Cloudflare runtime/plan KDF verification
-- `stats.mpdgi.org` custom-domain/DNS repair
 
 ## Digital Cards — closed code findings
 
@@ -82,7 +81,7 @@ Remaining Card item:
 
 Do not call the full audit closed until:
 1. Cloudflare runtime/KDF compatibility is verified;
-2. Stats and NPCard custom domains are validated;
+2. NPCard custom domain is validated;
 3. Hub response headers are validated;
 4. branch governance is enforced to the strongest level available;
-6. a final zero-assumption audit is green.
+5. a final zero-assumption audit is green.

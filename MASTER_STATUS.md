@@ -71,9 +71,9 @@ Benchmark evidence:
   - max 94.05 ms
 - local Cloudflare workerd E2E observed login request wall times around 79–85 ms for successful password verification in the validated run; this still does not prove the account's production CPU-plan compatibility
 
-Custom-domain status:
-- `stats.mpdgi.org` failed public DNS resolution in run `37247974058`
-- keep `mpdgi-stats.pages.dev` active until the custom domain is independently validated
+Production endpoint status:
+- canonical Stats endpoint: `https://mpdgi-stats.pages.dev`
+- no Stats custom domain is configured or required
 
 ## MPDGI Digital Cards
 
@@ -109,10 +109,9 @@ Custom-domain status:
 ## Remaining open findings
 
 1. Verify PBKDF2 600,000 behavior against the actual Cloudflare runtime/plan CPU limits before declaring auth performance fully closed.
-2. Repair/validate `stats.mpdgi.org` in Cloudflare Pages/DNS.
-3. Repair/validate `npcard.mpdgi.org` in Cloudflare Pages/DNS.
-4. Add Hub nosniff + clickjacking response headers at the actual hosting/proxy layer.
-5. Enforce branch protection / required CI checks where repository settings and plan allow it.
+2. Repair/validate `npcard.mpdgi.org` in Cloudflare Pages/DNS.
+3. Add Hub nosniff + clickjacking response headers at the actual hosting/proxy layer.
+4. Enforce branch protection / required CI checks where repository settings and plan allow it.
 
 Branch lifecycle cleanup is complete:
 - Hub reduced from 64 branches to 5 deliberate branches.

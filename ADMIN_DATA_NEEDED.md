@@ -2,75 +2,49 @@
 
 Updated: 2026-10-05
 
-This file exists so the project does not forget which administrative facts still need to be collected.
+## Closed: Stats runtime/plan data
 
-## 1. Cloudflare plan/runtime for Stats
+Confirmed:
+- Workers plan: Free;
+- Stats production: `https://mpdgi-stats.pages.dev`;
+- Cloudflare Metrics showed `Exceeded CPU Time Limits = 0`;
+- no Stats custom domain is used.
 
-Need to determine:
-- Cloudflare account plan relevant to Pages Functions / Workers used by MPDGI Stats;
-- effective CPU-time limit for the production Functions runtime;
-- available Functions/Workers metrics or logs for login requests;
-- whether production auth requests show CPU-limit exceptions or Worker error 1102;
-- actual observed production CPU duration around PBKDF2 authentication if Cloudflare exposes it.
+No change to PBKDF2 600,000 or `AUTH_PEPPER` is required from the current evidence.
 
-Do not change PBKDF2 iterations or AUTH_PEPPER until this evidence is collected.
+## 1. Nancy custom domain
 
-## 2. Stats custom domain
-
-In the Cloudflare Pages project serving:
-- https://mpdgi-stats.pages.dev
-
-Need:
-- custom-domain status for stats.mpdgi.org;
+For the Cloudflare Pages project serving `https://npcard.pages.dev`, still need:
+- custom-domain status for `npcard.mpdgi.org`;
 - exact DNS record Cloudflare requests;
-- certificate/TLS status;
-- deployed production branch confirmation: mpdgi-stats-v1.0;
-- build output confirmation: public/.
-
-DNS for mpdgi.org has historically been managed outside Cloudflare DNS; verify the current authoritative DNS provider before changing any record.
-
-## 3. Nancy custom domain
-
-In the Cloudflare Pages project serving:
-- https://npcard.pages.dev
-
-Need:
-- custom-domain status for npcard.mpdgi.org;
-- exact requested DNS record;
 - certificate/TLS status;
 - current production deployment branch/root.
 
+DNS for `mpdgi.org` is managed in Namecheap.
+
 After activation:
 - test the approved NPCard build on a real phone;
-- verify analytics target business_card:nancy-pagan;
+- verify analytics target `business_card:nancy-pagan`;
 - only then program Nancy's NFC tag to the custom-domain URL.
 
-## 4. Hub hosting/proxy status
+## 2. Hub hosting/proxy status
 
 Need:
-- current authoritative DNS record for hub.mpdgi.org;
-- whether traffic is proxied through Cloudflare or goes directly to GitHub Pages;
-- if Cloudflare proxy is available, whether Response Header Transform Rules are available on the account plan.
+- current Namecheap DNS record for `hub.mpdgi.org`;
+- whether traffic goes directly to GitHub Pages or through a proxy capable of injecting response headers;
+- availability of a response-header rule at the actual serving layer.
 
 Target headers:
-- X-Content-Type-Options: nosniff
-- X-Frame-Options: DENY (or equivalent response CSP frame-ancestors protection)
+- `X-Content-Type-Options: nosniff`
+- `X-Frame-Options: DENY` or equivalent response CSP protection.
 
-Do not migrate the Hub to another host solely for these headers without a separate migration decision.
-
-## 5. GitHub repository administration
-
-Branch lifecycle cleanup is already complete and automated. The only remaining GitHub governance item is branch protection / required checks.
+## 3. GitHub repository administration
 
 Need:
-- whether branch protection can be enabled for kl4ne/mpdgi-hub under the current GitHub plan;
-- whether required status checks can be enforced on main and mpdgi-stats-v1.0;
-- for private kl4ne/mpdgi-digital-cards, whether upgrading to GitHub Pro is acceptable if stronger rulesets are desired.
+- enable branch protection / required checks for Hub `main` and Stats `mpdgi-stats-v1.0` where the plan permits;
+- decide the strongest available protection for private Digital Cards without making it public merely for rulesets.
 
-Observed now:
-- Hub main: protected=false
-- Stats mpdgi-stats-v1.0: protected=false
-- Digital Cards main: protected=false
-- advanced rulesets query for the private Cards repo reports that GitHub Pro or public visibility is required.
-
-Do not make the Digital Cards repository public merely to obtain rulesets.
+Observed:
+- Hub `main`: `protected=false`
+- Stats `mpdgi-stats-v1.0`: `protected=false`
+- Digital Cards `main`: `protected=false`

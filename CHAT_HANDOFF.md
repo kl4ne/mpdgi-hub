@@ -35,7 +35,7 @@ Never restart because of timeout.
 - concurrent session/visitor collector race closed
 - AUTH_PEPPER unchanged
 - no D1 reset
-- `stats.mpdgi.org` still lacks public DNS resolution
+- canonical Stats production endpoint is `https://mpdgi-stats.pages.dev`; no Stats custom domain is used
 
 ### Digital Cards
 - repo: `kl4ne/mpdgi-digital-cards`
@@ -60,10 +60,9 @@ Never restart because of timeout.
 ## Remaining findings
 
 1. Actual Cloudflare runtime/plan PBKDF2 verification.
-2. `stats.mpdgi.org` DNS/custom-domain repair.
-3. `npcard.mpdgi.org` DNS/custom-domain repair.
-4. Hub response-header hardening.
-5. Branch protection / required checks.
+2. `npcard.mpdgi.org` DNS/custom-domain repair.
+3. Hub response-header hardening.
+4. Branch protection / required checks.
 
 ## Do not redo
 
