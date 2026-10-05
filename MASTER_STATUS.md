@@ -114,8 +114,12 @@ Custom-domain status:
 
 ## Remaining open findings
 
-1. Complete final validation of the latest Hub QA/Lighthouse run and resolve any reproducible performance regression.
-2. Run the final zero-assumption ecosystem audit.
+1. Run the final zero-assumption ecosystem audit.
+
+Latest Hub QA confirmation:
+- workflow run `37267748275`, attempt 2: SUCCESS
+- prior isolated Lighthouse Performance 0.63 result did not reproduce
+- no Hub runtime or QA threshold change was required.
 
 Accepted limitations / decisions:
 - Hub remains on GitHub Pages. Missing `nosniff` and response-level clickjacking headers are accepted as low residual hosting-layer risk; no migration will be performed solely for those headers.
