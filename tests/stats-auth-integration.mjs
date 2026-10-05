@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {onRequest as loginHandler} from '../functions/api/auth/login.js';
 import {
   passwordSalt,passwordVerifier,createTargetPasswordRecord,sha256,
-  LEGACY_INPUT_SCHEME,TARGET_PASSWORD_SCHEME
+  LEGACY_PASSWORD_SCHEME,TARGET_PASSWORD_SCHEME
 } from '../functions/_lib/auth.js';
 
 const ORIGIN='https://stats.test';
@@ -92,7 +92,7 @@ async function legacyUser(email='legacy@example.com'){
   return {
     id:'legacy-1',email,
     password_hash:await passwordVerifier(LEGACY_INPUT,salt,PEPPER),
-    password_salt:salt,password_scheme:LEGACY_INPUT_SCHEME,
+    password_salt:salt,password_scheme:LEGACY_PASSWORD_SCHEME,
     role:'owner',active:1
   };
 }
@@ -159,7 +159,7 @@ async function runLogin(db,email,password,options={}){
   const response=await runLogin(db,user.email,LEGACY_INPUT);
   assert.equal(response.status,200);
   assert.equal(db.sessions.size,1);
-  assert.equal(db.users.get(user.email).password_scheme,LEGACY_INPUT_SCHEME);
+  assert.equal(db.users.get(user.email).password_scheme,LEGACY_PASSWORD_SCHEME);
   assert.equal(db.upgradeWrites,1);
 }
 
