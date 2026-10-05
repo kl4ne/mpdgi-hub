@@ -113,7 +113,12 @@ Custom-domain status:
 3. Repair/validate `npcard.mpdgi.org` in Cloudflare Pages/DNS.
 4. Add Hub nosniff + clickjacking response headers at the actual hosting/proxy layer.
 5. Enforce branch protection / required CI checks where repository settings and plan allow it.
-6. Clean obsolete merged branches after preserving the required rollback checkpoints.
+
+Branch lifecycle cleanup is complete:
+- Hub reduced from 64 branches to 5 deliberate branches.
+- Digital Cards reduced from 14 branches to 2 deliberate branches.
+- automatic merged-branch cleanup is installed in both repositories.
+- protected rollback checkpoints are preserved.
 
 ## Current closure classification
 
