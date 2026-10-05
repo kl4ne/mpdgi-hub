@@ -16,6 +16,10 @@ on:
       - 'STATS_DEPLOYMENT.md'
       - '.github/workflows/stats-validate.yml'
 
+concurrency:
+  group: stats-validate-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
