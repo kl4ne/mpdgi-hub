@@ -23,10 +23,11 @@ const BOOTSTRAP_PREFIXES=[
   /^checkpoint\//
 ];
 
-export function selectBootstrapCandidates(branches,{openBranches=new Set()}={}){
+export function selectBootstrapCandidates(branches,{openBranches=new Set(),mergedBranches=new Set()}={}){
   return branches.filter(name=>{
     if(PROTECTED_BRANCHES.has(name))return false;
     if(openBranches.has(name))return false;
+    if(!mergedBranches.has(name))return false;
     return BOOTSTRAP_PREFIXES.some(re=>re.test(name));
   });
 }
@@ -77,6 +78,18 @@ async function listOpenHeadBranches(){
   return out;
 }
 
+async function listMergedHeadBranches(){
+  const out=new Set();
+  for(let page=1;;page++){
+    const rows=await api(`/repos/${REPO}/pulls?state=closed&per_page=100&page=${page}`);
+    for(const pr of rows){
+      if(pr.merged_at&&pr.head?.repo?.full_name===REPO)out.add(pr.head.ref);
+    }
+    if(rows.length<100)break;
+  }
+  return out;
+}
+
 async function deleteBranch(name){
   const encoded=name.split('/').map(encodeURIComponent).join('%2F');
   await api(`/repos/${REPO}/git/refs/heads/${encoded}`,{method:'DELETE'});
@@ -86,7 +99,8 @@ async function deleteBranch(name){
 async function cleanupBootstrap(){
   const branches=await listBranches();
   const openBranches=await listOpenHeadBranches();
-  const candidates=selectBootstrapCandidates(branches,{openBranches});
+  const mergedBranches=await listMergedHeadBranches();
+  const candidates=selectBootstrapCandidates(branches,{openBranches,mergedBranches});
   console.log('bootstrap cleanup candidates:',candidates.length);
   for(const name of candidates){
     try{await deleteBranch(name);}
