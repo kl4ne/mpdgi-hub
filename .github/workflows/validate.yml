@@ -50,6 +50,12 @@ jobs:
           ];
           for(const p of must)if(!fs.existsSync(p))throw Error('Missing: '+p);
           if(fs.existsSync('assets/icons/icon-512.svg'))throw Error('Unused icon-512.svg must remain removed');
+          const historicalRuntime=[
+            'css/style-v1.4.7.css','css/style-v1.5.0.css','css/style-v1.5.1.css','css/style-v1.5.2.css',
+            'js/app-v1.4.7.js','js/app-v1.5.0.js','js/app-v1.5.1.js','js/app-v1.5.2.js',
+            'js/version-v1.4.7.js','js/version-v1.5.0.js','js/version-v1.5.1.js','js/version-v1.5.2.js'
+          ];
+          for(const p of historicalRuntime)if(fs.existsSync(p))throw Error('Historical runtime asset returned: '+p);
 
           const index=read('index.html'),css=read('css/style.css'),app=read('js/app.js'),sw=read('sw.js');
           const qa=read('.github/workflows/qa.yml');
