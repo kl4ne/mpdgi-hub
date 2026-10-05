@@ -20,12 +20,11 @@ Updated: 2026-10-05
 ## Remaining infrastructure/governance track
 
 1. Validate PBKDF2 behavior against the actual Cloudflare runtime/plan limits.
-2. Repair and validate `stats.mpdgi.org`.
-3. Repair and validate `npcard.mpdgi.org`.
-4. Add missing Hub response headers at the real proxy/hosting layer.
-5. Enforce branch protection / required checks where the GitHub plan and repository settings permit.
-7. Perform real-phone/NFC validation for Nancy after the custom domain is active.
-8. Run a new zero-assumption final audit.
+2. Repair and validate `npcard.mpdgi.org`.
+3. Add missing Hub response headers at the real proxy/hosting layer.
+4. Enforce branch protection / required checks where the GitHub plan and repository settings permit.
+5. Perform real-phone/NFC validation for Nancy after the custom domain is active.
+6. Run a new zero-assumption final audit.
 
 ## Do not treat as roadmap work
 
