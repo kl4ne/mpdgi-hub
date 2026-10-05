@@ -131,3 +131,15 @@ When Cloudflare/DNS administrative access is available, attach/verify the two cu
 - No invented social/contact data.
 - No GMacfie watermark.
 - Developer credit remains: `Designed & Developed by Roberto S. Macfie for MPDGI`, with only Roberto's name linked to `https://rmcard.pages.dev`.
+
+
+## Hub origin/header evidence checkpoint
+
+GitHub Actions run `37248409019` confirmed `https://hub.mpdgi.org` returns:
+- `HTTP/2 200`
+- `server: GitHub.com`
+- `via: 1.1 varnish`
+
+This proves the current public response is coming directly from GitHub Pages. HSTS is present, but `X-Content-Type-Options: nosniff` and response-header clickjacking protection remain absent.
+
+Do not add a fake `_headers` file to the GitHub Pages repository. The remaining fix requires an actual edge/proxy/hosting-layer change.

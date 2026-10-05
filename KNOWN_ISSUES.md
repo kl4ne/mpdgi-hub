@@ -26,8 +26,9 @@ Updated: 2026-10-04
 - Hub production exposes HSTS.
 - The latest header audit did not observe response-header `X-Content-Type-Options: nosniff`.
 - The latest header audit did not observe response-header clickjacking protection via `X-Frame-Options` or CSP `frame-ancestors`.
-- Because the Hub is on GitHub Pages/custom-domain infrastructure, adding Cloudflare Pages-style `_headers` to the repository would not solve this by itself.
-- Required next step: review the actual hosting/proxy layer before changing code.
+- GitHub Actions run `37248409019` confirmed the public response reports `server: GitHub.com` and `via: 1.1 varnish`.
+- Therefore the Hub is currently being served directly by GitHub Pages; a Cloudflare Pages-style `_headers` file would not solve this.
+- Required next step: introduce a deliberate edge/proxy header layer (for example Cloudflare response-header rules) or perform a planned hosting migration, then re-run QA.
 
 ### 4. Password migration is deployed but production-user migration status is intentionally unknown
 - Stats v1.4.7 supports both legacy `hmac-sha256-v1` and target `pbkdf2-sha256-v1`.
