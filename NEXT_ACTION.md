@@ -2,41 +2,37 @@
 
 Updated: 2026-10-04
 
-## Latest validated repository state
+## Current checkpoint
 
-### Hub
-- Runtime version: `1.6.0`
-- Historical runtime cleanup is complete and validated.
-- Remaining header gap is hosting-layer/infrastructure work.
+Hub:
+- main HEAD: `b123f59278bd1791c9ab02d6c92a3ead47a0f0bc`
+- runtime: `1.6.0`
 
-### Stats
-- Runtime version: `1.4.7`
-- Runtime checkpoint: `6213978d83d57eb236422c9e10290ae61e15cd99`
-- Diagnostics-only HEAD: `2d018cd07e0ace2d8bc9ed895d6828c88776c490`
-- Production Pages endpoint remains verified.
-- `stats.mpdgi.org` does not currently resolve publicly from GitHub Actions.
-- Diagnostic run: `37247974058`.
+Stats:
+- branch HEAD: `2d018cd07e0ace2d8bc9ed895d6828c88776c490`
+- runtime: `1.4.7`
+- verified endpoint: `https://mpdgi-stats.pages.dev`
 
-### Digital Cards
+Digital Cards:
+- main HEAD: `23e6e638e442e61721f7ade6791d4ae10a8cd9dc`
 - RSCard: `1.3.2`
 - NPCard fallback: `1.0.3`
-- Diagnostics-only HEAD: `ccf8940930e82cf67330488bf706a7c51e87f8ec`
-- `npcard.mpdgi.org` does not currently resolve publicly from GitHub Actions.
-- Diagnostic run: `37248236928`.
 
 ## Exact next action
 
-The remaining custom-domain work requires Cloudflare/DNS administrative access.
+The remaining unresolved items require infrastructure access, not more repository guessing.
 
-When that access is available:
-1. Attach/verify `stats.mpdgi.org` on the intended Stats Pages project.
-2. Confirm the public DNS record exists.
-3. Validate version/security headers.
-4. Checkpoint.
-5. Attach/verify `npcard.mpdgi.org` on the intended NPCard Pages project.
-6. Confirm the public DNS record exists.
-7. Validate approved Nancy build, headers, analytics and real-device NFC.
-8. Checkpoint.
-9. Review whether `hub.mpdgi.org` is behind a layer that can inject the two missing security response headers.
+When Cloudflare/DNS access is available:
 
-Until Cloudflare/DNS access is available, do not invent or guess DNS records.
+1. Inspect and attach/repair `stats.mpdgi.org`.
+2. Validate DNS, TLS, Stats v1.4.7 content and security headers.
+3. Checkpoint.
+4. Inspect and attach/repair `npcard.mpdgi.org`.
+5. Validate Nancy's approved build, headers, analytics target and real-phone NFC.
+6. Checkpoint.
+7. Inspect how `hub.mpdgi.org` can receive:
+   - `X-Content-Type-Options: nosniff`
+   - clickjacking protection via `X-Frame-Options: DENY` or CSP `frame-ancestors 'none'`
+8. Validate production after one infrastructure change at a time.
+
+Do not invent CNAME targets or Cloudflare state.
