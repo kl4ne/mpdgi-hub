@@ -4,15 +4,11 @@ Updated: 2026-10-05
 
 ## Open / verified or explicitly unverified
 
-### 1. Latest Hub Lighthouse performance result requires confirmation
+No known critical/high/medium defect is currently open from the remediation track. A final zero-assumption audit is still required before declaring the ecosystem fully closed.
 
-A recent Hub `browser-qa` run reported:
-- Chromium functional tests: 30/30 passed
-- Accessibility: 1.00
-- Best Practices: 1.00
-- Lighthouse Performance: 0.63, below the configured 0.80 threshold
+### Informational: transient Hub Lighthouse variance
 
-The failed job has been re-run to determine whether this is reproducible before changing application code or thresholds.
+One Hub `browser-qa` attempt reported Lighthouse Performance 0.63 while 30/30 Chromium functional tests, Accessibility 1.00 and Best Practices 1.00 passed. The failed job was re-run without code or threshold changes and workflow run `37267748275`, attempt 2 completed SUCCESS. Treat the 0.63 result as non-reproduced CI variance unless it recurs.
 
 ## Accepted residual risks / plan limitations
 
