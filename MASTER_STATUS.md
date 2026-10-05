@@ -114,9 +114,9 @@ Custom-domain status:
 
 ## Remaining open findings
 
-1. 🟠 Wait for public DNS propagation of `npcard.mpdgi.org` to become independently visible from the audit environment / Cloudflare Active status.
+1. 🟢 `npcard.mpdgi.org` propagation is complete and the custom domain is confirmed active/functioning by the user.
 
-Final zero-assumption audit completed and recorded in `FINAL_AUDIT_2026-10-05.md`: 0 critical/high unresolved, 1 external orange propagation condition.
+Final zero-assumption audit completed and recorded in `FINAL_AUDIT_2026-10-05.md`: 16/16 closed or accepted, 0 critical/high/medium unresolved defects.
 
 Latest Hub QA confirmation:
 - workflow run `37267748275`, attempt 2: SUCCESS
@@ -140,7 +140,7 @@ Branch lifecycle cleanup is complete:
 - Known repository-code defects from the re-audit: **remediated**.
 - Final zero-assumption audit: **completed**.
 - Critical/high unresolved defects: **0**.
-- Full all-green closure waits only for independent/global DNS propagation of `npcard.mpdgi.org`.
+- Full all-green closure achieved: 16/16 audit points closed or explicitly accepted.
 
 ## Safety rules
 
