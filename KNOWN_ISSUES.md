@@ -13,7 +13,7 @@ Available evidence:
 - Stats v1.4.10 validation and Pages production smoke are green.
 
 Missing evidence:
-- actual Cloudflare Pages Functions/Workers plan CPU limit and production-runtime PBKDF2 timing.
+- actual Cloudflare Pages Functions/Workers account plan CPU limit and production-runtime CPU evidence. Local workerd E2E is now green and observed successful auth requests around 79–85 ms wall time, but local wall time is not the account CPU quota.
 
 Required:
 - inspect Cloudflare plan/runtime metrics before considering KDF performance fully closed.
@@ -89,6 +89,7 @@ Do not force a login or expose password_hash/password_salt merely to inspect mig
 - misleading login 5xx/network-as-invalid-credentials behavior.
 - password-upgrade write blocking a valid login.
 - missing auth-handler integration coverage for principal login paths.
+- missing real Pages + local D1 authentication E2E.
 - Stats HSTS/nosniff/X-Frame-Options/noindex on Pages production.
 - Cards direct ZIP-to-main import.
 - Cards post-merge build-stamp writes.

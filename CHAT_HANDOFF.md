@@ -13,7 +13,7 @@ Never restart because of timeout.
 ### Hub
 - repo: `kl4ne/mpdgi-hub`
 - branch: `main`
-- HEAD before the current documentation PR: `73155d88e929c996875e5ce113ad13e4cc6ad9ab`
+- HEAD before the current documentation PR: `b98eec711702b9a59ac1e022365667995bda2b3a`
 - version: `1.6.0`
 - production smoke/Chromium/WebKit green
 - HSTS present
@@ -22,14 +22,15 @@ Never restart because of timeout.
 ### Stats
 - repo: `kl4ne/mpdgi-hub`
 - branch: `mpdgi-stats-v1.0`
-- HEAD: `e31abf679870b6cc3c33826f5178d0f55a48b3e8`
+- HEAD: `a1a7cd62b6fe1baaa5689cd67cb54ef7cbf44d4c`
 - version: `1.4.10`
-- post-merge run `37256688785`: SUCCESS
+- post-merge run `37258619739`: SUCCESS
 - verified production fallback: `mpdgi-stats.pages.dev`
 - dual-scheme auth deployed
 - PBKDF2 target: 600,000 iterations
 - auth network/service/credential errors are separated
 - real login-handler integration tests exist
+- real Pages + local D1 auth E2E is merged and post-merge CI is green
 - failed password-upgrade write cannot block a valid login
 - concurrent session/visitor collector race closed
 - AUTH_PEPPER unchanged
