@@ -2,9 +2,9 @@
 
 Private analytics PWA for **Ministerio Plenitud de Gracia**.
 
-This branch is intentionally separate from the public MPDGI Hub application. It is designed to deploy as a Cloudflare Pages project at:
+This branch is intentionally separate from the public MPDGI Hub application. It is deployed as a Cloudflare Pages project at:
 
-`https://stats.mpdgi.org`
+`https://mpdgi-stats.pages.dev`
 
 ## Purpose
 
