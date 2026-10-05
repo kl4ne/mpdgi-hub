@@ -21,7 +21,7 @@ Full ecosystem audit closure is **not yet declared** because infrastructure/runt
 Accepted Hub hosting limitation:
 - GitHub Pages remains the selected host.
 - Missing `nosniff` and response-level clickjacking headers are accepted as low residual risk rather than a migration requirement.
-- A recent Lighthouse Performance 0.63 result is being re-run before deciding whether any performance remediation is required.
+- The isolated Lighthouse Performance 0.63 result was re-run without code/threshold changes; workflow run `37267748275`, attempt 2 completed SUCCESS, so no reproducible performance defect is currently open.
 
 ## Stats — closed code findings
 
