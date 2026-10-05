@@ -4,13 +4,13 @@ Updated: 2026-10-05
 
 ## Current validated code state
 
-- Hub: v1.6.0 — main `73155d88e929c996875e5ce113ad13e4cc6ad9ab`
-- Stats: v1.4.10 — `e31abf679870b6cc3c33826f5178d0f55a48b3e8`
+- Hub: v1.6.0 — main `b98eec711702b9a59ac1e022365667995bda2b3a`
+- Stats: v1.4.10 — `a1a7cd62b6fe1baaa5689cd67cb54ef7cbf44d4c`
 - Digital Cards main: `4fc5ef7e07c6f5ab8e4da63015f1a0519e9aaa87`
 - RSCard: v1.3.2
 - NPCard: v1.0.3
 
-Known repository-code findings from the re-audit have been repaired and validated.
+Known repository-code findings from the re-audit have been repaired and validated, including real local Pages + D1 authentication E2E.
 
 ## Exact next phases
 
