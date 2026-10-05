@@ -1,0 +1,11 @@
+# Local-only CI configuration for Stats Pages Functions + D1 integration tests.
+# The database ID is intentionally non-production and is never used remotely.
+name = "mpdgi-stats-local-test"
+compatibility_date = "2026-09-29"
+pages_build_output_dir = "public"
+
+[[d1_databases]]
+binding = "STATS_DB"
+database_name = "mpdgi-stats-test"
+database_id = "00000000-0000-0000-0000-000000000001"
+preview_database_id = "STATS_DB"
