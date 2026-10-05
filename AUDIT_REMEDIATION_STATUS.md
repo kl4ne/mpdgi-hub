@@ -110,3 +110,7 @@ Required:
 ## Completion condition
 
 The audit remediation can be considered fully closed when all three infrastructure blockers above are independently fixed and revalidated in production.
+
+## Repository closure checkpoint
+
+PR #39 merged after Validate + QA success. Repository remediation is complete pending the three infrastructure-only blockers documented above.
