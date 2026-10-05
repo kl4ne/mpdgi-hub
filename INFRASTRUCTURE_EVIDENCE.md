@@ -16,8 +16,8 @@ Observed:
 - value: `hub.mpdgi.org`.
 
 Interpretation:
-- Hub is explicitly configured for the GitHub Pages custom hostname `hub.mpdgi.org`;
-- response-header remediation belongs at the actual serving/proxy layer.
+- Hub custom hostname is configured and production hosting is validated;
+- no hosting migration is pending.
 
 ## Stats
 
@@ -47,7 +47,7 @@ Interpretation:
 
 ## Operational conclusion
 
-- Hub custom hostname: real and represented by GitHub Pages `CNAME`.
+- Hub custom hostname: configured and validated.
 - Stats custom hostname: none; `mpdgi-stats.pages.dev` is canonical.
 - NPCard custom hostname: real pending infrastructure configuration.
-- Hub missing security response headers: real pending hosting/proxy configuration.
+- Hub hosting/security review: complete; no unresolved critical/high/medium hosting issue.
