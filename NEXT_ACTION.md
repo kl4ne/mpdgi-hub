@@ -19,27 +19,22 @@ Known repository-code findings from the re-audit have been repaired and validate
    - confirm PBKDF2 600,000 is sustainable in the real production runtime;
    - do not change AUTH_PEPPER or credential records merely to test this.
 
-2. **Stats custom domain**
-   - attach/fix `stats.mpdgi.org`;
-   - validate public DNS, TLS, v1.4.10 content, login and security headers;
-   - checkpoint.
-
-3. **Nancy custom domain**
+2. **Nancy custom domain**
    - attach/fix `npcard.mpdgi.org`;
    - validate approved NPCard build, TLS, headers, analytics and a real phone;
    - checkpoint.
 
-4. **Hub response headers**
+3. **Hub response headers**
    - add nosniff + clickjacking protection at the actual proxy/hosting layer;
    - re-run Hub production QA;
    - checkpoint.
 
-5. **GitHub governance**
+4. **GitHub governance**
    - require PR/green CI for production branches where the account/repository plan permits;
    - preserve required rollback branches.
    - merged-branch cleanup is already automated and closed.
 
-6. **Final audit**
+5. **Final audit**
    - repeat the audit from zero assumptions;
    - close only after no known critical/high/medium defects or unresolved accessible configuration findings remain.
 
