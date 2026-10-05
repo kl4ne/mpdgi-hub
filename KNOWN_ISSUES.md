@@ -4,11 +4,19 @@ Updated: 2026-10-05
 
 ## Open / verified or explicitly unverified
 
-No known critical/high/medium defect is currently open from the remediation track. A final zero-assumption audit is still required before declaring the ecosystem fully closed.
+No known critical/high/medium defect is currently open from the remediation track. The final zero-assumption audit is complete. One external orange condition remains: global DNS propagation for `npcard.mpdgi.org` is not yet independently visible from the audit environment, even though the user can already load and test the custom domain successfully.
 
 ### Informational: transient Hub Lighthouse variance
 
 One Hub `browser-qa` attempt reported Lighthouse Performance 0.63 while 30/30 Chromium functional tests, Accessibility 1.00 and Best Practices 1.00 passed. The failed job was re-run without code or threshold changes and workflow run `37267748275`, attempt 2 completed SUCCESS. Treat the 0.63 result as non-reproduced CI variance unless it recurs.
+
+### 🟠 External propagation pending: NPCard custom domain
+
+- Namecheap CNAME exists: `npcard` -> `npcard.pages.dev`.
+- User confirmed `npcard.mpdgi.org` works on a real phone and validated the approved card.
+- The audit environment still receives DNS resolution failure.
+- Cloudflare had shown a waiting/pending state.
+- No configuration change is recommended while propagation completes.
 
 ## Accepted residual risks / plan limitations
 
@@ -27,6 +35,10 @@ This is accepted as a low residual hosting limitation. The Hub will not be migra
 Hub and Stats now have active branch rulesets with required CI.
 
 The private Digital Cards repository cannot use repository rulesets on the current GitHub Free plan. The repository will remain private and will not be made public solely for rulesets. Existing PR-gated workflows, validation and merged-branch cleanup remain in place.
+
+### Informational: Cloudflare preview check noise on Hub `main`
+
+The Cloudflare GitHub App can show a failed `Cloudflare Pages` check on Hub `main` because the connected Pages project is `mpdgi-stats`. Hub production is GitHub Pages, and Hub `validate`, `browser-qa`, GitHub Pages deployment and cleanup are green. This is not a Hub production failure and is not a required ruleset check.
 
 ## Informational: production admin password scheme
 
