@@ -7,12 +7,14 @@ Updated: 2026-10-04
 ### 1. Stats custom domain not verified
 - `https://stats.mpdgi.org` was not reachable at the expected Stats v1.4.6 version from GitHub Actions.
 - Verified production fallback remains `https://mpdgi-stats.pages.dev`.
-- Required next step: verify Cloudflare/DNS custom-domain configuration before calling `stats.mpdgi.org` active.
+- Latest external proof: GitHub Actions run `37246063157` could not retrieve the expected v1.4.7 content from `stats.mpdgi.org`.
+- Required next step: inspect Cloudflare/DNS custom-domain configuration before calling `stats.mpdgi.org` active.
 
 ### 2. NPCard custom domain not verified
 - `https://npcard.mpdgi.org` was not reachable from GitHub Actions during the latest card production smoke.
 - Verified fallback remains `https://npcard.pages.dev` at NPCard v1.0.3.
-- Required next step: verify Cloudflare/DNS custom-domain configuration and then real-device behavior.
+- Latest external proof: GitHub Actions run `37241538514` could not reach `npcard.mpdgi.org`.
+- Required next step: inspect Cloudflare/DNS custom-domain configuration and then real-device behavior.
 
 ### 3. Hub response-header hardening remains incomplete at hosting layer
 - Hub production exposes HSTS.
