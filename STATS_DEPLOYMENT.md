@@ -60,13 +60,13 @@ with the `X-Bootstrap-Secret` request header and a JSON body containing the appr
 
 Bootstrap closes automatically after the first admin user exists. After the owner is created, remove `BOOTSTRAP_ENABLED` and `BOOTSTRAP_SECRET` from the active production environment so the endpoint remains disabled by default.
 
-## Custom domain
+## Production URL
 
-After the Pages deployment works, add:
+The canonical Stats production endpoint is:
 
-`stats.mpdgi.org`
+`https://mpdgi-stats.pages.dev`
 
-as the Pages custom domain. Because this is a subdomain, the existing DNS provider can remain in place; follow the CNAME target Cloudflare displays during custom-domain setup.
+No custom domain is configured or required for MPDGI Stats.
 
 The public Hub contains no Stats button or Stats link.
 
