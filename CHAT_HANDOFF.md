@@ -13,7 +13,7 @@ Never restart because of timeout.
 ### Hub
 - repo: `kl4ne/mpdgi-hub`
 - branch: `main`
-- HEAD before the current documentation PR: `b98eec711702b9a59ac1e022365667995bda2b3a`
+- HEAD before the current documentation PR: `739d7523e50f3ad9923143c8c922cd495856fd25`
 - version: `1.6.0`
 - production smoke/Chromium/WebKit green
 - HSTS present
@@ -82,3 +82,8 @@ Read next:
 - DATABASE_SCHEMA.md
 - SECURITY_MODEL.md
 - CLOUDFLARE_FIX_RUNBOOK.md
+
+
+## Latest continuity checkpoint
+
+PR #52 merged successfully. Current Hub/main is `739d7523e50f3ad9923143c8c922cd495856fd25`. Stats remains v1.4.10 at `a1a7cd62b6fe1baaa5689cd67cb54ef7cbf44d4c`.
