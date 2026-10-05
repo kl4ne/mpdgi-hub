@@ -53,6 +53,8 @@ Never restart because of timeout.
 - Stats v1.4.10 canonical session/visitor race protection
 - Digital Cards lockfile-trigger + 60-second metadata policy alignment
 - historical/dead Hub runtime cleanup
+- branch lifecycle cleanup closed: Hub 64→5 branches; Digital Cards 14→2 branches
+- automatic merged-branch cleanup installed in both repositories
 - prior Stats/Cards/Hub audit remediations remain intact
 
 ## Remaining findings
@@ -62,7 +64,6 @@ Never restart because of timeout.
 3. `npcard.mpdgi.org` DNS/custom-domain repair.
 4. Hub response-header hardening.
 5. Branch protection / required checks.
-6. Historical merged-branch cleanup.
 
 ## Do not redo
 
