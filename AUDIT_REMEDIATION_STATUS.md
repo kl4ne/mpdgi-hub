@@ -2,123 +2,87 @@
 
 Updated: 2026-10-05
 
-## Overall status
+## Current classification
 
-Repository-level audit remediation is substantially complete.
+Known repository-code findings from the latest re-audit have been remediated and validated.
 
-The remaining unresolved findings require infrastructure access rather than additional repository code.
+Full ecosystem audit closure is **not yet declared** because infrastructure/runtime/governance findings remain.
 
-## Closed / remediated
+## Hub — closed code findings
 
-### Hub
-- reproducible dependency lock and npm ci
-- pinned GitHub Actions
-- production QA/smoke
-- dead external payment SVG assets removed
-- historical v1.4.7–v1.5.2 runtime assets removed after reference/PWA review
-- validator guards added against dead/historical asset reintroduction
+- reproducible dependency lock + npm ci
+- pinned Actions
+- Chromium/WebKit QA
+- production smoke
+- dead payment asset cleanup
+- historical runtime cleanup
+- service-worker cache cleanup guards
 
-### Stats
-- deployed source of truth aligned to `public/`
-- root/public duplication removed
-- inherited Hub branch baggage removed
+Remaining Hub item:
+- response-header hardening at the real hosting/proxy layer
+
+## Stats — closed code findings
+
+Current release:
+- v1.4.10
+- HEAD `e31abf679870b6cc3c33826f5178d0f55a48b3e8`
+- post-merge run `37256688785`: SUCCESS
+
+Closed:
+- deployed source-of-truth mismatch
+- duplicate static shell
+- inherited Hub baggage
 - collector fail-closed rate control
-- origin/target/action integrity for known cards
-- session/visitor mismatch rejection
-- same-origin campaign writes
-- write RBAC
-- bootstrap disabled by default
-- HSTS, nosniff, X-Frame-Options DENY and noindex verified on Pages production
-- explicit schema migration path + read-first schema checks
+- card origin/target/action integrity
+- established + concurrent session/visitor mismatch paths
+- campaign same-origin + RBAC
+- bootstrap explicit enable
+- schema/migration hardening
 - stale login-rate cleanup
 - CSV formula neutralization
-- reproducible lockfile / npm ci
-- secret scanning
+- lockfile/npm ci/secret scanning
 - dual-scheme password verification
-- PBKDF2-HMAC-SHA256 target with 600,000 iterations
-- login-time legacy upgrade support
-- rollback checkpoint `checkpoint/stats-v1.4.7-dual-scheme`
-- non-production KDF benchmark completed successfully
+- login-time PBKDF2 upgrade
+- failed-upgrade nonblocking behavior
+- 401/429/5xx/network login diagnostics
+- auth handler integration coverage
+- Pages production security headers
 
-### Digital Cards
-- direct ZIP-to-main import removed
-- imports changed to PR-gated review flow
-- post-merge build-stamp mutation removed
-- browser QA added for Chromium + WebKit
-- secret scanning added
-- generator made context-safe
-- fallback hostname support added
-- runtime drift checks added
-- production card smoke tests added
-- update polling reduced
-- custom-domain diagnostics added
+Remaining Stats items:
+- actual Cloudflare runtime/plan KDF verification
+- `stats.mpdgi.org` custom-domain/DNS repair
 
-## Remaining infrastructure-only blockers
+## Digital Cards — closed code findings
 
-### 1. Stats custom domain
-`stats.mpdgi.org`
+Current main:
+- `4fc5ef7e07c6f5ab8e4da63015f1a0519e9aaa87`
+- post-merge run `37256341259`: SUCCESS
 
-Evidence:
-- GitHub Actions run `37247974058`
-- public resolution failed:
-  `curl: (6) Could not resolve host: stats.mpdgi.org`
+Closed:
+- direct ZIP-to-main import
+- ZIP traversal risk
+- post-merge metadata writes
+- missing secret scanning
+- missing browser QA
+- generator escaping/fallback-host gaps
+- missing production smoke
+- lockfile PR-trigger gap
+- update-interval policy mismatch
 
-Verified fallback:
-- `https://mpdgi-stats.pages.dev`
+Remaining Card item:
+- `npcard.mpdgi.org` custom-domain/DNS + real-phone validation
 
-Required:
-- Cloudflare Pages custom-domain attachment/DNS/TLS inspection
+## Governance findings still open
 
-### 2. Nancy card custom domain
-`npcard.mpdgi.org`
+- production branches are not currently protected
+- historical merged branches should be cleaned after preserving required rollbacks
 
-Evidence:
-- Digital Cards run `37248236928`
-- public resolution failed:
-  `curl: (6) Could not resolve host: npcard.mpdgi.org`
+## Full closure condition
 
-Verified fallback:
-- `https://npcard.pages.dev`
-
-Required:
-- Cloudflare Pages custom-domain attachment/DNS/TLS inspection
-- real-phone verification before programming Nancy NFC to the custom URL
-
-### 3. Hub response-header hardening
-`https://hub.mpdgi.org`
-
-Verified:
-- HSTS present
-
-Not observed:
-- `X-Content-Type-Options: nosniff`
-- response-header clickjacking protection
-
-Required:
-- actual hosting/proxy/edge configuration
-- do not use a Cloudflare Pages-style repository `_headers` file as a fake GitHub Pages fix
-
-## Security constraints still active
-
-- do not reset/delete D1
-- do not rotate `AUTH_PEPPER` casually
-- do not force a production owner login only to trigger password migration
-- do not disable Pages fallbacks before custom domains are validated
-- do not reintroduce workers.dev failover unless explicitly requested
-- do not alter Nancy's approved artwork
-
-## Completion condition
-
-The audit remediation can be considered fully closed when all three infrastructure blockers above are independently fixed and revalidated in production.
-
-## Repository closure checkpoint
-
-PR #39 merged after Validate + QA success. Repository remediation is complete pending the three infrastructure-only blockers documented above.
-
-
-## Closure status
-
-- Repository-level remediation: CLOSED.
-- Latest checkpoint: `bb4d8953b2b7e8931c4906385dc4dbe7fa3a172d`.
-- PR #40 and #41 merged after green validation/QA.
-- Full audit closure now depends only on the three infrastructure items documented in `CLOUDFLARE_FIX_RUNBOOK.md`.
+Do not call the full audit closed until:
+1. Cloudflare runtime/KDF compatibility is verified;
+2. Stats and NPCard custom domains are validated;
+3. Hub response headers are validated;
+4. branch governance is enforced to the strongest level available;
+5. obsolete branches are cleaned;
+6. a final zero-assumption audit is green.

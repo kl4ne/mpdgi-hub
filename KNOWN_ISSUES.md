@@ -1,75 +1,108 @@
 # KNOWN ISSUES — MPDGI Digital Ecosystem
 
-Updated: 2026-10-04
+Updated: 2026-10-05
 
-## Open / verified
+## Open / verified or explicitly unverified
 
-### 1. Stats custom domain has no public DNS resolution
-- `https://stats.mpdgi.org` is not currently publicly resolvable from GitHub Actions.
-- Diagnostic run `37247974058`:
-  - `getent ahosts stats.mpdgi.org` returned no address;
-  - `curl` reported `Could not resolve host: stats.mpdgi.org`.
-- Verified production remains `https://mpdgi-stats.pages.dev`.
-- This is now classified as a DNS/custom-domain configuration blocker, not an application-code blocker.
-- Required next step: inspect/add the Cloudflare Pages custom-domain attachment and resulting DNS record, then re-run production smoke.
+### 1. PBKDF2 production-runtime compatibility needs direct Cloudflare evidence
 
-### 2. NPCard custom domain has no public DNS resolution
-- `https://npcard.mpdgi.org` is not currently publicly resolvable from GitHub Actions.
-- Diagnostic run `37248236928`:
-  - `getent ahosts npcard.mpdgi.org` returned no address;
-  - `curl` reported `Could not resolve host: npcard.mpdgi.org`.
-- Verified fallback remains `https://npcard.pages.dev` at NPCard v1.0.3.
-- This is now classified as a DNS/custom-domain configuration blocker, not an application-code blocker.
-- Required next step: inspect/add the Pages custom-domain attachment and resulting DNS record, then run browser/NFC validation.
+Stats v1.4.10 uses PBKDF2-HMAC-SHA256 at 600,000 iterations.
 
-### 3. Hub response-header hardening remains incomplete at hosting layer
-- Hub production exposes HSTS.
-- The latest header audit did not observe response-header `X-Content-Type-Options: nosniff`.
-- The latest header audit did not observe response-header clickjacking protection via `X-Frame-Options` or CSP `frame-ancestors`.
-- GitHub Actions run `37248409019` confirmed the public response reports `server: GitHub.com` and `via: 1.1 varnish`.
-- Therefore the Hub is currently being served directly by GitHub Pages; a Cloudflare Pages-style `_headers` file would not solve this.
-- Required next step: introduce a deliberate edge/proxy header layer (for example Cloudflare response-header rules) or perform a planned hosting migration, then re-run QA.
+Available evidence:
+- CI/Node WebCrypto benchmark: p50 92.43 ms / p95 94.05 ms.
+- Stats v1.4.10 validation and Pages production smoke are green.
 
-### 4. Password migration is deployed but production-user migration status is intentionally unknown
-- Stats v1.4.7 supports both legacy `hmac-sha256-v1` and target `pbkdf2-sha256-v1`.
-- New bootstrap users use PBKDF2.
-- Successful legacy login can transparently upgrade only that authenticated user.
-- No production owner login was intentionally performed during remediation, so the current owner's stored scheme is not assumed.
-- `AUTH_PEPPER` remains unchanged.
-- Rollback checkpoint: `checkpoint/stats-v1.4.7-dual-scheme`.
-- Benchmark complete in CI/WebCrypto proxy at 600,000 iterations: p50 92.43 ms, p95 94.05 ms. This is not Cloudflare production timing.
-- Required next step: keep 600,000 unchanged for now and allow migration to occur naturally on a normal successful login; do not force a production login solely for migration.
+Missing evidence:
+- actual Cloudflare Pages Functions/Workers plan CPU limit and production-runtime PBKDF2 timing.
 
-### 5. Historical Hub pinned runtime cleanup
-- Closed.
-- v1.4.7 through v1.5.2 CSS/app/version files were confirmed unreferenced by current index.html, current service worker, validator and QA workflows.
-- Current service worker precaches only v1.6.0 assets and purges old MPDGI Hub caches on activation.
-- PR #33 removed the unreferenced historical runtime files and QA passed before merge.
-- Git history retains rollback/reference copies.
+Required:
+- inspect Cloudflare plan/runtime metrics before considering KDF performance fully closed.
+- do not reduce iterations or rotate AUTH_PEPPER without evidence and an explicit security decision.
+
+### 2. Stats custom domain has no public DNS resolution
+
+- `stats.mpdgi.org` failed public resolution in run `37247974058`.
+- `curl: (6) Could not resolve host: stats.mpdgi.org`.
+- Verified production fallback is `https://mpdgi-stats.pages.dev`.
+- This is a Cloudflare Pages/DNS configuration blocker, not an application-code blocker.
+
+### 3. NPCard custom domain has no public DNS resolution
+
+- `npcard.mpdgi.org` failed public resolution in run `37248236928`.
+- `curl: (6) Could not resolve host: npcard.mpdgi.org`.
+- Verified fallback is `https://npcard.pages.dev` at v1.0.3.
+- Real-phone/NFC validation is required after the custom domain becomes active.
+
+### 4. Hub response-header hardening is incomplete at the hosting layer
+
+Verified:
+- HSTS present.
+- Hub v1.6.0 production smoke is green.
+
+Not observed:
+- `X-Content-Type-Options: nosniff`
+- clickjacking protection through `X-Frame-Options` or response CSP `frame-ancestors`
+
+The public response is served directly by GitHub Pages. A repository-only Cloudflare Pages `_headers` file is not a valid fix.
+
+### 5. Production branches are not protected
+
+Observed during re-audit:
+- Hub `main`: `protected:false`
+- Stats `mpdgi-stats-v1.0`: `protected:false`
+- Digital Cards `main`: `protected:false`
+- no active ruleset was observed for the Hub repository
+
+Required:
+- enforce PR + required green checks where GitHub repository settings/plan permit it.
+
+### 6. Historical merged branches need cleanup
+
+The Hub repository contains many audit/docs/checkpoint/version branches and Digital Cards contains historical audit/fix/checkpoint branches.
+
+This is operational debt, not a production-runtime defect.
+
+Required:
+- retain production branches, active development and deliberately selected rollback checkpoints;
+- remove obsolete merged branches.
+
+## Informational: production admin password scheme
+
+Stats supports both legacy and PBKDF2 records. A normal successful legacy login may upgrade that authenticated user. The currently stored production owner's scheme is not assumed without D1 evidence.
+
+Do not force a login or expose password_hash/password_salt merely to inspect migration status.
 
 ## Closed by remediation
 
-- Stats root/public deployment mismatch: closed.
-- Stats duplicate root static shell: closed.
-- Stats inherited Hub baggage: closed.
-- Collector fail-open rate control: closed.
-- Collector card origin/target integrity gap: closed for known cards.
-- Collector session/visitor mismatch acceptance: closed.
-- Campaign POST same-origin gap: closed.
-- Campaign write RBAC gap: closed.
-- Bootstrap default-open lifecycle: closed.
-- Stats HSTS/nosniff/X-Frame-Options/noindex: verified in production.
-- Cards direct ZIP-to-main import: closed.
-- Cards post-merge build-stamp writes: closed.
-- Cards no browser QA: closed.
-- Card generator context-escaping gap: closed.
-- Cards Actions runtime warning: closed.
-- Hub/Stats missing npm lockfiles: closed.
-- Dead external Hub payment SVG files: closed.
+- Stats root/public deployment mismatch.
+- duplicate Stats root shell.
+- inherited Hub baggage in Stats.
+- collector fail-open rate control.
+- card origin/target/action integrity gap.
+- established session/visitor mismatch acceptance.
+- concurrent first-request session/visitor race.
+- campaign POST same-origin gap.
+- campaign write RBAC gap.
+- bootstrap default-open lifecycle.
+- stale login-rate cleanup.
+- CSV formula injection.
+- misleading login 5xx/network-as-invalid-credentials behavior.
+- password-upgrade write blocking a valid login.
+- missing auth-handler integration coverage for principal login paths.
+- Stats HSTS/nosniff/X-Frame-Options/noindex on Pages production.
+- Cards direct ZIP-to-main import.
+- Cards post-merge build-stamp writes.
+- Cards browser QA gap.
+- card generator context-escaping gap.
+- Cards lockfile PR-trigger gap.
+- Cards 15-vs-60-second metadata policy inconsistency.
+- Hub/Stats missing npm lockfiles.
+- dead Hub payment assets.
+- historical Hub pinned runtime files 1.4.7–1.5.2.
 
 ## Safety constraints
 
-- Do not delete D1 data.
-- Do not rotate or change `AUTH_PEPPER` as part of routine cleanup.
-- Do not delete historical Hub pinned runtime assets until PWA behavior is proven safe.
+- Do not delete/reset D1.
+- Do not casually rotate AUTH_PEPPER.
+- Do not lower password work factor without measured production evidence.
 - Do not declare custom domains active without production verification.

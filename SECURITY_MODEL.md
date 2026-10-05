@@ -1,230 +1,138 @@
-# SECURITY MODEL — MPDGI Stats Password Verification
+# SECURITY MODEL — MPDGI Stats Authentication
 
-Updated: 2026-10-04
+Updated: 2026-10-05
 
-## Scope
+## Current implementation
 
-This document designs a compatibility-safe migration away from the legacy Stats password verifier without changing any existing credential yet.
+Current Stats release: `1.4.10`
 
-Current production scheme:
-- `password_scheme = hmac-sha256-v1`
-- per-user random salt
-- Cloudflare-only `AUTH_PEPPER`
-- constant-time comparison
-- password length 16–128
-- login rate limiting
+Supported password schemes:
+- legacy: `hmac-sha256-v1`
+- target: `pbkdf2-sha256-v1`
 
-The current scheme is not treated as an active compromise. The migration is a hardening change.
-
-## Target design
-
-Preferred target for the current Cloudflare/Web Crypto architecture:
-
-`pbkdf2-sha256-v1`
-
-Target properties:
+PBKDF2 target:
 - PBKDF2-HMAC-SHA256
-- minimum 600,000 iterations, subject to production benchmark
+- 600,000 iterations
 - unique random per-user salt
-- existing `AUTH_PEPPER` retained as a server-side secret
-- constant-time verifier comparison
-- work factor encoded/versioned so it can be increased later
-- no plaintext password storage
-- no forced password reset for a successful legacy user
+- existing `AUTH_PEPPER` retained outside D1
+- HMAC-SHA256 pepper pre-hash
+- 32-byte derived verifier
+- work factor encoded in `password_hash`
 
-OWASP currently recommends PBKDF2-HMAC-SHA256 with 600,000 or more iterations when PBKDF2 is selected and recommends upgrading password hashes when the user next authenticates.
-
-## Pepper construction
-
-Do not append or concatenate the pepper directly into a public salt string.
-
-For `pbkdf2-sha256-v1`:
-
-1. Compute a pre-hash using HMAC-SHA256:
-   `peppered_password = HMAC-SHA256(key=AUTH_PEPPER, data=password)`
-2. Feed the resulting bytes as PBKDF2 key material.
-3. Use the user's random password salt as PBKDF2 salt.
-4. Derive 32 bytes with HMAC-SHA256 at the configured iteration count.
-5. Store the derived verifier, scheme, salt and work factor metadata.
-
-This keeps `AUTH_PEPPER` outside D1 and preserves the current defense-in-depth model.
-
-## Storage format
-
-No destructive D1 schema rewrite is required.
-
-Current columns already provide:
-- `password_hash`
-- `password_salt`
-- `password_scheme`
-
-Recommended representation:
-
+Stored representation:
 - `password_scheme = pbkdf2-sha256-v1`
 - `password_salt = <base64url random salt>`
-- `password_hash = i=600000$<base64url derived verifier>`
+- `password_hash = i=600000$<base64url verifier>`
 
-This avoids adding a mandatory new column solely for the work factor and allows future users to carry different work factors during upgrades.
+## Login behavior
 
-If implementation testing shows a dedicated iteration column materially improves maintainability, add it only through an explicit migration; do not alter production schema ad hoc.
+1. User is looked up by normalized email.
+2. Unknown/inactive users return invalid credentials.
+3. Legacy verifier:
+   - verify with the legacy HMAC scheme;
+   - wrong password returns 401 and performs no credential write;
+   - successful login may transparently create a PBKDF2 record;
+   - failure of that upgrade write is deferred and does not block an otherwise valid login.
+4. PBKDF2 verifier:
+   - parse/validate encoded work factor;
+   - reject malformed records safely;
+   - verify with PBKDF2;
+   - lower supported work factors may be upgraded after successful authentication.
+5. Unknown scheme returns a controlled service failure.
+6. A successful login creates a random session token; D1 stores only its SHA-256 hash.
+7. Session cookie is HttpOnly, Secure and SameSite=Strict.
 
-## Compatibility-safe login flow
+## Rate limiting
 
-The login endpoint must temporarily support both schemes.
+- login window: 10 minutes
+- maximum attempts before blocking: 8
+- rate key is derived from IP + normalized email + AUTH_PEPPER
+- old rate rows are cleaned
+- successful authentication clears the current rate key
 
-Pseudo-flow:
+Raw IP addresses are not persisted in the login-rate table.
 
-1. Look up user.
-2. Inspect `password_scheme`.
-3. If `hmac-sha256-v1`:
-   - verify with the existing function unchanged;
-   - if verification fails, return invalid credentials;
-   - if verification succeeds, compute a fresh `pbkdf2-sha256-v1` verifier from the plaintext password supplied for that successful login;
-   - update only that user's `password_hash`, `password_salt`, `password_scheme`, and `updated_at`;
-   - continue issuing the session normally.
-4. If `pbkdf2-sha256-v1`:
-   - parse and validate the work-factor metadata;
-   - reject malformed metadata;
-   - verify using PBKDF2;
-   - if stored iterations are below the current target, transparently rehash after successful authentication.
-5. Any unknown scheme:
-   - return `unsupported_password_scheme`;
-   - do not silently reinterpret the stored value.
+## Integration coverage added in v1.4.9
 
-## Bootstrap behavior
+Automated handler-level tests cover:
+- correct legacy password + transparent upgrade
+- correct PBKDF2 password without rewrite
+- incorrect password with no session/credential mutation
+- failed transparent-upgrade write while valid login still succeeds
+- rate limiting
+- unsupported scheme
+- missing auth configuration
 
-Once migration code exists, all newly bootstrapped users must be created directly with `pbkdf2-sha256-v1`.
+Browser tests cover:
+- invalid credentials (401)
+- rate limiting (429)
+- service failure (5xx)
+- connection/network failure
 
-Do not create new `hmac-sha256-v1` users after the migration release.
+This prevents a network/service problem from being falsely presented as a bad password.
 
-## Rollout phases
+## Pepper rules
 
-### Phase 0 — documentation only
-- This document.
-- No production code change.
-- No credential change.
-- No D1 mutation.
+Never log or expose:
+- plaintext password
+- AUTH_PEPPER
+- password_hash
+- password_salt
+- raw session token
 
-### Phase 1 — implementation behind dual-scheme support
-- Add `LEGACY_PASSWORD_SCHEME='hmac-sha256-v1'`.
-- Add `PASSWORD_SCHEME='pbkdf2-sha256-v1'`.
-- Keep the legacy verifier function intact for migration compatibility.
-- Add PBKDF2 helper, parser and tests.
-- Do not remove legacy support.
+AUTH_PEPPER must not be rotated as routine cleanup. A pepper rotation requires a dedicated credential-migration plan.
 
-### Phase 2 — exhaustive tests before merge
-Required test cases:
-- known legacy verifier succeeds with correct password
-- legacy verifier fails with wrong password
-- PBKDF2 verifier succeeds with correct password
-- PBKDF2 verifier fails with wrong password
-- malformed PBKDF2 metadata fails safely
-- unsupported scheme remains 503/controlled failure
-- successful legacy login upgrades exactly one user
-- failed legacy login performs no upgrade
-- successful modern login does not downgrade
-- lower stored work factor upgrades after successful login
-- Unicode password round-trip
-- 16-character lower boundary
-- 128-character upper boundary
-- login rate limiting behavior unchanged
-- existing session issuance unchanged
+## Benchmark evidence and remaining runtime question
 
-### Phase 3 — benchmark
-Before choosing the final iteration count:
-- benchmark PBKDF2 in the actual Cloudflare runtime;
-- start at 600,000 iterations;
-- keep normal verification comfortably below one second;
-- record p50/p95 observed duration;
-- never reduce below the security floor merely to make a microbenchmark faster without documenting the reason.
+Available proxy benchmark at 600,000 iterations:
+- min 90.93 ms
+- p50 92.43 ms
+- p95 94.05 ms
+- max 94.05 ms
 
-### Phase 4 — controlled production release
-- deploy dual-scheme code;
-- do not rotate `AUTH_PEPPER`;
-- do not force password reset;
-- log only scheme-transition counts, never password/hash/pepper values;
-- perform one owner login through the normal Stats UI;
-- verify login succeeds;
-- verify session issuance succeeds;
-- verify that owner's `password_scheme` changed to `pbkdf2-sha256-v1`;
-- verify subsequent login uses the new scheme.
+This benchmark was executed in CI/Node WebCrypto. It is useful implementation evidence but is **not** the same as measuring the actual Cloudflare Pages Functions/Workers runtime under the account's real CPU limits.
 
-### Phase 5 — legacy retirement
-Do not remove `hmac-sha256-v1` support immediately.
+Before authentication performance is considered fully closed:
+- inspect the actual Cloudflare plan/runtime limits;
+- observe production Function behavior/timing;
+- do not reduce the work factor merely to satisfy a guessed limit.
 
-Retire it only after:
-- every active admin user has migrated, or
-- remaining legacy users are deliberately reset by an administrator,
-- a stable checkpoint exists,
-- rollback procedure is documented.
+## Bootstrap
 
-## Rollback model
+Bootstrap is disabled unless `BOOTSTRAP_ENABLED=true`.
 
-A code rollback must remain possible without credential loss.
+When intentionally enabled it also requires:
+- STATS_DB
+- AUTH_PEPPER
+- BOOTSTRAP_SECRET
+- same-origin request
+- zero existing admin users
 
-Therefore, before the first production migration:
-- keep a code checkpoint that understands both schemes;
-- do not deploy a rollback target that only understands the old scheme after users have migrated;
-- the minimum safe rollback target is the first dual-scheme release.
+New bootstrap users are created directly with the target PBKDF2 scheme.
 
-Once a user is upgraded to PBKDF2, restoring code that understands only `hmac-sha256-v1` would lock that user out. This must be prevented operationally.
+## Rollback
+
+Safe rollback must understand both password schemes.
+
+Required compatibility checkpoint:
+- `checkpoint/stats-v1.4.7-dual-scheme`
+
+Do not roll back to code that understands only the old HMAC verifier after any user has migrated to PBKDF2.
 
 ## D1 mutation rules
 
-Allowed during migration:
-- update the authenticated user's password verifier fields after a successful legacy login.
-
-Not allowed:
-- bulk rewriting password hashes without plaintext passwords;
-- replacing all hashes with hashes-of-hashes as the final design;
-- deleting admin users;
-- deleting sessions merely to perform this migration;
-- altering analytics tables;
-- rotating `AUTH_PEPPER` as part of the migration.
-
-## Failure handling
-
-If PBKDF2 computation throws or metadata parsing fails:
-- fail authentication safely;
-- return a controlled server error for invalid server-side scheme state;
-- do not create a session;
-- do not partially update the user;
-- do not fall back from a malformed PBKDF2 record to the legacy algorithm.
-
-## Observability
-
 Allowed:
-- aggregate counts by password scheme
-- migration success count
-- migration failure count
-- PBKDF2 verification timing distribution
+- update only the successfully authenticated user's verifier fields during a compatible migration.
 
-Never log:
-- plaintext password
-- `AUTH_PEPPER`
-- `password_hash`
-- `password_salt`
-- session tokens
+Not allowed as routine remediation:
+- reset/delete D1
+- bulk rewrite password hashes without plaintext passwords
+- delete admin users
+- rotate AUTH_PEPPER
+- expose credential fields for troubleshooting
 
-## Acceptance criteria before coding is considered production-ready
+## Remaining security/configuration work
 
-- Dual-scheme implementation passes unit tests.
-- Existing Stats browser tests remain green.
-- Bootstrap creates PBKDF2 users.
-- Successful legacy login transparently upgrades the user.
-- Failed login never mutates password fields.
-- No `AUTH_PEPPER` change.
-- No D1 reset.
-- Production smoke remains green.
-- A rollback checkpoint that supports both schemes is recorded.
-- `MASTER_STATUS.md`, `NEXT_ACTION.md`, and `CHAT_HANDOFF.md` are updated after validation.
-
-## Decision
-
-Proceed with a dual-scheme, login-time migration to PBKDF2-HMAC-SHA256.
-
-Do not implement the production credential migration until the implementation branch has:
-1. unit coverage,
-2. benchmark evidence from the target runtime,
-3. green Stats browser QA,
-4. an explicit rollback checkpoint.
+1. Verify PBKDF2 behavior in the actual Cloudflare runtime/plan.
+2. Protect production Git branches with required checks where repository settings permit.
+3. Close custom-domain and Hub response-header findings at the infrastructure layer.
