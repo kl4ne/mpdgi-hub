@@ -19,7 +19,7 @@ Never restart because of timeout.
 - HSTS present
 - missing nosniff/clickjacking HTTP response headers are accepted as low residual GitHub Pages hosting risk
 - active ruleset `Protect Hub Main`: PR + `validate` + `browser-qa`
-- latest Hub QA had one Lighthouse Performance 0.63 failure while 30 Chromium tests passed; failed job has been re-run for confirmation
+- one Hub QA attempt reported Lighthouse Performance 0.63 while 30 Chromium tests passed; workflow run `37267748275`, attempt 2 then completed SUCCESS without code or threshold changes, so the result is treated as transient unless it recurs
 
 ### Stats
 - repo: `kl4ne/mpdgi-hub`
