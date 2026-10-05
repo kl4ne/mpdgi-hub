@@ -18,10 +18,10 @@ Final zero-assumption audit is complete. **All 16 audit points are closed or exp
 - historical runtime cleanup
 - service-worker cache cleanup guards
 
-Accepted Hub hosting limitation:
-- GitHub Pages remains the selected host.
-- Missing `nosniff` and response-level clickjacking headers are accepted as low residual risk rather than a migration requirement.
-- The isolated Lighthouse Performance 0.63 result was re-run without code/threshold changes; workflow run `37267748275`, attempt 2 completed SUCCESS, so no reproducible performance defect is currently open.
+Hub hosting/security review:
+- current hosting architecture is accepted and stable;
+- required Hub checks are enforced;
+- the isolated Lighthouse Performance 0.63 result was re-run without code/threshold changes; workflow run `37267748275`, attempt 2 completed SUCCESS, so no reproducible performance defect is currently open.
 
 ## Stats — closed code findings
 
@@ -91,4 +91,4 @@ Hub QA is green, governance/cleanup automation is validated, and the final zero-
 
 The former NPCard propagation condition is closed. The ecosystem is formally all-green at 16/16.
 
-Accepted hosting/plan limitations do not count as unresolved defects once documented and explicitly accepted.
+Accepted platform limitations do not count as unresolved defects once reviewed and explicitly accepted.
