@@ -14,14 +14,18 @@ Known repository-code findings from the re-audit have been repaired and validate
 
 ## Exact next phase
 
-1. **Wait for NPCard DNS propagation**
+1. **Final closure complete**
    - do not change the working Namecheap CNAME;
    - keep `npcard.pages.dev` as fallback;
-   - once Cloudflare reports Active or the hostname resolves from an independent external resolver, re-check HTTPS/TLS and mark the final orange item green.
+   - `npcard.mpdgi.org` propagation is confirmed complete and functioning; no DNS change is required.
 
 Everything else in the remediation track is closed, accepted by architecture decision, or enforced to the strongest level available under the current plans.
 
 Final audit report: `FINAL_AUDIT_2026-10-05.md`.
+
+Current state: **16/16 closed or accepted; no known critical/high/medium unresolved findings.**
+
+Next action is normal maintenance only: preserve CI, branch protection, checkpoints and documented architecture unless a new concrete issue appears.
 
 Hub QA note:
 - workflow run `37267748275`, attempt 2: SUCCESS

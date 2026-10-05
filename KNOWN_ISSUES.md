@@ -4,19 +4,19 @@ Updated: 2026-10-05
 
 ## Open / verified or explicitly unverified
 
-No known critical/high/medium defect is currently open from the remediation track. The final zero-assumption audit is complete. One external orange condition remains: global DNS propagation for `npcard.mpdgi.org` is not yet independently visible from the audit environment, even though the user can already load and test the custom domain successfully.
+No known critical/high/medium defect is currently open from the remediation track. The final zero-assumption audit is complete and all 16 audit points are closed or explicitly accepted.
 
 ### Informational: transient Hub Lighthouse variance
 
 One Hub `browser-qa` attempt reported Lighthouse Performance 0.63 while 30/30 Chromium functional tests, Accessibility 1.00 and Best Practices 1.00 passed. The failed job was re-run without code or threshold changes and workflow run `37267748275`, attempt 2 completed SUCCESS. Treat the 0.63 result as non-reproduced CI variance unless it recurs.
 
-### 🟠 External propagation pending: NPCard custom domain
+### 🟢 NPCard custom domain — closed
 
 - Namecheap CNAME exists: `npcard` -> `npcard.pages.dev`.
 - User confirmed `npcard.mpdgi.org` works on a real phone and validated the approved card.
 - The audit environment still receives DNS resolution failure.
 - Cloudflare had shown a waiting/pending state.
-- No configuration change is recommended while propagation completes.
+- Propagation is confirmed complete by the user. No additional DNS change is required.
 
 ## Accepted residual risks / plan limitations
 

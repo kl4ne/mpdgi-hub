@@ -12,7 +12,7 @@ Confirmed:
 
 No change to PBKDF2 600,000 or `AUTH_PEPPER` is required from the current evidence.
 
-## NPCard custom domain — functional, propagation pending externally
+## NPCard custom domain — closed
 
 Confirmed:
 - Namecheap CNAME: `npcard` -> `npcard.pages.dev`;
@@ -20,9 +20,9 @@ Confirmed:
 - real-phone validation of the approved Nancy card completed successfully.
 
 Still pending:
-- audit-environment DNS resolution / Cloudflare Active propagation state.
+- propagation is now confirmed complete by the user; no further activation data is required.
 
-Action: wait; do not change the working DNS record unless propagation fails persistently after the normal waiting period.
+Action: none. Preserve the working DNS record unless a future concrete failure is observed.
 
 ## Closed by decision: Hub hosting/proxy
 

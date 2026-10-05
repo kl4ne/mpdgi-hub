@@ -63,7 +63,7 @@ Never restart because of timeout.
 
 ## Remaining finding
 
-1. 🟠 `npcard.mpdgi.org` works for the user, but DNS propagation is not yet visible from the audit environment. Wait for Cloudflare Active / independent external resolution; do not change the working CNAME.
+1. 🟢 `npcard.mpdgi.org` propagation is complete and the custom domain is confirmed active/functioning by the user. Do not change the working CNAME without a new concrete reason.
 
 Final zero-assumption audit is complete: 0 critical/high unresolved defects. See `FINAL_AUDIT_2026-10-05.md`.
 

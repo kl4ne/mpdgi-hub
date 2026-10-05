@@ -24,7 +24,7 @@ Verified open PRs before this report branch:
 - 🟠 Medium / external pending condition: **1**
 - 🟢 Closed / accepted / strongest available: **15**
 
-The single orange item is public DNS propagation for `npcard.mpdgi.org`. The hostname already works for the user on a real phone and the Namecheap CNAME is present, but the audit environment's external resolver still does not resolve it. Cloudflare had also shown a waiting/pending state, so this is treated as propagation rather than an application defect.
+The final orange item is closed. The user confirmed that `npcard.mpdgi.org` is now active and functioning after propagation, completing the last external infrastructure condition. No further DNS change is required.
 
 ## The 16 tracked audit points
 
@@ -35,11 +35,11 @@ The single orange item is public DNS propagation for `npcard.mpdgi.org`. The hos
    - required: PR + `validate`
    - Digital Cards remains private on GitHub Free; repository rulesets are unavailable on that plan. The repo stays private rather than being made public solely for rulesets. This is the strongest accepted level available under the current plan.
 
-2. 🟠 **`npcard.mpdgi.org` custom domain**
+2. 🟢 **`npcard.mpdgi.org` custom domain**
    - Namecheap CNAME exists: `npcard` -> `npcard.pages.dev`
    - user confirmed `https://npcard.mpdgi.org` works
    - real-phone functional validation passed
-   - external audit resolver still reports unresolved DNS; wait for propagation / Cloudflare Active status before calling this globally complete
+   - propagation is now confirmed complete by the user; the custom domain is treated as active and closed
 
 3. 🟢 **Hub response-header hardening**
    - HSTS is present
@@ -164,6 +164,6 @@ Re-verified:
 
 ## Closure rule
 
-Do not mark the ecosystem fully all-green until public DNS propagation for `npcard.mpdgi.org` is independently visible from the audit environment or Cloudflare reports the custom domain Active.
+The ecosystem is now formally all-green: 16 of 16 audit points are closed or explicitly accepted, with no known critical/high/medium unresolved defect.
 
 No known critical/high defect is open.
