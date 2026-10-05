@@ -7,7 +7,7 @@ Updated: 2026-10-05
 COMPLETE.
 
 Latest Hub/main checkpoint:
-`8f3c5ea233d5984d713433a3b924038345c5bd2b`
+`bb4d8953b2b7e8931c4906385dc4dbe7fa3a172d`
 
 PR #40 and PR #41 were merged after Validate + QA success.
 
