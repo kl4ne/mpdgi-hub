@@ -121,6 +121,7 @@ const server=spawn('npx',[
   '--binding','AUTH_PEPPER='+PEPPER
 ],{
   stdio:['ignore','pipe','pipe'],
+  detached:process.platform!=='win32',
   env:{...process.env,WRANGLER_SEND_METRICS:'false'}
 });
 
@@ -174,12 +175,20 @@ try{
 
   console.log('MPDGI Stats real Pages + local D1 auth E2E passed');
 }finally{
-  server.kill('SIGTERM');
+  const stop=signal=>{
+    try{
+      if(process.platform!=='win32')process.kill(-server.pid,signal);
+      else server.kill(signal);
+    }catch{
+      try{server.kill(signal);}catch{}
+    }
+  };
+  stop('SIGTERM');
   await Promise.race([
     new Promise(resolve=>server.once('exit',resolve)),
     new Promise(resolve=>setTimeout(resolve,3000))
   ]);
-  if(server.exitCode===null)server.kill('SIGKILL');
+  if(server.exitCode===null)stop('SIGKILL');
   try{unlinkSync(PAGES_CONFIG);}catch{}
   if(process.env.CI&&serverOutput)process.stdout.write(serverOutput);
 }
