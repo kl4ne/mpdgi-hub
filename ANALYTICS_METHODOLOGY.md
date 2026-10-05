@@ -1,6 +1,6 @@
 # MPDGI Stats — Analytics Methodology
 
-Version: 1.4.9  
+Version: 1.4.10  
 Official reporting timezone: `America/New_York`
 
 ## Core definitions
