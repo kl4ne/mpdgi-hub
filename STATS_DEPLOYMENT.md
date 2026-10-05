@@ -37,7 +37,7 @@ Apply for a fresh/manual setup:
 - `migrations/0002_campaigns.sql`
 - `migrations/0003_collector_metrics.sql`
 
-Stats v1.4.9 treats these migrations as the authoritative schema. Runtime compatibility code first performs read-only schema checks and only runs its idempotent upgrade fallback when required objects are actually missing. This keeps normal request handling free of DDL while preserving a safe upgrade path for an older D1 database.
+Stats v1.4.10 treats these migrations as the authoritative schema. Runtime compatibility code first performs read-only schema checks and only runs its idempotent upgrade fallback when required objects are actually missing. This keeps normal request handling free of DDL while preserving a safe upgrade path for an older D1 database.
 
 ## Required server-side secrets
 
