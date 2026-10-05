@@ -13,7 +13,7 @@ Never restart because of timeout.
 ### Hub
 - repo: `kl4ne/mpdgi-hub`
 - branch: `main`
-- HEAD before the current documentation PR: `739d7523e50f3ad9923143c8c922cd495856fd25`
+- v1.6.0 runtime checkpoint: `739d7523e50f3ad9923143c8c922cd495856fd25`
 - version: `1.6.0`
 - production smoke/Chromium/WebKit green
 - HSTS present
@@ -86,4 +86,11 @@ Read next:
 
 ## Latest continuity checkpoint
 
-PR #52 merged successfully. Current Hub/main is `739d7523e50f3ad9923143c8c922cd495856fd25`. Stats remains v1.4.10 at `a1a7cd62b6fe1baaa5689cd67cb54ef7cbf44d4c`.
+PR #52 captured Hub v1.6.0 runtime checkpoint `739d7523e50f3ad9923143c8c922cd495856fd25`. Later docs/governance merges may advance `main`; always query the live branch HEAD before making changes. Stats remains v1.4.10 at `a1a7cd62b6fe1baaa5689cd67cb54ef7cbf44d4c`.
+
+
+## HEAD handling rule
+
+The SHA in this handoff identifies the last validated runtime checkpoint, not a promise that `main` still points to that exact commit after documentation-only merges.
+
+Always verify live Hub/Stats/Cards branch HEADs before changing code.
