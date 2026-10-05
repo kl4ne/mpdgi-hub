@@ -108,7 +108,7 @@ Benchmark utility merged as `6213978d83d57eb236422c9e10290ae61e15cd99`.
 
 ## Exact next action
 
-Check post-merge Stats validation run `37246063157`. If green, record the new validated checkpoint and continue to custom-domain verification.
+Post-merge Stats validation run `37246063157` succeeded. Latest validated Stats checkpoint: `6213978d83d57eb236422c9e10290ae61e15cd99`. Continue to custom-domain verification.
 
 ## Approved decisions that must not be re-asked or redone
 
