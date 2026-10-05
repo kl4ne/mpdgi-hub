@@ -167,3 +167,16 @@ const hubIsolationFilters=(reportingSource.match(/NOT LIKE 'business_card:%'/g)|
 assert.ok(hubIsolationFilters>=11,'Hub reporting must exclude business-card events from Hub-centric metrics');
 assert.match(reportingSource,/target LIKE 'business_card:%'/,'Digital Cards reporting must keep its dedicated business-card query');
 assert.match(reportingSource,/SELECT DISTINCT s\.session_id,s\.first_seen_at[\s\S]*?e\.target NOT LIKE 'business_card:%'/,'Activity insights must exclude Digital Card sessions');
+
+
+const collectorSource=readFileSync(new URL('../functions/api/collect.js',import.meta.url),'utf8');
+assert.match(
+  collectorSource,
+  /const canonicalSession=await context\.env\.STATS_DB\.prepare\([\s\S]*?SELECT visitor_id FROM sessions WHERE session_id=\?/,
+  'Collector must re-read the canonical session after INSERT OR IGNORE'
+);
+assert.match(
+  collectorSource,
+  /if\(!canonicalSession\|\|String\(canonicalSession\.visitor_id\)!==event\.visitor_id\)/,
+  'Collector must reject a raced session bound to a different visitor'
+);

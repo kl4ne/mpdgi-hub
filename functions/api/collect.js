@@ -109,6 +109,18 @@ export async function onRequest(context){
         'INSERT OR IGNORE INTO sessions(session_id,visitor_id,session_entry,session_campaign,display_mode,first_seen_at,first_seen_day_et) VALUES(?,?,?,?,?,?,?)'
       ).bind(event.session_id,event.visitor_id,event.session_entry,event.session_campaign,event.display_mode,serverTs,day)
     ]);
+
+    // Re-read the canonical session after INSERT OR IGNORE. This closes the
+    // first-request race where two visitors concurrently present the same
+    // session_id before either request can observe an existing session.
+    const canonicalSession=await context.env.STATS_DB.prepare(
+      'SELECT visitor_id FROM sessions WHERE session_id=? LIMIT 1'
+    ).bind(event.session_id).first();
+    if(!canonicalSession||String(canonicalSession.visitor_id)!==event.visitor_id){
+      await bumpCollectorMetric(context.env.STATS_DB,day,{rejected:1,timestamp:serverTs});
+      return json({error:'session_visitor_mismatch'},409,corsHeaders(origin));
+    }
+
     const eventResult=await context.env.STATS_DB.prepare(
       'INSERT OR IGNORE INTO events(event_id,visitor_id,session_id,event_type,acquisition_source,acquisition_campaign,session_entry,session_campaign,display_mode,language,app_version,device_category,browser,action_name,target,client_ts,server_ts,server_day_et) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
     ).bind(
