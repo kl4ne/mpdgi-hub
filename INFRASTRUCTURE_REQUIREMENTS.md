@@ -135,7 +135,7 @@ When administrative access is available, verify:
 `https://stats.mpdgi.org/js/stats-version.js` must expose:
 
 ```
-MPDGI_STATS_VERSION='1.4.7'
+MPDGI_STATS_VERSION='1.4.10'
 ```
 
 Then verify the same Stats security headers already proven on the Pages endpoint.
@@ -201,7 +201,7 @@ Only after those checks should Nancy's NTAG215 be programmed to the custom-domai
 
 No infrastructure change is required now.
 
-Current validated Stats v1.4.7:
+Current validated Stats v1.4.10:
 - supports legacy and PBKDF2 password records
 - uses 600,000 PBKDF2 iterations for new/rehash records
 - keeps `AUTH_PEPPER` unchanged
