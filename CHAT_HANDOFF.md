@@ -2,144 +2,74 @@
 
 Updated: 2026-10-04
 
-## Project
-
-MPDGI Digital Ecosystem:
-- MPDGI Hub
-- MPDGI Stats
-- MPDGI Digital Cards
-
-## Permanent workflow rules
-
-Use:
+## Permanent rule
 
 **do -> validate -> checkpoint -> continue**
 
-Never restart after a timeout. Resume from the last validated checkpoint.
+Never restart because of timeout.
 
-Long reports belong in `.md` / ZIP artifacts; chat should contain only a short summary, decisions needing attention, links, and the next exact step.
-
-## Current stable production state
+## Current state
 
 ### Hub
-- Repo: `kl4ne/mpdgi-hub`
-- Branch: `main`
-- Stable HEAD: `a3ecd2636f4a816d38e29a5035e0af393ee85d6d`
-- Version: `1.6.0`
-- URL: `https://hub.mpdgi.org`
-- Latest Hub validation and deployment were green.
+- repo: `kl4ne/mpdgi-hub`
+- branch: `main`
+- HEAD: `b123f59278bd1791c9ab02d6c92a3ead47a0f0bc`
+- version: `1.6.0`
+- historical runtime cleanup complete
+- HSTS present
+- nosniff/clickjacking response headers still require infrastructure-layer remediation
 
 ### Stats
-- Repo: `kl4ne/mpdgi-hub`
-- Branch: `mpdgi-stats-v1.0`
-- Stable HEAD: `e3b237c46350352b183d40a172eee0a0a8667319`
-- Stable version: `1.4.7`
-- Post-merge validation run: `37244493810` — SUCCESS.
-- 26 browser tests passed.
-- Production Pages endpoint verified with HSTS, nosniff, X-Frame-Options DENY and noindex.
-- Production Pages endpoint: `https://mpdgi-stats.pages.dev`
+- repo: `kl4ne/mpdgi-hub`
+- branch: `mpdgi-stats-v1.0`
+- HEAD: `2d018cd07e0ace2d8bc9ed895d6828c88776c490`
+- version: `1.4.7`
+- Pages endpoint verified
+- dual-scheme auth deployed
+- PBKDF2 target: 600,000 iterations
+- benchmark proxy p50 92.43 ms / p95 94.05 ms
+- AUTH_PEPPER unchanged
+- no forced owner migration
+- `stats.mpdgi.org` currently has no public DNS resolution from CI diagnostics
 
 ### Digital Cards
-- Repo: `kl4ne/mpdgi-digital-cards`
-- Branch: `main`
-- Stable HEAD: `452f2c4096aa782c3be4fa77bc0f50d34487851b`
-- RSCard: `1.3.2` at `https://rscard.mpdgi.org`
-- NPCard Pages fallback: `1.0.3` at `https://npcard.pages.dev`
-- Last production smoke passed for both.
-- Nancy custom domain `https://npcard.mpdgi.org` was not reachable from GitHub Actions at the last check.
+- repo: `kl4ne/mpdgi-digital-cards`
+- branch: `main`
+- HEAD: `23e6e638e442e61721f7ade6791d4ae10a8cd9dc`
+- RSCard 1.3.2 verified
+- NPCard Pages fallback 1.0.3 verified
+- `npcard.mpdgi.org` currently has no public DNS resolution from CI diagnostics
+- Nancy custom-domain diagnostics merged in PR #10
 
-## Audit remediation already completed
+## Completed remediation
 
-- Stats CI now validates the deployed `public/` source.
-- Stats root/public duplication and inherited Hub baggage were cleaned.
-- Stats collector integrity was hardened.
-- Stats HSTS/nosniff/X-Frame-Options/noindex were verified in production.
-- Campaign POST same-origin protection added.
-- Campaign write RBAC added.
-- Bootstrap is disabled by default unless explicitly enabled.
-- Hub and Stats use reproducible npm lockfiles and pinned GitHub Actions.
-- Digital Card imports are manual and PR-gated.
-- Digital Cards have Chromium + WebKit QA.
-- Card generator has context-aware escaping and fallback-host support.
-- Build metadata workflow no longer writes a second bot commit to main.
-- Production card smoke tests were added and passed.
-- Dead external payment SVG assets were removed from the Hub.
-- Stats schema hardening PR #22 was merged:
-  - read-first schema inspection
-  - DDL compatibility fallback only when schema objects are missing
-  - explicit `migrations/0003_collector_metrics.sql`
-  - Stats release bumped to `1.4.6`
+- audit findings addressed in repository code where safely possible
+- Stats source-of-truth/CI mismatch fixed
+- Cards import workflow hardened
+- secret scanning expanded
+- lockfiles/npm ci added
+- Actions pinned
+- browser QA expanded
+- collector integrity hardened
+- RBAC/bootstrap/schema hardening completed
+- PBKDF2 dual-scheme migration support completed
+- Hub dead assets/historical runtime cleanup completed
+- custom-domain diagnostics completed
 
-## Open issues / intentionally deferred work
+## Remaining blockers
 
-1. Finish production validation of Stats v1.4.6.
-2. Password verifier migration to a slow KDF remains deferred because it requires a carefully controlled compatibility plan.
-3. Verify `npcard.mpdgi.org` from real Cloudflare/browser context before declaring it active.
-4. Hub production header audit showed HSTS but did not show response-header nosniff/clickjacking protection. Hosting-layer remediation remains open.
-5. Historical Hub pinned runtime files must not be deleted until old PWA update/recovery behavior is verified.
+These are infrastructure-only until Cloudflare/DNS access exists:
 
-## Password migration design checkpoint
+1. `stats.mpdgi.org`
+2. `npcard.mpdgi.org`
+3. Hub response-header hardening
 
-`SECURITY_MODEL.md` defines the approved migration:
-- legacy `hmac-sha256-v1` remains readable during transition;
-- target `pbkdf2-sha256-v1`;
-- PBKDF2-HMAC-SHA256 with a 600,000-iteration floor subject to runtime benchmark;
-- unchanged `AUTH_PEPPER`;
-- successful legacy login upgrades only that user;
-- failed login never mutates password fields;
-- rollback must use code that understands both schemes.
+## Do not redo
 
-Stats v1.4.7 now has dual-scheme password verification. Legacy records remain readable; new records use PBKDF2; successful legacy login can migrate only that user; failed login cannot rewrite password fields. A rollback checkpoint exists at `checkpoint/stats-v1.4.7-dual-scheme`. No production owner login was intentionally performed to force migration.
-
-## PBKDF2 benchmark checkpoint
-
-Benchmark run `37244913868` succeeded using GitHub Actions Node.js WebCrypto.
-
-- iterations: 600,000
-- min: 90.93 ms
-- p50: 92.43 ms
-- p95: 94.05 ms
-- max: 94.05 ms
-- this is proxy evidence only, not Cloudflare production timing
-- production iteration count remains unchanged
-- no forced production owner login was performed
-
-Benchmark utility merged as `6213978d83d57eb236422c9e10290ae61e15cd99`.
-
-## DNS diagnostics checkpoint
-
-Custom-domain diagnostics now identify the actual public failure mode:
-
-- Stats run `37247974058`: `stats.mpdgi.org` has no public DNS resolution from GitHub Actions.
-- Digital Cards run `37248236928`: `npcard.mpdgi.org` has no public DNS resolution from GitHub Actions.
-- Both verified Pages endpoints remain healthy.
-- Application code already recognizes the intended card hostnames.
-- Do not invent CNAME targets; inspect Cloudflare Pages custom-domain configuration.
-
-## Exact next action
-
-When Cloudflare/DNS administrative access is available, attach/verify the two custom domains one at a time, validate public DNS/HTTPS, then checkpoint before continuing.
-
-## Approved decisions that must not be re-asked or redone
-
-- Hub and Digital Cards stay separate.
-- Hub must not be modified merely to solve a card-specific issue.
-- Do not reset D1.
-- Do not rotate/change `AUTH_PEPPER` casually.
-- Do not reintroduce workers.dev failover unless explicitly requested.
-- New cards come from the master template/generator.
-- No invented social/contact data.
-- No GMacfie watermark.
-- Developer credit remains: `Designed & Developed by Roberto S. Macfie for MPDGI`, with only Roberto's name linked to `https://rmcard.pages.dev`.
-
-
-## Hub origin/header evidence checkpoint
-
-GitHub Actions run `37248409019` confirmed `https://hub.mpdgi.org` returns:
-- `HTTP/2 200`
-- `server: GitHub.com`
-- `via: 1.1 varnish`
-
-This proves the current public response is coming directly from GitHub Pages. HSTS is present, but `X-Content-Type-Options: nosniff` and response-header clickjacking protection remain absent.
-
-Do not add a fake `_headers` file to the GitHub Pages repository. The remaining fix requires an actual edge/proxy/hosting-layer change.
+- do not restart the audit
+- do not repeat completed remediation
+- do not reset D1
+- do not rotate AUTH_PEPPER
+- do not redesign Hub for card-specific issues
+- do not invent DNS records
+- do not replace Nancy artwork

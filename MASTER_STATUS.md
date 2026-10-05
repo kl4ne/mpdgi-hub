@@ -2,120 +2,107 @@
 
 Updated: 2026-10-04
 
-## Permanent work protocol
-
-All future work on this project follows:
+## Permanent workflow
 
 **do -> validate -> checkpoint -> continue**
 
-Large tasks must be split into small, atomic, verifiable phases. A timeout must never trigger a restart from zero. Resume from the last validated checkpoint.
+Do not restart after timeout. Resume from the last validated checkpoint. Keep long reports in files, not in chat.
 
-Long technical reports should be delivered as `.md` files, and grouped in a ZIP when useful, instead of filling the chat.
+## MPDGI Hub
 
-## Current production / stable state
-
-### MPDGI Hub
-- Repository: `kl4ne/mpdgi-hub`
+- Repo: `kl4ne/mpdgi-hub`
 - Branch: `main`
-- Current stable HEAD: `7663c175b6532934924017d17eac84b153421f7f`
+- Current repository HEAD: `b123f59278bd1791c9ab02d6c92a3ead47a0f0bc`
 - Runtime version: `1.6.0`
-- Production URL: `https://hub.mpdgi.org`
-- Latest validated work:
-  - reproducible QA dependency lock
-  - pinned GitHub Actions
-  - production smoke checks
-  - dead external payment SVG assets removed
-  - unreferenced Hub runtime assets v1.4.7 through v1.5.2 removed after current HTML/SW/CI reference audit
-- CI / Pages deployment: validated green after latest merged changes.
+- Production: `https://hub.mpdgi.org`
 
-### MPDGI Stats
-- Repository: `kl4ne/mpdgi-hub`
+Completed:
+- reproducible npm lockfile + npm ci
+- pinned GitHub Actions
+- production smoke and header observation
+- dead external payment SVG cleanup
+- historical runtime cleanup for v1.4.7 through v1.5.2
+- continuity/security/infrastructure documentation
+
+Verified infrastructure evidence:
+- public response comes directly from GitHub Pages
+- HSTS present
+- `X-Content-Type-Options: nosniff` not observed
+- response-header clickjacking protection not observed
+
+Remaining Hub blocker:
+- missing response headers require hosting/proxy/edge configuration; do not add a fake Cloudflare Pages `_headers` file to GitHub Pages
+
+## MPDGI Stats
+
+- Repo: `kl4ne/mpdgi-hub`
 - Branch: `mpdgi-stats-v1.0`
-- Stable HEAD before benchmark utility merge: `e3b237c46350352b183d40a172eee0a0a8667319`
-- Latest validated Stats runtime HEAD: `6213978d83d57eb236422c9e10290ae61e15cd99`
-- Latest Stats operational-diagnostics HEAD: `2d018cd07e0ace2d8bc9ed895d6828c88776c490`
-- Stable runtime version: `1.4.7`
-- Benchmark PR run: `37244913868` — SUCCESS
-- Post-merge validation run: `37246063157` — SUCCESS
-- Production endpoint: `https://mpdgi-stats.pages.dev`
-- Latest validated work:
-  - `public/` is the single deployed static source
-  - collector integrity hardening
-  - HSTS / nosniff / clickjacking / noindex response headers verified
-  - same-origin campaign mutations
-  - role guard for campaign writes
-  - bootstrap disabled by default unless explicitly enabled
-  - inherited Hub dead code removed from the Stats branch
-  - reproducible npm lock + pinned GitHub Actions
-- No D1 data was deleted or reset.
-- `AUTH_PEPPER` was not changed.
+- Current repository HEAD: `2d018cd07e0ace2d8bc9ed895d6828c88776c490`
+- Runtime version: `1.4.7`
+- Verified production: `https://mpdgi-stats.pages.dev`
 
-### MPDGI Digital Cards
-- Repository: `kl4ne/mpdgi-digital-cards`
+Completed:
+- `public/` is the deployed and tested source of truth
+- collector integrity hardening
+- HSTS / nosniff / X-Frame-Options / noindex verified in production
+- campaign same-origin protection + RBAC
+- bootstrap disabled by default
+- inherited Hub baggage removed
+- read-first schema checks + explicit migration 0003
+- dual-scheme auth: legacy HMAC-SHA256 + target PBKDF2-HMAC-SHA256
+- new password records use PBKDF2
+- successful legacy login may transparently upgrade that user
+- failed login does not mutate password fields
+- PBKDF2 iteration count: 600,000
+- CI WebCrypto benchmark: min 90.93 ms, p50 92.43 ms, p95 94.05 ms, max 94.05 ms
+- rollback checkpoint: `checkpoint/stats-v1.4.7-dual-scheme`
+- `AUTH_PEPPER` unchanged
+- no D1 reset/deletion performed
+
+Custom-domain status:
+- `stats.mpdgi.org` has no public DNS resolution from GitHub Actions diagnostics
+- keep `mpdgi-stats.pages.dev` as verified endpoint until Cloudflare/DNS is fixed
+
+## MPDGI Digital Cards
+
+- Repo: `kl4ne/mpdgi-digital-cards`
 - Branch: `main`
-- Current stable/runtime HEAD before diagnostics: `452f2c4096aa782c3be4fa77bc0f50d34487851b`
-- Latest Digital Cards operational-diagnostics HEAD: `ccf8940930e82cf67330488bf706a7c51e87f8ec`
+- Current repository HEAD: `23e6e638e442e61721f7ade6791d4ae10a8cd9dc`
 - RSCard: `1.3.2`
-- NPCard Pages fallback: `1.0.3`
-- Latest validated work:
-  - imports are manual and PR-gated
-  - no direct ZIP-to-main replacement
-  - build metadata workflow is read-only
-  - secret scanning
-  - Chromium + WebKit browser QA
-  - hardened master generator
-  - production card smoke tests
-  - 60-second version polling
-- Verified production:
-  - `https://rscard.mpdgi.org` at RSCard v1.3.2
-  - `https://npcard.pages.dev` at NPCard v1.0.3
-- Nancy custom domain `https://npcard.mpdgi.org` has no public DNS resolution from GitHub Actions; run `37248236928` showed `curl: (6) Could not resolve host`. Pages fallback remains verified.
+- NPCard fallback: `1.0.3`
 
-## In progress
+Completed:
+- PR-gated card imports
+- no direct ZIP-to-main replacement
+- read-only build metadata verification
+- secret scanning
+- Chromium + WebKit QA
+- context-safe generator
+- fallback-host support
+- production card smoke tests
+- 60-second update polling
+- NPCard custom-domain diagnostics merged
 
-### Stats schema hardening
-- PR #22 was merged to `mpdgi-stats-v1.0` as `c492355da3849e656e722a90927f7ade92814c16`.
-- Implemented:
-  - read-first schema checks
-  - DDL only as compatibility fallback
-  - explicit `migrations/0003_collector_metrics.sql`
-  - documentation aligned to v1.4.6
-- Post-merge GitHub Actions run `37242557183` completed successfully.
-- Production smoke verified `mpdgi-stats.pages.dev` at v1.4.6 with HSTS, nosniff, X-Frame-Options DENY and noindex.
-- `stats.mpdgi.org` has no public DNS resolution from GitHub Actions; run `37247974058` showed `curl: (6) Could not resolve host`. Pages remains the verified production endpoint.
-- No destructive D1 operation was performed.
+Verified production:
+- `https://rscard.mpdgi.org`
+- `https://npcard.pages.dev`
 
-## Open audit items
+Custom-domain status:
+- `npcard.mpdgi.org` has no public DNS resolution from GitHub Actions diagnostics
+- do not program Nancy NFC to the custom domain until Cloudflare/DNS + real-device verification are complete
 
-1. Finish and validate Stats schema-hardening PR.
-2. Decide whether to migrate password verification from fast HMAC-SHA256 to a slow password KDF; this requires a controlled compatibility/migration plan and must not invalidate existing access.
-3. Verify Nancy custom domain `npcard.mpdgi.org` from a real browser / Cloudflare configuration before declaring it active.
-4. Hub production currently exposes HSTS, but the last header audit reported no response-header `X-Content-Type-Options: nosniff` and no response-header clickjacking protection. Because Hub is served through GitHub Pages/custom-domain infrastructure, remediation needs hosting-layer review rather than adding a useless `_headers` file.
-5. Historical Hub runtime cleanup is complete for v1.4.7–v1.5.2. Current v1.6.0 runtime remains intact. Git history retains rollback/reference copies.
+## Remaining blockers
 
-## Things that must not be redone
+1. Fix `stats.mpdgi.org` in Cloudflare/DNS.
+2. Fix `npcard.mpdgi.org` in Cloudflare/DNS.
+3. Add Hub nosniff + clickjacking response headers at a real hosting/proxy/edge layer.
+4. Do not force an owner login only to trigger password migration; allow normal successful login to migrate naturally.
 
-- Do not restart the audit from zero.
-- Do not redesign the Hub to solve Digital Card issues.
-- Do not reset D1.
-- Do not rotate or alter `AUTH_PEPPER` without an explicit migration plan.
-- Do not reintroduce the postponed `workers.dev` gateway/failover unless explicitly requested.
-- Do not replace Nancy's approved art with a regenerated version.
-- Do not invent social URLs or contact data.
-- Do not use the `GMacfie` watermark in this project.
+## Non-negotiable safety rules
 
-## Security design checkpoint
-
-- `SECURITY_MODEL.md` defines the compatibility-safe password-verifier migration.
-- Target: `pbkdf2-sha256-v1`.
-- Migration: dual-scheme support plus rehash after successful legacy login.
-- `AUTH_PEPPER` remains unchanged.
-- No production credential or D1 mutation occurred in this documentation phase.
-
-## Exact next action
-
-1. Benchmark PBKDF2 cost using the closest available runtime without exposing a public benchmark endpoint.
-2. Record p50/p95 or repeated timing evidence and keep the 600,000-iteration floor unless evidence shows unacceptable latency.
-3. Do not perform or force a production owner login solely to trigger migration.
-4. Verify `stats.mpdgi.org` and `npcard.mpdgi.org` at Cloudflare/DNS when access is available.
-5. Continue one atomic validated phase at a time.
+- Do not reset/delete D1.
+- Do not rotate `AUTH_PEPPER` casually.
+- Do not reintroduce workers.dev failover unless explicitly requested.
+- Do not change Nancy's approved card art.
+- Do not invent social/contact data.
+- Do not use the GMacfie watermark in this project.
