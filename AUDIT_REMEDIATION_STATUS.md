@@ -6,7 +6,7 @@ Updated: 2026-10-05
 
 Known repository-code findings from the latest re-audit have been remediated and validated.
 
-Full ecosystem audit closure is **not yet declared** because infrastructure/runtime/governance findings remain.
+Final zero-assumption audit is complete. There are **0 known critical/high unresolved defects**. Full all-green closure waits only for independent/global DNS propagation of `npcard.mpdgi.org`.
 
 ## Hub — closed code findings
 
@@ -27,8 +27,8 @@ Accepted Hub hosting limitation:
 
 Current release:
 - v1.4.10
-- HEAD `a1a7cd62b6fe1baaa5689cd67cb54ef7cbf44d4c`
-- post-merge run `37258619739`: SUCCESS
+- HEAD `aade3b343689b65da3de08e62d2fb02df47efc4d`
+- validation run `37267098697`: SUCCESS
 
 Closed:
 - deployed source-of-truth mismatch
@@ -60,8 +60,8 @@ Stats runtime verification:
 ## Digital Cards — closed code findings
 
 Current main:
-- `4fc5ef7e07c6f5ab8e4da63015f1a0519e9aaa87`
-- post-merge run `37256341259`: SUCCESS
+- `95e2c806eedcffac49081a695c33a1410bcd9e98`
+- validation run `37263172778`: SUCCESS
 
 Closed:
 - direct ZIP-to-main import
@@ -87,9 +87,8 @@ NPCard custom-domain status:
 
 ## Full closure condition
 
-Do not call the full audit closed until:
-1. the current Hub QA/Lighthouse status is resolved;
-2. governance/cleanup automation is validated after the latest changes;
-3. a final zero-assumption audit is green.
+Hub QA is green, governance/cleanup automation is validated, and the final zero-assumption audit is complete.
+
+The only remaining orange condition is external DNS propagation for `npcard.mpdgi.org`. Once independently visible / Cloudflare Active, the ecosystem can be marked all-green.
 
 Accepted hosting/plan limitations do not count as unresolved defects once documented and explicitly accepted.

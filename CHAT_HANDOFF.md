@@ -42,10 +42,10 @@ Never restart because of timeout.
 ### Digital Cards
 - repo: `kl4ne/mpdgi-digital-cards`
 - branch: `main`
-- HEAD: `4fc5ef7e07c6f5ab8e4da63015f1a0519e9aaa87`
+- HEAD: `95e2c806eedcffac49081a695c33a1410bcd9e98`
 - RSCard v1.3.2 verified
 - NPCard Pages v1.0.3 verified
-- latest Cards post-merge validation `37256341259`: SUCCESS
+- current Cards validation `37263172778`: SUCCESS
 - lockfile PR trigger and 60-second policy consistency repaired
 - Namecheap CNAME `npcard` -> `npcard.pages.dev`
 - user confirmed `npcard.mpdgi.org` works and completed real-phone functional validation
@@ -58,14 +58,14 @@ Never restart because of timeout.
 - Digital Cards lockfile-trigger + 60-second metadata policy alignment
 - historical/dead Hub runtime cleanup
 - branch lifecycle cleanup closed: Hub 64→5 branches; Digital Cards 14→2 branches
-- automatic merged-branch cleanup installed in both repositories
+- automatic merged-branch cleanup installed in both repositories; Hub-repo cleanup covers PRs to both `main` and `mpdgi-stats-v1.0`
 - prior Stats/Cards/Hub audit remediations remain intact
 
-## Remaining findings
+## Remaining finding
 
-1. Confirm whether the latest Hub Lighthouse Performance 0.63 result is reproducible.
-2. Finish/validate merged-branch cleanup coverage for Stats PRs.
-3. Run the final zero-assumption audit.
+1. 🟠 `npcard.mpdgi.org` works for the user, but DNS propagation is not yet visible from the audit environment. Wait for Cloudflare Active / independent external resolution; do not change the working CNAME.
+
+Final zero-assumption audit is complete: 0 critical/high unresolved defects. See `FINAL_AUDIT_2026-10-05.md`.
 
 Closed/accepted:
 - PBKDF2 runtime concern closed with Workers Free + `Exceeded CPU Time Limits = 0`.
@@ -96,7 +96,7 @@ Read next:
 
 ## Latest continuity checkpoint
 
-PR #52 captured Hub v1.6.0 runtime checkpoint `739d7523e50f3ad9923143c8c922cd495856fd25`. Later docs/governance merges may advance `main`; always query the live branch HEAD before making changes. Stats remains v1.4.10 at `a1a7cd62b6fe1baaa5689cd67cb54ef7cbf44d4c`.
+PR #52 captured Hub v1.6.0 runtime checkpoint `739d7523e50f3ad9923143c8c922cd495856fd25`. Later docs/governance merges may advance `main`; always query the live branch HEAD before making changes. Stats remains v1.4.10 at `aade3b343689b65da3de08e62d2fb02df47efc4d`.
 
 
 ## HEAD handling rule
