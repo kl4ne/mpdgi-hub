@@ -32,7 +32,12 @@ export async function onRequest(context){
   if(verification.error)return json({error:verification.error},503);
   if(!verification.ok)return json({error:'invalid_credentials'},401);
 
-  await maybeUpgradePasswordRecord(context.env.STATS_DB,user,password,context.env.AUTH_PEPPER,verification);
+  try{
+    await maybeUpgradePasswordRecord(context.env.STATS_DB,user,password,context.env.AUTH_PEPPER,verification);
+  }catch(error){
+    // A verifier-upgrade failure must never block an otherwise valid login.
+    console.warn('password_upgrade_deferred');
+  }
 
   await context.env.STATS_DB.prepare('DELETE FROM login_rate WHERE rate_key=?').bind(rateKey).run();
   await context.env.STATS_DB.prepare('DELETE FROM admin_sessions WHERE expires_at<=?').bind(now).run();
