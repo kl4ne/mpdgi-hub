@@ -12,7 +12,7 @@ Do not restart after timeout. Resume from the last validated checkpoint. Keep lo
 
 - Repo: `kl4ne/mpdgi-hub`
 - Branch: `main`
-- Current repository HEAD: `d78a9a6b52ae8a562b799aa70d869bc57a8cdba9`
+- Current repository HEAD: `8f3c5ea233d5984d713433a3b924038345c5bd2b`
 - Runtime version: `1.6.0`
 - Production: `https://hub.mpdgi.org`
 
@@ -110,5 +110,15 @@ Custom-domain status:
 ## Latest documentation checkpoint
 
 - PR #39 merged successfully after Validate + QA passed.
-- Main checkpoint: `d78a9a6b52ae8a562b799aa70d869bc57a8cdba9`.
+- Main checkpoint: `8f3c5ea233d5984d713433a3b924038345c5bd2b`.
 - Remaining unresolved items are infrastructure-only.
+
+
+## Repository remediation closure
+
+- Repository remediation status: COMPLETE.
+- Latest main checkpoint: `8f3c5ea233d5984d713433a3b924038345c5bd2b`.
+- PR #40 merged after Validate + QA success.
+- PR #41 merged after Validate + QA success.
+- `CLOUDFLARE_FIX_RUNBOOK.md` is now in main.
+- Remaining audit blockers are infrastructure-only and require Cloudflare/DNS/hosting access.

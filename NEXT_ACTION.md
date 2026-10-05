@@ -2,41 +2,40 @@
 
 Updated: 2026-10-05
 
-## Current checkpoint
+## Repository remediation status
 
-Hub:
-- main HEAD: `d78a9a6b52ae8a562b799aa70d869bc57a8cdba9`
-- runtime: `1.6.0`
+COMPLETE.
 
-Stats:
-- branch HEAD: `2d018cd07e0ace2d8bc9ed895d6828c88776c490`
-- runtime: `1.4.7`
-- verified endpoint: `https://mpdgi-stats.pages.dev`
+Latest Hub/main checkpoint:
+`8f3c5ea233d5984d713433a3b924038345c5bd2b`
 
-Digital Cards:
-- main HEAD: `23e6e638e442e61721f7ade6791d4ae10a8cd9dc`
-- RSCard: `1.3.2`
-- NPCard fallback: `1.0.3`
+PR #40 and PR #41 were merged after Validate + QA success.
+
+The repository now contains:
+- MASTER_STATUS.md
+- NEXT_ACTION.md
+- CHAT_HANDOFF.md
+- KNOWN_ISSUES.md
+- DECISIONS.md
+- SECURITY_MODEL.md
+- INFRASTRUCTURE_REQUIREMENTS.md
+- CLOUDFLARE_FIX_RUNBOOK.md
+- AUDIT_REMEDIATION_STATUS.md
 
 ## Exact next action
 
-The remaining unresolved items require infrastructure access, not more repository guessing.
+No more repository guessing.
 
-When Cloudflare/DNS access is available:
+When Cloudflare/DNS administrative access is available, follow `CLOUDFLARE_FIX_RUNBOOK.md` one phase at a time:
 
-1. Inspect and attach/repair `stats.mpdgi.org`.
-2. Validate DNS, TLS, Stats v1.4.7 content and security headers.
+1. Fix/attach `stats.mpdgi.org`.
+2. Validate DNS, TLS, Stats content and security headers.
 3. Checkpoint.
-4. Inspect and attach/repair `npcard.mpdgi.org`.
-5. Validate Nancy's approved build, headers, analytics target and real-phone NFC.
+4. Fix/attach `npcard.mpdgi.org`.
+5. Validate Nancy card content, headers, analytics and real-phone behavior.
 6. Checkpoint.
-7. Inspect how `hub.mpdgi.org` can receive:
-   - `X-Content-Type-Options: nosniff`
-   - clickjacking protection via `X-Frame-Options: DENY` or CSP `frame-ancestors 'none'`
-8. Validate production after one infrastructure change at a time.
+7. Add Hub response-header hardening at the actual proxy/hosting layer.
+8. Validate Hub production.
+9. Final checkpoint and audit closure.
 
-Do not invent CNAME targets or Cloudflare state.
-
-## Continuity note
-
-PR #39 merged successfully. There are no repository-code blockers preventing closure of the audit; remaining work requires Cloudflare/DNS or hosting-layer access.
+Do not change D1, AUTH_PEPPER, card artwork, or Pages fallbacks while doing this.
