@@ -43,16 +43,17 @@ jobs:
         run: npm run test:ui:chromium
 
       - name: Lighthouse
+        shell: bash
         run: |
-          npx --yes lighthouse@13.5.0 http://127.0.0.1:4173/             --chrome-flags="--headless --no-sandbox --disable-gpu"             --only-categories=performance,accessibility,best-practices             --output=json --output-path=lighthouse.json --quiet
-          node <<'NODE'
-          const r=require('./lighthouse.json');
-          const scores=Object.fromEntries(Object.entries(r.categories).map(([k,v])=>[k,v.score]));
-          console.log(scores);
-          if(scores.performance < .80) throw Error('Lighthouse performance below 0.80');
-          if(scores.accessibility < .90) throw Error('Lighthouse accessibility below 0.90');
-          if(scores['best-practices'] < .90) throw Error('Lighthouse best-practices below 0.90');
-          NODE
+          export CHROME_PATH="$(node -e "process.stdout.write(require('playwright').chromium.executablePath())")"
+          "$CHROME_PATH" --version
+          for sample in 1 2 3; do
+            npx --yes lighthouse@13.5.0 http://127.0.0.1:4173/ \
+              --chrome-flags="--headless --no-sandbox --disable-gpu" \
+              --only-categories=performance,accessibility,best-practices \
+              --output=json --output-path="lighthouse-$sample.json" --quiet
+          done
+          node .github/scripts/check-lighthouse.mjs lighthouse-1.json lighthouse-2.json lighthouse-3.json
 
       - name: Observe production security headers
         if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
