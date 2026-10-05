@@ -12,7 +12,7 @@ Do not restart after timeout. Resume from the last validated checkpoint. Keep lo
 
 - Repo: `kl4ne/mpdgi-hub`
 - Branch: `main`
-- Current repository HEAD before this documentation PR: `b98eec711702b9a59ac1e022365667995bda2b3a`
+- Current repository HEAD before this documentation PR: `739d7523e50f3ad9923143c8c922cd495856fd25`
 - Runtime version: `1.6.0`
 - Production: `https://hub.mpdgi.org`
 
@@ -128,3 +128,11 @@ Custom-domain status:
 - Do not disable Pages fallbacks before custom-domain verification.
 - Do not reintroduce workers.dev failover unless explicitly requested.
 - Do not alter Nancy's approved artwork.
+
+
+## Latest continuity checkpoint
+
+- PR #52 merged successfully.
+- Hub/main checkpoint after PR #52: `739d7523e50f3ad9923143c8c922cd495856fd25`.
+- Stats remains v1.4.10 at `a1a7cd62b6fe1baaa5689cd67cb54ef7cbf44d4c`.
+- Stats post-merge validation run `37258619739`: SUCCESS.
