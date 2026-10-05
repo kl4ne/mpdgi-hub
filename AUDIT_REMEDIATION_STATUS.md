@@ -25,8 +25,8 @@ Remaining Hub item:
 
 Current release:
 - v1.4.10
-- HEAD `e31abf679870b6cc3c33826f5178d0f55a48b3e8`
-- post-merge run `37256688785`: SUCCESS
+- HEAD `a1a7cd62b6fe1baaa5689cd67cb54ef7cbf44d4c`
+- post-merge run `37258619739`: SUCCESS
 
 Closed:
 - deployed source-of-truth mismatch
@@ -46,6 +46,7 @@ Closed:
 - failed-upgrade nonblocking behavior
 - 401/429/5xx/network login diagnostics
 - auth handler integration coverage
+- real Pages + local D1 authentication E2E
 - Pages production security headers
 
 Remaining Stats items:
