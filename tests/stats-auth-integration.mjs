@@ -199,4 +199,46 @@ async function runLogin(db,email,password,options={}){
   assert.equal(db.sessions.size,0);
 }
 
+
+
+// Password-length boundaries accepted by the login contract remain covered.
+{
+  const input='A'.repeat(16);
+  const record=await createTargetPasswordRecord(input,PEPPER);
+  const user={id:'boundary-16',email:'boundary16@example.com',...record,role:'admin',active:1};
+  const db=new FakeD1([user]);
+  const response=await runLogin(db,user.email,input,{ip:'203.0.113.81'});
+  assert.equal(response.status,200);
+}
+{
+  const input='B'.repeat(128);
+  const record=await createTargetPasswordRecord(input,PEPPER);
+  const user={id:'boundary-128',email:'boundary128@example.com',...record,role:'admin',active:1};
+  const db=new FakeD1([user]);
+  const response=await runLogin(db,user.email,input,{ip:'203.0.113.82'});
+  assert.equal(response.status,200);
+}
+{
+  const tooShort='C'.repeat(15);
+  const db=new FakeD1([]);
+  const response=await runLogin(db,'short@example.com',tooShort,{ip:'203.0.113.83'});
+  assert.equal(response.status,401);
+}
+{
+  const tooLong='D'.repeat(129);
+  const db=new FakeD1([]);
+  const response=await runLogin(db,'long@example.com',tooLong,{ip:'203.0.113.84'});
+  assert.equal(response.status,401);
+}
+
+// Unicode passwords round-trip through the target verifier and real login handler.
+{
+  const input='Contraseña-🔐-Segura-2026!';
+  const record=await createTargetPasswordRecord(input,PEPPER);
+  const user={id:'unicode-1',email:'unicode@example.com',...record,role:'admin',active:1};
+  const db=new FakeD1([user]);
+  const response=await runLogin(db,user.email,input,{ip:'203.0.113.85'});
+  assert.equal(response.status,200);
+}
+
 console.log('MPDGI Stats auth integration validation passed');
