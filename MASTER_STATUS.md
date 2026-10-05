@@ -34,10 +34,10 @@ Open Hub infrastructure finding:
 
 - Repo: `kl4ne/mpdgi-hub`
 - Branch: `mpdgi-stats-v1.0`
-- Current HEAD: `a1a7cd62b6fe1baaa5689cd67cb54ef7cbf44d4c`
+- Current HEAD: `aade3b343689b65da3de08e62d2fb02df47efc4d`
 - Runtime version: `1.4.10`
 - Verified production fallback: `https://mpdgi-stats.pages.dev`
-- Post-merge validation run: `37258619739` — SUCCESS
+- Current validation run: `37267098697` — SUCCESS
 
 Completed:
 - `public/` is the single deployed/tested static source
@@ -83,10 +83,10 @@ Production endpoint status:
 
 - Repo: `kl4ne/mpdgi-digital-cards`
 - Branch: `main`
-- Current HEAD: `4fc5ef7e07c6f5ab8e4da63015f1a0519e9aaa87`
+- Current HEAD: `95e2c806eedcffac49081a695c33a1410bcd9e98`
 - RSCard: `1.3.2`
 - NPCard fallback: `1.0.3`
-- Post-merge validation run: `37256341259` — SUCCESS
+- Current validation run: `37263172778` — SUCCESS
 
 Completed:
 - PR-gated ZIP imports
@@ -114,7 +114,9 @@ Custom-domain status:
 
 ## Remaining open findings
 
-1. Run the final zero-assumption ecosystem audit.
+1. 🟠 Wait for public DNS propagation of `npcard.mpdgi.org` to become independently visible from the audit environment / Cloudflare Active status.
+
+Final zero-assumption audit completed and recorded in `FINAL_AUDIT_2026-10-05.md`: 0 critical/high unresolved, 1 external orange propagation condition.
 
 Latest Hub QA confirmation:
 - workflow run `37267748275`, attempt 2: SUCCESS
@@ -136,7 +138,9 @@ Branch lifecycle cleanup is complete:
 ## Current closure classification
 
 - Known repository-code defects from the re-audit: **remediated**.
-- Full ecosystem audit: **not yet closed** because infrastructure/runtime/governance findings remain.
+- Final zero-assumption audit: **completed**.
+- Critical/high unresolved defects: **0**.
+- Full all-green closure waits only for independent/global DNS propagation of `npcard.mpdgi.org`.
 
 ## Safety rules
 
