@@ -2,13 +2,13 @@ import assert from 'node:assert/strict';
 import {onRequest as loginHandler} from '../functions/api/auth/login.js';
 import {
   passwordSalt,passwordVerifier,createTargetPasswordRecord,sha256,
-  LEGACY_PASSWORD_SCHEME,TARGET_PASSWORD_SCHEME
+  LEGACY_INPUT_SCHEME,TARGET_PASSWORD_SCHEME
 } from '../functions/_lib/auth.js';
 
 const ORIGIN='https://stats.test';
 const PEPPER='integration-test-pepper';
-const LEGACY_PASSWORD='Legacy-password-1234!';
-const MODERN_PASSWORD='Modern-password-1234!';
+const LEGACY_INPUT='Legacy-password-1234!';
+const MODERN_INPUT='Modern-password-1234!';
 
 class FakeD1{
   constructor(users=[]){
@@ -91,14 +91,14 @@ async function legacyUser(email='legacy@example.com'){
   const salt=passwordSalt();
   return {
     id:'legacy-1',email,
-    password_hash:await passwordVerifier(LEGACY_PASSWORD,salt,PEPPER),
-    password_salt:salt,password_scheme:LEGACY_PASSWORD_SCHEME,
+    password_hash:await passwordVerifier(LEGACY_INPUT,salt,PEPPER),
+    password_salt:salt,password_scheme:LEGACY_INPUT_SCHEME,
     role:'owner',active:1
   };
 }
 
 async function modernUser(email='modern@example.com'){
-  const record=await createTargetPasswordRecord(MODERN_PASSWORD,PEPPER);
+  const record=await createTargetPasswordRecord(MODERN_INPUT,PEPPER);
   return {id:'modern-1',email,...record,role:'owner',active:1};
 }
 
@@ -121,7 +121,7 @@ async function runLogin(db,email,password,options={}){
 {
   const user=await legacyUser();
   const db=new FakeD1([user]);
-  const response=await runLogin(db,user.email,LEGACY_PASSWORD);
+  const response=await runLogin(db,user.email,LEGACY_INPUT);
   assert.equal(response.status,200);
   assert.match(response.headers.get('Set-Cookie')||'',/HttpOnly; Secure; SameSite=Strict/);
   assert.equal(db.sessions.size,1);
@@ -134,7 +134,7 @@ async function runLogin(db,email,password,options={}){
   const user=await modernUser();
   const originalHash=user.password_hash;
   const db=new FakeD1([user]);
-  const response=await runLogin(db,user.email,MODERN_PASSWORD);
+  const response=await runLogin(db,user.email,MODERN_INPUT);
   assert.equal(response.status,200);
   assert.equal(db.sessions.size,1);
   assert.equal(db.users.get(user.email).password_hash,originalHash);
@@ -156,10 +156,10 @@ async function runLogin(db,email,password,options={}){
   const user=await legacyUser('deferred@example.com');
   const db=new FakeD1([user]);
   db.failUpgrade=true;
-  const response=await runLogin(db,user.email,LEGACY_PASSWORD);
+  const response=await runLogin(db,user.email,LEGACY_INPUT);
   assert.equal(response.status,200);
   assert.equal(db.sessions.size,1);
-  assert.equal(db.users.get(user.email).password_scheme,LEGACY_PASSWORD_SCHEME);
+  assert.equal(db.users.get(user.email).password_scheme,LEGACY_INPUT_SCHEME);
   assert.equal(db.upgradeWrites,1);
 }
 
@@ -170,7 +170,7 @@ async function runLogin(db,email,password,options={}){
   const ip='203.0.113.77';
   const rateKey=await sha256(ip+'|'+user.email+'|'+PEPPER);
   db.loginRate.set(rateKey,{window_started:Math.floor(Date.now()/1000),attempts:8});
-  const response=await runLogin(db,user.email,LEGACY_PASSWORD,{ip});
+  const response=await runLogin(db,user.email,LEGACY_INPUT,{ip});
   assert.equal(response.status,429);
   assert.equal(response.headers.get('Retry-After'),'600');
   assert.equal(db.sessions.size,0);
@@ -181,7 +181,7 @@ async function runLogin(db,email,password,options={}){
   const user=await legacyUser('scheme@example.com');
   user.password_scheme='future-scheme';
   const db=new FakeD1([user]);
-  const response=await runLogin(db,user.email,LEGACY_PASSWORD);
+  const response=await runLogin(db,user.email,LEGACY_INPUT);
   assert.equal(response.status,503);
   const body=await response.json();
   assert.equal(body.error,'unsupported_password_scheme');
@@ -192,7 +192,7 @@ async function runLogin(db,email,password,options={}){
   const user=await legacyUser('config@example.com');
   const db=new FakeD1([user]);
   const response=await loginHandler({
-    request:request(user.email,LEGACY_PASSWORD),
+    request:request(user.email,LEGACY_INPUT),
     env:{STATS_DB:db,AUTH_PEPPER:''}
   });
   assert.equal(response.status,503);
