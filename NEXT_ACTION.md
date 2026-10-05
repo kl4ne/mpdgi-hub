@@ -14,20 +14,20 @@ Known repository-code findings from the re-audit have been repaired and validate
 
 ## Exact next phases
 
-1. **Confirm Hub QA**
-   - review the re-run of the latest `browser-qa` job;
-   - if Lighthouse Performance again falls below 0.80, investigate the reproducible cause before changing thresholds or runtime code;
-   - if it returns green, record the prior 0.63 result as transient CI variance.
-
-2. **Finish governance/cleanup checkpoint**
-   - merge the workflow update that makes merged-branch cleanup listen to both `main` and `mpdgi-stats-v1.0`;
+1. **Finish governance/cleanup checkpoint**
+   - merge PR #62 after required checks pass;
+   - verify merged-branch cleanup runs for the updated workflow;
    - verify the stale merged Stats PR branch is removed;
    - preserve production and rollback checkpoint branches.
 
-3. **Final audit**
+2. **Final audit**
    - repeat the audit from zero assumptions;
    - classify accepted hosting/plan limitations separately from defects;
    - close only after no known critical/high/medium defects remain.
+
+Hub QA note:
+- workflow run `37267748275`, attempt 2: SUCCESS
+- the isolated Lighthouse Performance 0.63 result did not reproduce; no threshold or runtime change is warranted.
 
 Use `CLOUDFLARE_FIX_RUNBOOK.md` for infrastructure changes.
 
