@@ -4,58 +4,50 @@ Updated: 2026-10-05
 
 ## Purpose
 
-Record repository-visible evidence that helps distinguish code/hosting configuration from DNS/custom-domain configuration.
+Record repository-visible evidence and the confirmed production architecture.
 
 ## Hub
 
-Repository: `kl4ne/mpdgi-hub`
+Repository: `kl4ne/mpdgi-hub`  
 Branch: `main`
 
 Observed:
-- root `CNAME` file exists
-- value: `hub.mpdgi.org`
+- root `CNAME` exists;
+- value: `hub.mpdgi.org`.
 
 Interpretation:
-- the Hub repository is explicitly configured for the GitHub Pages custom hostname `hub.mpdgi.org`
-- this supports the existing conclusion that Hub response-header remediation belongs at the actual serving/proxy layer, not in a Cloudflare Pages-style `_headers` file
+- Hub is explicitly configured for the GitHub Pages custom hostname `hub.mpdgi.org`;
+- response-header remediation belongs at the actual serving/proxy layer.
 
 ## Stats
 
-Repository: `kl4ne/mpdgi-hub`
+Repository: `kl4ne/mpdgi-hub`  
 Branch: `mpdgi-stats-v1.0`
 
-Observed:
-- no root `CNAME` file is present
-- verified Pages endpoint remains `https://mpdgi-stats.pages.dev`
-- external diagnostics show `stats.mpdgi.org` does not currently resolve publicly
+Confirmed architecture:
+- canonical production endpoint: `https://mpdgi-stats.pages.dev`;
+- no Stats custom domain is configured or required;
+- no root `CNAME` is expected for Stats.
 
-Interpretation:
-- the Stats custom domain is not represented as a GitHub Pages CNAME in this branch
-- this is consistent with the intended Cloudflare Pages custom-domain model
-- repair should be performed in Cloudflare Pages/DNS, not by adding a GitHub Pages CNAME file
+The earlier `stats.mpdgi.org` DNS finding was based on an incorrect audit assumption and is not a real project defect.
 
 ## Digital Cards
 
-Repository: `kl4ne/mpdgi-digital-cards`
+Repository: `kl4ne/mpdgi-digital-cards`  
 Branch: `main`
 
 Observed:
-- no root `CNAME` file
-- no `cards/nancy-pagan/CNAME`
-- no `cards/ruben-suarez/CNAME`
-- verified NPCard fallback remains `https://npcard.pages.dev`
-- external diagnostics show `npcard.mpdgi.org` does not currently resolve publicly
+- verified NPCard fallback: `https://npcard.pages.dev`;
+- intended Nancy custom domain: `npcard.mpdgi.org`;
+- DNS for `mpdgi.org` is managed in Namecheap.
 
 Interpretation:
-- Digital Card custom domains are deployment-platform configuration, not per-card GitHub Pages CNAME files
-- do not create ad-hoc CNAME files inside card folders as a workaround
+- NPCard custom-domain configuration belongs in Cloudflare Pages + Namecheap DNS;
+- do not create ad-hoc per-card GitHub Pages CNAME files.
 
 ## Operational conclusion
 
-Repository-visible evidence supports the current split:
-
-- Hub custom hostname: represented by GitHub Pages `CNAME`
-- Stats/NPCard custom hostnames: must be fixed at Cloudflare Pages/DNS
-- Hub missing security response headers: must be fixed at the actual HTTP serving/proxy layer
-
-No repository change should be used to fake or mask these infrastructure issues.
+- Hub custom hostname: real and represented by GitHub Pages `CNAME`.
+- Stats custom hostname: none; `mpdgi-stats.pages.dev` is canonical.
+- NPCard custom hostname: real pending infrastructure configuration.
+- Hub missing security response headers: real pending hosting/proxy configuration.
