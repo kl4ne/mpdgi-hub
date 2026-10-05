@@ -91,15 +91,15 @@ After configuration:
 
 ### Verified state
 
-`https://stats.mpdgi.org` has not been verified active.
+`https://stats.mpdgi.org` is currently missing public DNS resolution from the GitHub Actions network.
 
-GitHub Actions run `37246063157` attempted:
+Diagnostic run `37247974058` produced no address from `getent ahosts stats.mpdgi.org` and `curl` reported:
 
 ```
-https://stats.mpdgi.org/js/stats-version.js
+Could not resolve host: stats.mpdgi.org
 ```
 
-and did not receive the expected Stats v1.4.7 content.
+This narrows the blocker to DNS/custom-domain attachment before HTTP application behavior can be tested.
 
 Verified production remains:
 
@@ -142,7 +142,13 @@ Do not retire `mpdgi-stats.pages.dev` until the custom domain has passed product
 
 ### Verified state
 
-`https://npcard.mpdgi.org` was not reachable from GitHub Actions run `37241538514`.
+`https://npcard.mpdgi.org` is currently missing public DNS resolution from the GitHub Actions network.
+
+Diagnostic run `37248236928` produced no address from `getent ahosts npcard.mpdgi.org` and `curl` reported:
+
+```
+Could not resolve host: npcard.mpdgi.org
+```
 
 Verified fallback remains:
 
@@ -224,8 +230,8 @@ This document does not authorize:
 
 When Cloudflare/DNS administrative access is available:
 
-1. inspect `stats.mpdgi.org` custom-domain attachment;
-2. inspect `npcard.mpdgi.org` custom-domain attachment;
+1. attach/verify `stats.mpdgi.org` on the intended Cloudflare Pages project and allow Cloudflare to create/require the correct DNS record;
+2. attach/verify `npcard.mpdgi.org` on the intended card Pages project and allow Cloudflare to create/require the correct DNS record;
 3. inspect whether `hub.mpdgi.org` is proxied through a layer capable of injecting response headers;
 4. make one infrastructure change at a time;
 5. validate public behavior;
