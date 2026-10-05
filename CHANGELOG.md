@@ -43,3 +43,11 @@ Updated: 2026-10-05
 - Hardened generator escaping/fallback-host support.
 - Enforced a consistent 60-second update-check policy.
 - Ensured lockfile changes trigger PR validation.
+
+
+## Authentication test hardening after Stats 1.4.10
+
+- Real local Pages + D1 authentication E2E added using Wrangler 4.147.0.
+- Covered PBKDF2 login, legacy login, session lookup, invalid password and rate limiting against an actual local D1 binding.
+- Added 16/128-character password boundary and Unicode authentication coverage.
+- Added validation-run concurrency so superseded Stats PR validations are cancelled.
