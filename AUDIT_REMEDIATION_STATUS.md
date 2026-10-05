@@ -76,7 +76,7 @@ Remaining Card item:
 ## Governance findings still open
 
 - production branches are not currently protected
-- historical merged branches should be cleaned after preserving required rollbacks
+- merged-branch cleanup is closed and automated; only production-branch protection remains open
 
 ## Full closure condition
 
@@ -85,5 +85,4 @@ Do not call the full audit closed until:
 2. Stats and NPCard custom domains are validated;
 3. Hub response headers are validated;
 4. branch governance is enforced to the strongest level available;
-5. obsolete branches are cleaned;
 6. a final zero-assumption audit is green.
