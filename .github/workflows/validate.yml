@@ -27,6 +27,7 @@ jobs:
           node --check js/app.js
           node --check sw.js
           node --check playwright.config.js
+          node tests/branch-cleanup-unit.mjs
           node <<'NODE'
           const fs=require('fs');
           const path=require('path');
@@ -45,7 +46,7 @@ jobs:
             'assets/profile/logo-mpdg.png','assets/icons/icon-192.png','assets/icons/icon-512.png','assets/icons/apple-touch-icon.png',
             'assets/social/mpdgi-hub-share.svg','assets/qr/README.md',
             'package.json','package-lock.json','playwright.config.js','tests/ui.spec.js','tests/webkit.spec.js',
-            '.github/workflows/qa.yml',
+            '.github/workflows/qa.yml','.github/workflows/cleanup-merged-branches.yml','.github/scripts/branch-cleanup.mjs','tests/branch-cleanup-unit.mjs',
             ...brandAssets
           ];
           for(const p of must)if(!fs.existsSync(p))throw Error('Missing: '+p);
