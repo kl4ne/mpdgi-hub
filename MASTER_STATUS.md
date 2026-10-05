@@ -1,6 +1,6 @@
 # MPDGI Digital Ecosystem — MASTER STATUS
 
-Updated: 2026-10-04
+Updated: 2026-10-05
 
 ## Permanent workflow
 
@@ -12,7 +12,7 @@ Do not restart after timeout. Resume from the last validated checkpoint. Keep lo
 
 - Repo: `kl4ne/mpdgi-hub`
 - Branch: `main`
-- Current repository HEAD: `87aa4d8c4eb191ccf4dca695244420cb4e499d79`
+- Current repository HEAD: `d78a9a6b52ae8a562b799aa70d869bc57a8cdba9`
 - Runtime version: `1.6.0`
 - Production: `https://hub.mpdgi.org`
 
@@ -106,3 +106,9 @@ Custom-domain status:
 - Do not change Nancy's approved card art.
 - Do not invent social/contact data.
 - Do not use the GMacfie watermark in this project.
+
+## Latest documentation checkpoint
+
+- PR #39 merged successfully after Validate + QA passed.
+- Main checkpoint: `d78a9a6b52ae8a562b799aa70d869bc57a8cdba9`.
+- Remaining unresolved items are infrastructure-only.

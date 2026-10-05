@@ -1,6 +1,6 @@
 # CHAT HANDOFF — MPDGI Digital Ecosystem
 
-Updated: 2026-10-04
+Updated: 2026-10-05
 
 ## Permanent rule
 
@@ -13,7 +13,7 @@ Never restart because of timeout.
 ### Hub
 - repo: `kl4ne/mpdgi-hub`
 - branch: `main`
-- HEAD: `87aa4d8c4eb191ccf4dca695244420cb4e499d79`
+- HEAD: `d78a9a6b52ae8a562b799aa70d869bc57a8cdba9`
 - version: `1.6.0`
 - historical runtime cleanup complete
 - HSTS present
@@ -73,3 +73,7 @@ These are infrastructure-only until Cloudflare/DNS access exists:
 - do not redesign Hub for card-specific issues
 - do not invent DNS records
 - do not replace Nancy artwork
+
+## Latest checkpoint
+
+PR #39 merged successfully. Main is now `d78a9a6b52ae8a562b799aa70d869bc57a8cdba9`. Remaining work is infrastructure-only.
