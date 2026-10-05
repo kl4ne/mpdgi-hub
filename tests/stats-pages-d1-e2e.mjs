@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import {spawn,spawnSync} from 'node:child_process';
+import {writeFileSync,unlinkSync} from 'node:fs';
 import {createTargetPasswordRecord,passwordSalt,passwordVerifier,LEGACY_PASSWORD_SCHEME} from '../functions/_lib/auth.js';
 
 const WRANGLER=['--yes','wrangler@4.147.0'];
 const CONFIG='wrangler.test.toml';
+const PAGES_CONFIG='wrangler.jsonc';
 const DB='mpdgi-stats-test';
 const BASE='http://127.0.0.1:8788';
 const PEPPER='local-pages-d1-integration-pepper';
@@ -96,9 +98,22 @@ async function verifySession(cookie){
 
 await prepareLocalD1();
 
+// Pages dev requires the standard Wrangler config filename. Generate this
+// local-only file at test time so no fake database ID can affect deployment.
+writeFileSync(PAGES_CONFIG,JSON.stringify({
+  name:'mpdgi-stats-local-test',
+  compatibility_date:'2026-09-29',
+  pages_build_output_dir:'public',
+  d1_databases:[{
+    binding:'STATS_DB',
+    database_name:DB,
+    database_id:'00000000-0000-0000-0000-000000000001',
+    preview_database_id:'STATS_DB'
+  }]
+},null,2));
+
 const server=spawn('npx',[
   ...WRANGLER,'pages','dev','public',
-  '--config',CONFIG,
   '--ip','127.0.0.1',
   '--port','8788',
   '--binding','AUTH_PEPPER='+PEPPER
@@ -163,5 +178,6 @@ try{
     new Promise(resolve=>setTimeout(resolve,3000))
   ]);
   if(server.exitCode===null)server.kill('SIGKILL');
+  try{unlinkSync(PAGES_CONFIG);}catch{}
   if(process.env.CI&&serverOutput)process.stdout.write(serverOutput);
 }
