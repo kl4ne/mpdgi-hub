@@ -43,6 +43,47 @@ test('unauthenticated users see only the secure login experience',async({page})=
   await expect(page.locator('text=Acceso autorizado solamente')).toBeVisible();
 });
 
+
+test('login shows invalid credentials only for a real 401',async({page})=>{
+  await page.route('**/api/auth/session',r=>r.fulfill({status:401,contentType:'application/json',body:'{"error":"unauthorized"}'}));
+  await page.route('**/api/auth/login',r=>r.fulfill({status:401,contentType:'application/json',body:'{"error":"invalid_credentials"}'}));
+  await page.goto('/',{waitUntil:'domcontentloaded'});
+  await page.locator('#login-email').fill('owner@example.com');
+  await page.locator('#login-password').fill('Wrong-password-9999!');
+  await page.locator('#login-button').click();
+  await expect(page.locator('#login-error')).toHaveText('Correo o contraseña incorrectos.');
+});
+
+test('login identifies server-side authentication failures as service errors',async({page})=>{
+  await page.route('**/api/auth/session',r=>r.fulfill({status:401,contentType:'application/json',body:'{"error":"unauthorized"}'}));
+  await page.route('**/api/auth/login',r=>r.fulfill({status:503,contentType:'application/json',body:'{"error":"service_not_configured"}'}));
+  await page.goto('/',{waitUntil:'domcontentloaded'});
+  await page.locator('#login-email').fill('owner@example.com');
+  await page.locator('#login-password').fill('Correct-password-1234!');
+  await page.locator('#login-button').click();
+  await expect(page.locator('#login-error')).toContainText('servicio de acceso no está disponible');
+});
+
+test('login identifies rate limiting instead of reporting a bad password',async({page})=>{
+  await page.route('**/api/auth/session',r=>r.fulfill({status:401,contentType:'application/json',body:'{"error":"unauthorized"}'}));
+  await page.route('**/api/auth/login',r=>r.fulfill({status:429,contentType:'application/json',body:'{"error":"too_many_attempts"}'}));
+  await page.goto('/',{waitUntil:'domcontentloaded'});
+  await page.locator('#login-email').fill('owner@example.com');
+  await page.locator('#login-password').fill('Correct-password-1234!');
+  await page.locator('#login-button').click();
+  await expect(page.locator('#login-error')).toContainText('Demasiados intentos');
+});
+
+test('login identifies a network failure instead of reporting a bad password',async({page})=>{
+  await page.route('**/api/auth/session',r=>r.fulfill({status:401,contentType:'application/json',body:'{"error":"unauthorized"}'}));
+  await page.route('**/api/auth/login',r=>r.abort('failed'));
+  await page.goto('/',{waitUntil:'domcontentloaded'});
+  await page.locator('#login-email').fill('owner@example.com');
+  await page.locator('#login-password').fill('Correct-password-1234!');
+  await page.locator('#login-button').click();
+  await expect(page.locator('#login-error')).toContainText('No fue posible conectar con el servicio de acceso');
+});
+
 test('authenticated dashboard renders the same server aggregates including zero-value QR',async({page})=>{
   await page.route('**/api/auth/session',r=>r.fulfill({status:200,contentType:'application/json',body:'{"authenticated":true,"user":{"email":"owner@example.com","role":"owner"}}'}));
   await page.route('**/api/dashboard**',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(sample)}));
