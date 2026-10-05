@@ -20,9 +20,10 @@ const branches=[
   'hotfix/old-login',
   'stats-v1.4.4-old',
   'feature/unmerged',
+  'audit-fix/unmerged',
   'audit-fix/open-pr'
 ];
-const selected=selectBootstrapCandidates(branches,{openBranches:new Set(['audit-fix/open-pr'])});
+const selected=selectBootstrapCandidates(branches,{openBranches:new Set(['audit-fix/open-pr']),mergedBranches:new Set(['checkpoint/stats-v1.4.4','audit-fix/merged','docs/old-checkpoint','ops/diagnostic','hotfix/old-login','stats-v1.4.4-old','audit-fix/open-pr'])});
 assert.deepEqual(selected,[
   'checkpoint/stats-v1.4.4',
   'audit-fix/merged',
@@ -40,3 +41,5 @@ assert.equal(shouldDeleteMergedHead('feature/open',{merged:false,sameRepo:true})
 assert.equal(shouldDeleteMergedHead('feature/fork',{merged:true,sameRepo:false}),false);
 
 console.log('branch cleanup unit validation passed');
+
+assert(!selected.includes('audit-fix/unmerged'),'Unmerged historical-looking branches must never be bootstrap-deleted');
