@@ -136,3 +136,20 @@ Not allowed as routine remediation:
 1. Verify PBKDF2 behavior in the actual Cloudflare runtime/plan.
 2. Protect production Git branches with required checks where repository settings permit.
 3. Close custom-domain and Hub response-header findings at the infrastructure layer.
+
+
+## Local Pages + D1 E2E evidence
+
+A real local Cloudflare Pages Functions + local D1 test is now part of CI using pinned Wrangler 4.147.0.
+
+Validated paths:
+- current PBKDF2 user login
+- legacy user login
+- session creation and authenticated session lookup
+- invalid password rejection
+- rate-limit enforcement
+
+Validated post-merge run:
+- `37258619739` — SUCCESS
+
+The local workerd logs observed successful login request wall times around 79–85 ms. This strengthens runtime compatibility evidence but does not replace checking the production account's Workers CPU-plan limits.
