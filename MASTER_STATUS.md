@@ -12,7 +12,7 @@ Do not restart after timeout. Resume from the last validated checkpoint. Keep lo
 
 - Repo: `kl4ne/mpdgi-hub`
 - Branch: `main`
-- Current repository HEAD: `b123f59278bd1791c9ab02d6c92a3ead47a0f0bc`
+- Current repository HEAD: `87aa4d8c4eb191ccf4dca695244420cb4e499d79`
 - Runtime version: `1.6.0`
 - Production: `https://hub.mpdgi.org`
 
@@ -60,7 +60,7 @@ Completed:
 - no D1 reset/deletion performed
 
 Custom-domain status:
-- `stats.mpdgi.org` has no public DNS resolution from GitHub Actions diagnostics
+- `stats.mpdgi.org` failed public DNS resolution in GitHub Actions run `37247974058` (`curl: (6) Could not resolve host`)
 - keep `mpdgi-stats.pages.dev` as verified endpoint until Cloudflare/DNS is fixed
 
 ## MPDGI Digital Cards
@@ -88,7 +88,7 @@ Verified production:
 - `https://npcard.pages.dev`
 
 Custom-domain status:
-- `npcard.mpdgi.org` has no public DNS resolution from GitHub Actions diagnostics
+- `npcard.mpdgi.org` failed public DNS resolution in Digital Cards run `37248236928` (`curl: (6) Could not resolve host`)
 - do not program Nancy NFC to the custom domain until Cloudflare/DNS + real-device verification are complete
 
 ## Remaining blockers
