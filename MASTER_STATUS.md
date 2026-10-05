@@ -32,7 +32,8 @@ Long technical reports should be delivered as `.md` files, and grouped in a ZIP 
 - Repository: `kl4ne/mpdgi-hub`
 - Branch: `mpdgi-stats-v1.0`
 - Stable HEAD before benchmark utility merge: `e3b237c46350352b183d40a172eee0a0a8667319`
-- Latest validated Stats HEAD: `6213978d83d57eb236422c9e10290ae61e15cd99`
+- Latest validated Stats runtime HEAD: `6213978d83d57eb236422c9e10290ae61e15cd99`
+- Latest Stats operational-diagnostics HEAD: `2d018cd07e0ace2d8bc9ed895d6828c88776c490`
 - Stable runtime version: `1.4.7`
 - Benchmark PR run: `37244913868` — SUCCESS
 - Post-merge validation run: `37246063157` — SUCCESS
@@ -52,7 +53,8 @@ Long technical reports should be delivered as `.md` files, and grouped in a ZIP 
 ### MPDGI Digital Cards
 - Repository: `kl4ne/mpdgi-digital-cards`
 - Branch: `main`
-- Current stable HEAD: `452f2c4096aa782c3be4fa77bc0f50d34487851b`
+- Current stable/runtime HEAD before diagnostics: `452f2c4096aa782c3be4fa77bc0f50d34487851b`
+- Latest Digital Cards operational-diagnostics HEAD: `ccf8940930e82cf67330488bf706a7c51e87f8ec`
 - RSCard: `1.3.2`
 - NPCard Pages fallback: `1.0.3`
 - Latest validated work:
@@ -67,7 +69,7 @@ Long technical reports should be delivered as `.md` files, and grouped in a ZIP 
 - Verified production:
   - `https://rscard.mpdgi.org` at RSCard v1.3.2
   - `https://npcard.pages.dev` at NPCard v1.0.3
-- Nancy custom domain `https://npcard.mpdgi.org` was not reachable from GitHub Actions during the last production smoke; Pages fallback remains verified.
+- Nancy custom domain `https://npcard.mpdgi.org` has no public DNS resolution from GitHub Actions; run `37248236928` showed `curl: (6) Could not resolve host`. Pages fallback remains verified.
 
 ## In progress
 
@@ -80,7 +82,7 @@ Long technical reports should be delivered as `.md` files, and grouped in a ZIP 
   - documentation aligned to v1.4.6
 - Post-merge GitHub Actions run `37242557183` completed successfully.
 - Production smoke verified `mpdgi-stats.pages.dev` at v1.4.6 with HSTS, nosniff, X-Frame-Options DENY and noindex.
-- `stats.mpdgi.org` was not reachable at the expected version from GitHub Actions; Pages remains the verified production endpoint.
+- `stats.mpdgi.org` has no public DNS resolution from GitHub Actions; run `37247974058` showed `curl: (6) Could not resolve host`. Pages remains the verified production endpoint.
 - No destructive D1 operation was performed.
 
 ## Open audit items

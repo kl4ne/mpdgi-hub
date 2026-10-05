@@ -4,17 +4,23 @@ Updated: 2026-10-04
 
 ## Open / verified
 
-### 1. Stats custom domain not verified
-- `https://stats.mpdgi.org` was not reachable at the expected Stats v1.4.6 version from GitHub Actions.
-- Verified production fallback remains `https://mpdgi-stats.pages.dev`.
-- Latest external proof: GitHub Actions run `37246063157` could not retrieve the expected v1.4.7 content from `stats.mpdgi.org`.
-- Required next step: inspect Cloudflare/DNS custom-domain configuration before calling `stats.mpdgi.org` active.
+### 1. Stats custom domain has no public DNS resolution
+- `https://stats.mpdgi.org` is not currently publicly resolvable from GitHub Actions.
+- Diagnostic run `37247974058`:
+  - `getent ahosts stats.mpdgi.org` returned no address;
+  - `curl` reported `Could not resolve host: stats.mpdgi.org`.
+- Verified production remains `https://mpdgi-stats.pages.dev`.
+- This is now classified as a DNS/custom-domain configuration blocker, not an application-code blocker.
+- Required next step: inspect/add the Cloudflare Pages custom-domain attachment and resulting DNS record, then re-run production smoke.
 
-### 2. NPCard custom domain not verified
-- `https://npcard.mpdgi.org` was not reachable from GitHub Actions during the latest card production smoke.
+### 2. NPCard custom domain has no public DNS resolution
+- `https://npcard.mpdgi.org` is not currently publicly resolvable from GitHub Actions.
+- Diagnostic run `37248236928`:
+  - `getent ahosts npcard.mpdgi.org` returned no address;
+  - `curl` reported `Could not resolve host: npcard.mpdgi.org`.
 - Verified fallback remains `https://npcard.pages.dev` at NPCard v1.0.3.
-- Latest external proof: GitHub Actions run `37241538514` could not reach `npcard.mpdgi.org`.
-- Required next step: inspect Cloudflare/DNS custom-domain configuration and then real-device behavior.
+- This is now classified as a DNS/custom-domain configuration blocker, not an application-code blocker.
+- Required next step: inspect/add the Pages custom-domain attachment and resulting DNS record, then run browser/NFC validation.
 
 ### 3. Hub response-header hardening remains incomplete at hosting layer
 - Hub production exposes HSTS.

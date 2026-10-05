@@ -106,9 +106,19 @@ Benchmark run `37244913868` succeeded using GitHub Actions Node.js WebCrypto.
 
 Benchmark utility merged as `6213978d83d57eb236422c9e10290ae61e15cd99`.
 
+## DNS diagnostics checkpoint
+
+Custom-domain diagnostics now identify the actual public failure mode:
+
+- Stats run `37247974058`: `stats.mpdgi.org` has no public DNS resolution from GitHub Actions.
+- Digital Cards run `37248236928`: `npcard.mpdgi.org` has no public DNS resolution from GitHub Actions.
+- Both verified Pages endpoints remain healthy.
+- Application code already recognizes the intended card hostnames.
+- Do not invent CNAME targets; inspect Cloudflare Pages custom-domain configuration.
+
 ## Exact next action
 
-Post-merge Stats validation run `37246063157` succeeded. Latest validated Stats checkpoint: `6213978d83d57eb236422c9e10290ae61e15cd99`. Continue to custom-domain verification.
+When Cloudflare/DNS administrative access is available, attach/verify the two custom domains one at a time, validate public DNS/HTTPS, then checkpoint before continuing.
 
 ## Approved decisions that must not be re-asked or redone
 
