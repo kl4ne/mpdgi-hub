@@ -16,8 +16,8 @@ Hub analytics are sent anonymously to the Stats collector at the verified Cloudf
 
 Repository: `kl4ne/mpdgi-hub`  
 Production branch: `mpdgi-stats-v1.0`  
-Verified fallback: `mpdgi-stats.pages.dev`  
-Intended custom domain: `stats.mpdgi.org`
+Canonical production endpoint: `mpdgi-stats.pages.dev`  
+No Stats custom domain is configured or required.
 
 Static assets live only under `public/`. Dynamic endpoints are Cloudflare Pages Functions under `functions/`.
 
