@@ -14,6 +14,9 @@ The evidence below comes from the project's validated GitHub Actions production 
 
 GitHub Actions QA observed on `https://hub.mpdgi.org`:
 
+- HTTP status: 200
+- `server: GitHub.com`
+- `via: 1.1 varnish`
 - HSTS: present
 - `X-Content-Type-Options: nosniff`: not observed
 - response-header clickjacking protection: not observed
@@ -21,7 +24,8 @@ GitHub Actions QA observed on `https://hub.mpdgi.org`:
   - no response CSP containing `frame-ancestors`
 
 Latest confirming QA evidence:
-- run `37246903612`
+- run `37248409019`
+- response headers showed `server: GitHub.com`, confirming the Hub is currently served directly by GitHub Pages rather than a Cloudflare response-modification layer
 - header probe produced warnings for missing nosniff and clickjacking response headers
 
 ### Important limitation
@@ -56,7 +60,7 @@ Do not weaken the current HTTPS/HSTS behavior.
 
 ### Valid implementation options
 
-Choose only after inspecting actual hosting/DNS configuration:
+Current evidence shows GitHub Pages is serving the public response directly. Therefore a repository-only fix cannot add the two missing response headers. Choose only after inspecting actual DNS/Cloudflare configuration:
 
 1. **Cloudflare reverse-proxy / Transform Rule**
    - Keep GitHub Pages as origin.
