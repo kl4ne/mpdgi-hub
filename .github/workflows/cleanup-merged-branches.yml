@@ -7,7 +7,7 @@ on:
       - '.github/workflows/cleanup-merged-branches.yml'
       - '.github/scripts/branch-cleanup.mjs'
   pull_request:
-    branches: [main]
+    branches: [main, mpdgi-stats-v1.0]
     types: [closed]
   workflow_dispatch:
 
