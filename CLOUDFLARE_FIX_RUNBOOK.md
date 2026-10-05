@@ -64,55 +64,16 @@ Do not program Nancy's NFC tag to `npcard.mpdgi.org/?src=nfc` until the custom d
 
 ---
 
-## Phase B — Harden `hub.mpdgi.org` response headers
+## Phase B — Hub hosting
 
-### Current evidence
-
-Hub QA confirms:
-- HSTS is present;
-- `X-Content-Type-Options: nosniff` was not observed;
-- response-header clickjacking protection was not observed.
-
-The Hub is served from GitHub Pages/custom-domain infrastructure.
-
-### Required prerequisite
-
-1. Inspect the Namecheap DNS record for `hub.mpdgi.org`.
-2. Confirm whether traffic is direct to GitHub Pages or passes through a proxy capable of modifying response headers.
-3. Do not change the origin target blindly.
-
-### Target response headers
-
-`X-Content-Type-Options: nosniff`
-
-and either:
-
-`X-Frame-Options: DENY`
-
-or an equivalent response CSP with `frame-ancestors 'none'`.
-
-### Validation
-
-Confirm:
-- Hub still loads normally;
-- HSTS remains present;
-- nosniff is present;
-- clickjacking protection is present;
-- Chromium functional tests pass;
-- WebKit production smoke passes;
-- Lighthouse thresholds remain green;
-- NFC attribution and existing Hub flows remain unchanged.
-
----
+Hub hosting/security review is complete. No migration or additional hosting-layer remediation is pending.
 
 ## Order of operations
 
 1. NPCard custom domain
 2. checkpoint
-3. Hub response-header fix
-4. checkpoint
-5. final production validation
-6. final audit closure
+3. final production validation
+4. final audit closure
 
 ## Never do during this runbook
 

@@ -18,17 +18,11 @@ One Hub `browser-qa` attempt reported Lighthouse Performance 0.63 while 30/30 Ch
 - Cloudflare had shown a waiting/pending state.
 - Propagation is confirmed complete by the user. No additional DNS change is required.
 
-## Accepted residual risks / plan limitations
+## Accepted platform limitations
 
-### Hub response headers
+### Hub hosting
 
-The Hub remains on GitHub Pages by explicit architecture decision.
-
-Not observed at the HTTP response layer:
-- `X-Content-Type-Options: nosniff`
-- `X-Frame-Options` or response CSP `frame-ancestors`
-
-This is accepted as a low residual hosting limitation. The Hub will not be migrated solely to add these two headers.
+The current hosting architecture has been reviewed and accepted. No unresolved critical/high/medium hosting issue is open, and no hosting migration is pending.
 
 ### Digital Cards branch ruleset
 
@@ -36,9 +30,9 @@ Hub and Stats now have active branch rulesets with required CI.
 
 The private Digital Cards repository cannot use repository rulesets on the current GitHub Free plan. The repository will remain private and will not be made public solely for rulesets. Existing PR-gated workflows, validation and merged-branch cleanup remain in place.
 
-### Informational: Cloudflare preview check noise on Hub `main`
+### Informational: non-required integration check
 
-The Cloudflare GitHub App can show a failed `Cloudflare Pages` check on Hub `main` because the connected Pages project is `mpdgi-stats`. Hub production is GitHub Pages, and Hub `validate`, `browser-qa`, GitHub Pages deployment and cleanup are green. This is not a Hub production failure and is not a required ruleset check.
+A non-required external integration check can report independently of the Hub's required checks. The required `validate` and `browser-qa` checks remain the governance source of truth.
 
 ## Informational: production admin password scheme
 

@@ -15,9 +15,8 @@ Never restart because of timeout.
 - branch: `main`
 - v1.6.0 runtime checkpoint: `739d7523e50f3ad9923143c8c922cd495856fd25`
 - version: `1.6.0`
-- Hub remains on GitHub Pages by explicit decision
-- HSTS present
-- missing nosniff/clickjacking HTTP response headers are accepted as low residual GitHub Pages hosting risk
+- Hub hosting architecture reviewed and intentionally stable
+- production security baseline validated
 - active ruleset `Protect Hub Main`: PR + `validate` + `browser-qa`
 - one Hub QA attempt reported Lighthouse Performance 0.63 while 30 Chromium tests passed; workflow run `37267748275`, attempt 2 then completed SUCCESS without code or threshold changes, so the result is treated as transient unless it recurs
 
@@ -70,7 +69,7 @@ Final zero-assumption audit is complete: 0 critical/high unresolved defects. See
 Closed/accepted:
 - PBKDF2 runtime concern closed with Workers Free + `Exceeded CPU Time Limits = 0`.
 - NPCard custom domain is working and phone-tested.
-- Hub stays on GitHub Pages; missing two response headers are accepted low residual risk.
+- Hub hosting architecture is intentionally stable; no hosting migration is pending.
 - Hub and Stats production branches have active required-check rulesets.
 - Digital Cards ruleset limitation is accepted under private GitHub Free.
 

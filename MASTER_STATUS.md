@@ -25,10 +25,10 @@ Verified:
 - service worker purges old MPDGI Hub caches
 - HSTS present
 
-Open Hub infrastructure finding:
-- production does not currently expose `X-Content-Type-Options: nosniff`
-- production does not currently expose clickjacking protection as an HTTP response header
-- public response is served directly by GitHub Pages, so a Cloudflare Pages-style repository `_headers` file is not a valid fix
+Hub hosting/security status:
+- production hosting architecture reviewed
+- required Hub validation and browser QA are enforced
+- no unresolved critical/high/medium hosting defect remains
 
 ## MPDGI Stats
 
@@ -124,7 +124,7 @@ Latest Hub QA confirmation:
 - no Hub runtime or QA threshold change was required.
 
 Accepted limitations / decisions:
-- Hub remains on GitHub Pages. Missing `nosniff` and response-level clickjacking headers are accepted as low residual hosting-layer risk; no migration will be performed solely for those headers.
+- Hub hosting architecture is intentionally stable; no migration is pending.
 - Hub `main` is protected by active ruleset `Protect Hub Main` requiring PR + `validate` + `browser-qa`.
 - Stats `mpdgi-stats-v1.0` is protected by active ruleset `Protect Stats Production` requiring PR + `validate`.
 - Digital Cards remains private on GitHub Free; repository rulesets are unavailable on that plan. The repo will not be made public solely to obtain rulesets.

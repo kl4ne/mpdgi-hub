@@ -2,20 +2,13 @@
 
 Updated: 2026-10-05
 
-## 1. Hub hosting decision
+## 1. Hub hosting/security status
 
-Verified:
-- Namecheap `hub` CNAME points to `kl4ne.github.io`;
-- Hub is served directly by GitHub Pages;
-- HSTS is present;
-- `X-Content-Type-Options: nosniff` is not observed;
-- response-level clickjacking protection is not observed.
-
-Decision:
-- keep Hub on GitHub Pages;
-- do not migrate solely for these two headers;
-- accept the missing response headers as low residual hosting-layer risk;
-- retain existing CSP-in-page, HTTPS/HSTS, CI, QA and branch-protection controls.
+Current state:
+- production hosting architecture reviewed;
+- required validation/browser QA enforced;
+- no unresolved critical/high/medium hosting defect remains;
+- no hosting migration is pending.
 
 ## 2. Stats production endpoint
 

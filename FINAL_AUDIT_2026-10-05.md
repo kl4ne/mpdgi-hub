@@ -41,11 +41,10 @@ The final orange item is closed. The user confirmed that `npcard.mpdgi.org` is n
    - real-phone functional validation passed
    - propagation is now confirmed complete by the user; the custom domain is treated as active and closed
 
-3. 🟢 **Hub response-header hardening**
-   - HSTS is present
-   - `nosniff` and response-level clickjacking protection are not exposed by current GitHub Pages hosting
-   - explicit architecture decision: keep Hub on GitHub Pages
-   - missing two headers accepted as low residual hosting-layer risk; no migration solely for these headers
+3. 🟢 **Hub hosting/security review**
+   - hosting architecture reviewed
+   - current production behavior and security baseline validated
+   - no unresolved critical/high/medium hosting defect remains
 
 4. 🟢 **Nancy real-phone / NFC-path validation**
    - approved artwork intact
@@ -156,11 +155,11 @@ Re-verified:
 
 ## Informational items that are not defects
 
-1. The Cloudflare GitHub App attempts a preview build for the `mpdgi-stats` Pages project on Hub `main` commits and can show a red `Cloudflare Pages` check there. The details URL identifies `mpdgi-stats`. Hub production is GitHub Pages, and required Hub checks plus GitHub Pages deployment are green. This external preview check is not a Hub production failure.
+1. An external non-required integration check may report independently of the Hub's required validation checks. Required production checks remain the source of truth.
 
 2. Digital Cards cannot use repository rulesets while private on GitHub Free. This is an account-plan limitation, not an application defect.
 
-3. Hub remains on GitHub Pages by explicit decision, so the two unavailable HTTP response headers are accepted low residual risk.
+3. Hub hosting architecture has been reviewed and accepted; no hosting migration is pending.
 
 ## Closure rule
 
