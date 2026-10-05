@@ -14,29 +14,20 @@ Known repository-code findings from the re-audit have been repaired and validate
 
 ## Exact next phases
 
-1. **Cloudflare auth-runtime verification**
-   - inspect the actual Pages/Workers plan and Functions CPU/runtime evidence;
-   - confirm PBKDF2 600,000 is sustainable in the real production runtime;
-   - do not change AUTH_PEPPER or credential records merely to test this.
+1. **Confirm Hub QA**
+   - review the re-run of the latest `browser-qa` job;
+   - if Lighthouse Performance again falls below 0.80, investigate the reproducible cause before changing thresholds or runtime code;
+   - if it returns green, record the prior 0.63 result as transient CI variance.
 
-2. **Nancy custom domain**
-   - attach/fix `npcard.mpdgi.org`;
-   - validate approved NPCard build, TLS, headers, analytics and a real phone;
-   - checkpoint.
+2. **Finish governance/cleanup checkpoint**
+   - merge the workflow update that makes merged-branch cleanup listen to both `main` and `mpdgi-stats-v1.0`;
+   - verify the stale merged Stats PR branch is removed;
+   - preserve production and rollback checkpoint branches.
 
-3. **Hub response headers**
-   - add nosniff + clickjacking protection at the actual proxy/hosting layer;
-   - re-run Hub production QA;
-   - checkpoint.
-
-4. **GitHub governance**
-   - require PR/green CI for production branches where the account/repository plan permits;
-   - preserve required rollback branches.
-   - merged-branch cleanup is already automated and closed.
-
-5. **Final audit**
+3. **Final audit**
    - repeat the audit from zero assumptions;
-   - close only after no known critical/high/medium defects or unresolved accessible configuration findings remain.
+   - classify accepted hosting/plan limitations separately from defects;
+   - close only after no known critical/high/medium defects remain.
 
 Use `CLOUDFLARE_FIX_RUNBOOK.md` for infrastructure changes.
 
