@@ -36,8 +36,8 @@ Known repository-code findings from the re-audit have been repaired and validate
 
 5. **GitHub governance**
    - require PR/green CI for production branches where the account/repository plan permits;
-   - preserve required rollback branches;
-   - remove obsolete merged audit/docs/hotfix branches.
+   - preserve required rollback branches.
+   - merged-branch cleanup is already automated and closed.
 
 6. **Final audit**
    - repeat the audit from zero assumptions;

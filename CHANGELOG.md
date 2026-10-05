@@ -51,3 +51,12 @@ Updated: 2026-10-05
 - Covered PBKDF2 login, legacy login, session lookup, invalid password and rate limiting against an actual local D1 binding.
 - Added 16/128-character password boundary and Unicode authentication coverage.
 - Added validation-run concurrency so superseded Stats PR validations are cancelled.
+
+
+## Governance / branch lifecycle
+
+- Preserved explicit current rollback checkpoints for Hub, Stats and Digital Cards.
+- Cleaned Hub branches from 64 to 5 deliberate branches.
+- Cleaned Digital Cards branches from 14 to 2 deliberate branches.
+- Added tested automatic cleanup of merged PR head branches in both repositories.
+- Production branches and rollback checkpoints are excluded from automatic deletion.

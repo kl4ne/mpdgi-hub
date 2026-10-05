@@ -56,16 +56,6 @@ Observed during re-audit:
 Required:
 - enforce PR + required green checks where GitHub repository settings/plan permit it.
 
-### 6. Historical merged branches need cleanup
-
-The Hub repository contains many audit/docs/checkpoint/version branches and Digital Cards contains historical audit/fix/checkpoint branches.
-
-This is operational debt, not a production-runtime defect.
-
-Required:
-- retain production branches, active development and deliberately selected rollback checkpoints;
-- remove obsolete merged branches.
-
 ## Informational: production admin password scheme
 
 Stats supports both legacy and PBKDF2 records. A normal successful legacy login may upgrade that authenticated user. The currently stored production owner's scheme is not assumed without D1 evidence.
