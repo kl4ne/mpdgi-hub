@@ -39,7 +39,7 @@ jobs:
           find functions -name '*.js' -print0 | xargs -0 -n1 node --check
           npm run validate:stats
           npm run validate:auth
-          node tests/stats-pages-d1-e2e.mjs
+          timeout 120s node tests/stats-pages-d1-e2e.mjs
           node <<'NODE'
           const fs=require('fs');
           const read=p=>fs.readFileSync(p,'utf8');
