@@ -4,7 +4,7 @@ Updated: 2026-10-05
 
 ## Current validated code state
 
-- Hub: v1.6.0 — main `739d7523e50f3ad9923143c8c922cd495856fd25`
+- Hub: v1.6.0 — runtime checkpoint `739d7523e50f3ad9923143c8c922cd495856fd25` (verify live `main` HEAD before mutations)
 - Stats: v1.4.10 — `a1a7cd62b6fe1baaa5689cd67cb54ef7cbf44d4c`
 - Digital Cards main: `4fc5ef7e07c6f5ab8e4da63015f1a0519e9aaa87`
 - RSCard: v1.3.2
