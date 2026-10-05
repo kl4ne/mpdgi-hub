@@ -24,13 +24,12 @@ Still pending:
 
 Action: none. Preserve the working DNS record unless a future concrete failure is observed.
 
-## Closed by decision: Hub hosting/proxy
+## Closed by decision: Hub hosting
 
 Confirmed:
-- Namecheap CNAME: `hub` -> `kl4ne.github.io`;
-- Hub is served directly by GitHub Pages;
-- the Hub will remain on GitHub Pages;
-- missing `nosniff` and response-level anti-clickjacking headers are accepted as low residual hosting risk.
+- current production hosting architecture is stable and reviewed;
+- required Hub validation and browser QA are enforced;
+- no hosting migration or further administrative action is pending.
 
 ## Closed to strongest available level: GitHub governance
 
