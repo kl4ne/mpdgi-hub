@@ -1,4 +1,5 @@
 const {test,expect}=require('@playwright/test');
+const APPROVED=require('./approved-destinations.json');
 
 const viewports=[
   {name:'320x568',width:320,height:568},
@@ -88,9 +89,9 @@ test('service worker registers on localhost',async({page,browserName})=>{
 test('giving modal includes Tithe.ly, Square, Zelle and accepted card branding',async({page})=>{
   await page.goto('/',{waitUntil:'networkidle'});
   await page.locator('[data-card-id="give"] .card-action').click();
-  await expect(page.locator('.tithely-button')).toHaveAttribute('href','https://tithe.ly/give_new/www/#/tithely/give-one-time/6513581');
-  await expect(page.locator('.square-button')).toHaveAttribute('href','https://square.link/u/8veQoUxF');
-  await expect(page.locator('.zelle-email')).toHaveText('mpdginc@gmail.com');
+  await expect(page.locator('.tithely-button')).toHaveAttribute('href',APPROVED.tithely);
+  await expect(page.locator('.square-button')).toHaveAttribute('href',APPROVED.square);
+  await expect(page.locator('.zelle-email')).toHaveText(APPROVED.zelle);
   await expect(page.locator('.payment-card-chip')).toHaveCount(6);
   await expect(page.locator('.payment-brand-visa')).toHaveCount(1);
   await expect(page.locator('.payment-brand-mastercard')).toHaveCount(1);
@@ -100,6 +101,20 @@ test('giving modal includes Tithe.ly, Square, Zelle and accepted card branding',
   await expect(page.locator('.payment-brand-unionpay')).toHaveCount(1);
 });
 
+
+test('giving destinations match approved values end to end',async({page,context,browserName})=>{
+  test.skip(browserName!=='chromium','Clipboard permissions are Chromium-only');
+  await context.grantPermissions(['clipboard-read','clipboard-write']);
+  await page.goto('/',{waitUntil:'networkidle'});
+  await page.locator('[data-card-id="give"] .card-action').click();
+  const dialog=page.getByRole('dialog');
+  await expect(dialog.locator('a.tithely-button')).toHaveAttribute('href',APPROVED.tithely);
+  await expect(dialog.locator('a.square-button')).toHaveAttribute('href',APPROVED.square);
+  await expect(dialog.locator('.zelle-email')).toHaveText(APPROVED.zelle);
+  await dialog.locator('.copy-button').click();
+  await expect(dialog.locator('.copy-status')).toHaveText('Copiado');
+  expect(await page.evaluate(()=>navigator.clipboard.readText())).toBe(APPROVED.zelle);
+});
 
 test('Square wallets and Zelle instructions are present and readable',async({page})=>{
   await page.goto('/',{waitUntil:'networkidle'});
@@ -155,9 +170,9 @@ test('shared runtime version is loaded and matches config',async({page})=>{
       config:config.version
     };
   });
-  expect(values.runtime).toBe('1.6.3');
-  expect(values.source).toBe('1.6.3');
-  expect(values.config).toBe('1.6.3');
+  expect(values.runtime).toBe('1.6.4');
+  expect(values.source).toBe('1.6.4');
+  expect(values.config).toBe('1.6.4');
 });
 
 test('accessibility labels switch with language',async({page})=>{
@@ -201,9 +216,9 @@ test('payment logos use known-good inline SVG rendering',async({page})=>{
 
 test('release-pinned assets prevent mixed-version CSS and JS',async({page})=>{
   await page.goto('/',{waitUntil:'networkidle'});
-  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.6.3.css');
-  await expect(page.locator('script[src="js/version-v1.6.3.js"]')).toHaveCount(1);
-  await expect(page.locator('script[src="js/app-v1.6.3.js"]')).toHaveCount(1);
+  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.6.4.css');
+  await expect(page.locator('script[src="js/version-v1.6.4.js"]')).toHaveCount(1);
+  await expect(page.locator('script[src="js/app-v1.6.4.js"]')).toHaveCount(1);
 });
 
 test('church address opens directions and translates its accessibility label',async({page})=>{
@@ -243,7 +258,7 @@ test('stored version mismatch repairs old MPDGI caches',async({page})=>{
     return !keys.includes('mpdgi-hub-shell-1.4.5')&&!keys.includes('mpdgi-hub-runtime-1.4.6-stale');
   },null,{timeout:10000});
   const keys=await page.evaluate(()=>caches.keys());
-  expect(keys).toContain('mpdgi-hub-shell-1.6.3');
+  expect(keys).toContain('mpdgi-hub-shell-1.6.4');
 });
 
 test('payment logos remain stable across repeated Chromium reopen cycles',async({context})=>{
@@ -419,7 +434,7 @@ test('About exposes attributed Share Hub and changelog-derived Last Updated meta
   const modal=page.locator('#modal-body');
   await expect(modal).toContainText(/Última actualización|Last updated/);
   await expect(modal.locator('button.share-hub')).toHaveCount(1);
-  const appSource=await page.request.get('/js/app-v1.6.3.js').then(r=>r.text());
+  const appSource=await page.request.get('/js/app-v1.6.4.js').then(r=>r.text());
   expect(appSource).toContain('https://hub.mpdgi.org/?src=link');
   expect(appSource).toContain('navigator.share');
 });

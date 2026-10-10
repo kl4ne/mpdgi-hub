@@ -1,5 +1,15 @@
 [
   {
+    "version": "1.6.4",
+    "title": "Giving Integrity Assurance",
+    "date": "2026-10-10",
+    "changes": [
+      "Expanded regression checks covering official giving destinations and the copy-email action.",
+      "Added reproducible validation of approved configuration values and release compatibility.",
+      "Preserved the approved interface, privacy behavior, analytics, offline support, NFC/QR attribution and hosting."
+    ]
+  },
+  {
     "version": "1.6.3",
     "title": "Quality, Consistency & Accessibility",
     "date": "2026-10-10",
