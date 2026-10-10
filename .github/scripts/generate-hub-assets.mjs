@@ -29,3 +29,5 @@ try {
 } finally {
   await browser.close();
 }
+
+// Generated assets are committed after rebasing onto the latest repair branch.
