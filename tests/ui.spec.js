@@ -145,9 +145,9 @@ test('shared runtime version is loaded and matches config',async({page})=>{
       config:config.version
     };
   });
-  expect(values.runtime).toBe('1.6.0');
-  expect(values.source).toBe('1.6.0');
-  expect(values.config).toBe('1.6.0');
+  expect(values.runtime).toBe('1.6.1');
+  expect(values.source).toBe('1.6.1');
+  expect(values.config).toBe('1.6.1');
 });
 
 test('accessibility labels switch with language',async({page})=>{
@@ -191,9 +191,9 @@ test('payment logos use known-good inline SVG rendering',async({page})=>{
 
 test('release-pinned assets prevent mixed-version CSS and JS',async({page})=>{
   await page.goto('/',{waitUntil:'networkidle'});
-  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.6.0.css');
-  await expect(page.locator('script[src="js/version-v1.6.0.js"]')).toHaveCount(1);
-  await expect(page.locator('script[src="js/app-v1.6.0.js"]')).toHaveCount(1);
+  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.6.1.css');
+  await expect(page.locator('script[src="js/version-v1.6.1.js"]')).toHaveCount(1);
+  await expect(page.locator('script[src="js/app-v1.6.1.js"]')).toHaveCount(1);
 });
 
 test('church address opens directions and translates its accessibility label',async({page})=>{
@@ -233,7 +233,7 @@ test('stored version mismatch repairs old MPDGI caches',async({page})=>{
     return !keys.includes('mpdgi-hub-shell-1.4.5')&&!keys.includes('mpdgi-hub-runtime-1.4.6-stale');
   },null,{timeout:10000});
   const keys=await page.evaluate(()=>caches.keys());
-  expect(keys).toContain('mpdgi-hub-shell-1.6.0');
+  expect(keys).toContain('mpdgi-hub-shell-1.6.1');
 });
 
 test('payment logos remain stable across repeated Chromium reopen cycles',async({context})=>{
@@ -409,7 +409,27 @@ test('About exposes attributed Share Hub and changelog-derived Last Updated meta
   const modal=page.locator('#modal-body');
   await expect(modal).toContainText(/Última actualización|Last updated/);
   await expect(modal.locator('button.share-hub')).toHaveCount(1);
-  const appSource=await page.request.get('/js/app-v1.6.0.js').then(r=>r.text());
+  const appSource=await page.request.get('/js/app-v1.6.1.js').then(r=>r.text());
   expect(appSource).toContain('https://hub.mpdgi.org/?src=link');
   expect(appSource).toContain('navigator.share');
+});
+
+test('social preview raster and maskable PWA icon have valid metadata and dimensions',async({page})=>{
+  await page.goto('/',{waitUntil:'networkidle'});
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content','https://hub.mpdgi.org/assets/social/mpdgi-hub-share.png');
+  await expect(page.locator('meta[property="og:image:type"]')).toHaveAttribute('content','image/png');
+  await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute('content','https://hub.mpdgi.org/assets/social/mpdgi-hub-share.png');
+  for(const [path,width,height] of [
+    ['/assets/social/mpdgi-hub-share.png',1200,630],
+    ['/assets/icons/icon-512-maskable.png',512,512]
+  ]){
+    const response=await page.request.get(path);
+    expect(response.ok()).toBeTruthy();
+    const png=await response.body();
+    expect(png.subarray(0,8).toString('hex')).toBe('89504e470d0a1a0a');
+    expect(png.readUInt32BE(16)).toBe(width);
+    expect(png.readUInt32BE(20)).toBe(height);
+  }
+  const manifest=await page.request.get('/manifest.json').then(r=>r.json());
+  expect(manifest.icons.some(icon=>icon.src==='assets/icons/icon-512-maskable.png'&&icon.purpose==='maskable')).toBeTruthy();
 });
