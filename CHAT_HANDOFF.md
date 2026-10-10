@@ -114,3 +114,13 @@ Always verify live Hub/Stats/Cards branch HEADs before changing code.
 - Owner explicitly rejected privacy changes. Keep existing cookies/analytics/Stats behavior and privacy UI unchanged. No user reapproval needed for this prohibition.
 - No DNS/Namecheap/Cloudflare/Pages hosting migration authorized; nosniff + clickjacking headers remain unresolved GitHub Pages hosting limitations.
 - Next: PR -> checks -> merge -> live verification -> final checkpoint. Do not restart, use do -> validate -> checkpoint -> continue.
+
+
+## Final Hub v1.6.1 handoff (2026-10-10)
+
+- **Production merged and validated:** PR #67 commit `eb15695a5c8181b6d312c14cb571cb677ea261b9`; Pages run `38069040455`, Validate `38069042793`, QA `38069042784`: all SUCCESS.
+- Production smoke found Hub v1.6.1; 31 Chromium, 5 WebKit tests pass; Lighthouse 0.99 / 1.00 / 1.00.
+- PNG sharing image and padded maskable icon generated from approved originals. Old v1.6.0 pinned assets replaced with v1.6.1 while canonical mirrors remain; release process validated.
+- Privacy, cookie/ID retention and Stats analytics are not authorized for changes and were not changed.
+- Security headers: latest runner showed HSTS, nosniff and clickjacking warnings; no hosting/DNS changes approved. PR #68 documents the advisory header check and stable release checkpoint.
+- Next external checks only: social network unfurl and physical Android/iOS icon. Do not redo release or approved branding.

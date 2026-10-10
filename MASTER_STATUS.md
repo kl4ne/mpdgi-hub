@@ -181,3 +181,14 @@ This avoids a self-invalidating loop where a documentation PR makes its own reco
 - **Known infrastructure limitation:** GitHub Pages response lacked nosniff and clickjacking headers in last runner evidence; HSTS present. No hosting/DNS/proxy changes authorized; cannot fix HTTP response headers from HTML meta or Cloudflare Pages _headers on GitHub Pages.
 - **Remaining:** CI validation on PR, production deploy, final source/header/image preview checks, update handoff after merge.
 - **Next exact step:** run required `validate` and `browser-qa` on PR; merge only when green.
+
+
+## Hub v1.6.1 — verified post-merge release checkpoint (2026-10-10)
+
+- **Hub production runtime:** v1.6.1, `main` merge commit `eb15695a5c8181b6d312c14cb571cb677ea261b9` (PR #67).
+- **Evidence:** Hub Validate `38069042793`: SUCCESS; GitHub Pages deployment `38069040455`: SUCCESS; Hub QA `38069042784`: SUCCESS.
+- Production smoke checked version 1.6.1; Chromium 31 passed, WebKit production 5 passed. Lighthouse median performance 0.99, accessibility 1.00, best-practices 1.00.
+- Fixed: social metadata PNG 1200x630; dedicated padded maskable icon; release-pinned 1.6.1 JS/CSS/version, SW caching, tests, source-doc consistency.
+- **Unchanged by owner instruction:** cookies, localStorage analytical identifiers, MPDGI Stats, tracking, privacy interface, data-retention policy, database and DNS.
+- **Open environment finding:** 2026-10-10 production QA observed missing HSTS, nosniff and iframe-protection headers. Prior run had observed HSTS; treat that difference as an unresolved observation, not evidence of a code regression. HTTP-layer changes require independent owner approval.
+- **Next:** manual WhatsApp/Facebook preview test and real-device PWA icon check; no more runtime/code work required from this patch.

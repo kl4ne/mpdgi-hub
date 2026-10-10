@@ -44,3 +44,11 @@ Do not reset D1, rotate AUTH_PEPPER, alter card artwork, or remove verified Page
 4. Merge with head-SHA lease; verify Pages deployment and production smoke.
 5. Verify production social PNG and PWA maskable icon, plus manual WhatsApp/Facebook cached preview when accessible.
 6. Update documentation to verified post-deployment state. No DNS, hosting, Stats, Cloudflare or privacy edits.
+
+
+## Hub v1.6.1 release closed — 2026-10-10
+
+- Production deployed from PR #67 / commit `eb15695a5c8181b6d312c14cb571cb677ea261b9` and post-merge CI/Pages smoke passed (see MASTER_STATUS.md).
+- No outstanding Hub 1.6.1 code correction pending. Preserve existing privacy/tracking behavior exactly.
+- Remaining **manual/external** checks: share `https://hub.mpdgi.org/?src=link` in WhatsApp and Facebook, verify preview PNG and safe icon on iOS/Android; evaluate hosting HTTP header limitations independently if owner authorizes.
+- Resume only from live HEAD and validated checkpoint, not old v1.6.0 assumptions. Do not repeat completed work.

@@ -66,6 +66,31 @@ jobs:
           if ! grep -qi '^x-frame-options:' <<<"$HEADERS" && ! grep -qi '^content-security-policy:.*frame-ancestors' <<<"$HEADERS"; then
             echo "::warning::Production response headers do not expose clickjacking protection (X-Frame-Options or CSP frame-ancestors)."
           fi
+          # Report the outcome explicitly; a green job never implies all response headers passed.
+          {
+            echo "### Production HTTP header observations — Hub v1.6.1"
+            echo "GitHub Pages hosting: information only; no proxy/DNS changes authorized."
+            if [[ -z "$HEADERS" ]]; then
+              echo "- Header verification: **unavailable (HTTP query failed)**."
+            else
+              if grep -qi '^strict-transport-security:' <<<"$HEADERS"; then
+                echo "- HSTS: **observed**."
+              else
+                echo "- HSTS: **not observed — verify hosting**."
+              fi
+              if grep -qi '^x-content-type-options:[[:space:]]*nosniff' <<<"$HEADERS"; then
+                echo "- nosniff: **observed**."
+              else
+                echo "- nosniff: **not observed — hosting limitation**."
+              fi
+              if grep -qi '^x-frame-options:' <<<"$HEADERS" || grep -qi '^content-security-policy:.*frame-ancestors' <<<"$HEADERS"; then
+                echo "- Anti-clickjacking: **observed**."
+              else
+                echo "- Anti-clickjacking: **not observed — hosting limitation**."
+              fi
+            fi
+            echo "These checks are advisory until supported response headers can be deployed at the HTTP hosting layer."
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Production smoke after Pages deployment
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
