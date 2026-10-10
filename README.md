@@ -1,8 +1,14 @@
-# MPDGI Hub — v1.6.0
+# MPDGI Hub — v1.6.1
 
 Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
+
+## v1.6.1 — Sharing Preview & PWA Quality
+- Social previews now use the original church artwork rasterized to `assets/social/mpdgi-hub-share.png` (1200 × 630); the source SVG remains intact.
+- A distinct maskable app icon preserves the official logo with safe padding.
+- Runtime assets stay release-pinned, the offline shell includes the maskable icon, and metadata/image checks cover the update.
+- Privacy settings, cookies, analytics, Stats collector, NFC/QR attribution, donation details, design and hosting remain unchanged.
 
 ## v1.6.0 — Sharing, Release Metadata & Quality Maturity
 
