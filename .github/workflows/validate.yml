@@ -25,7 +25,7 @@ jobs:
           node-version: '24'
           package-manager-cache: false
 
-      - name: Validate v1.6.6
+      - name: Validate v1.6.7
         run: |
           node --check js/version.js
           node --check js/app.js
@@ -54,7 +54,7 @@ jobs:
           ];
           const must=[
             'index.html','sw.js','manifest.json','README.md','SECURITY.md','.nojekyll','CNAME',
-            'css/style.css','css/style-v1.6.6.css','js/version.js','js/version-v1.6.6.js','js/app.js','js/app-v1.6.6.js','data/config.json','data/links.json','data/changelog.json',
+            'css/style.css','css/style-v1.6.7.css','js/version.js','js/version-v1.6.7.js','js/app.js','js/app-v1.6.7.js','data/config.json','data/links.json','data/changelog.json',
             'assets/profile/logo-mpdg.png','assets/icons/icon-192.png','assets/icons/icon-512.png','assets/icons/icon-512-maskable.png','assets/icons/apple-touch-icon.png',
             'assets/social/mpdgi-hub-share.svg','assets/social/mpdgi-hub-share.png','assets/qr/README.md',
             'package.json','package-lock.json','playwright.config.js','tests/ui.spec.js','tests/webkit.spec.js',
@@ -69,6 +69,7 @@ jobs:
             'js/version-v1.4.7.js','js/version-v1.5.0.js','js/version-v1.5.1.js','js/version-v1.5.2.js'
           ];
           historicalRuntime.push('css/style-v1.6.0.css','js/app-v1.6.0.js','js/version-v1.6.0.js','css/style-v1.6.1.css','js/app-v1.6.1.js','js/version-v1.6.1.js','css/style-v1.6.2.css','js/app-v1.6.2.js','js/version-v1.6.2.js','css/style-v1.6.3.css','js/app-v1.6.3.js','js/version-v1.6.3.js','css/style-v1.6.4.css','js/app-v1.6.4.js','js/version-v1.6.4.js','css/style-v1.6.5.css','js/app-v1.6.5.js','js/version-v1.6.5.js');
+          historicalRuntime.push('css/style-v1.6.6.css','js/app-v1.6.6.js','js/version-v1.6.6.js');
           for(const p of historicalRuntime)if(fs.existsSync(p))throw Error('Historical runtime asset returned: '+p);
 
           const index=read('index.html'),css=read('css/style.css'),app=read('js/app.js'),sw=read('sw.js');
@@ -78,12 +79,12 @@ jobs:
           delete globalThis.MPDGI_HUB_VERSION;
           require('./js/version.js');
           const release=globalThis.MPDGI_HUB_VERSION;
-          if(release!=='1.6.6')throw Error('Runtime version source mismatch');
+          if(release!=='1.6.7')throw Error('Runtime version source mismatch');
           if(pkg.version!==release||config.version!==release||changelog[0]?.version!==release)throw Error('Release metadata mismatch');
-          if(changelog[0]?.title!=='Isolated Quality Validation')throw Error('Changelog title mismatch');
+          if(changelog[0]?.title!=='Brand Contrast Legibility')throw Error('Changelog title mismatch');
           if(!app.includes("globalThis.MPDGI_HUB_VERSION||'dev'"))throw Error('App does not consume shared version');
-          if(!sw.includes("importScripts('./js/version-v1.6.6.js')")||!sw.includes("self.MPDGI_HUB_VERSION||SCRIPT_VERSION"))throw Error('Service Worker does not consume release-pinned shared version');
-          if(!index.includes('<script src="js/version-v1.6.6.js"></script>')||index.indexOf('js/version-v1.6.6.js')>index.indexOf('js/app-v1.6.6.js'))throw Error('Version script ordering mismatch');
+          if(!sw.includes("importScripts('./js/version-v1.6.7.js')")||!sw.includes("self.MPDGI_HUB_VERSION||SCRIPT_VERSION"))throw Error('Service Worker does not consume release-pinned shared version');
+          if(!index.includes('<script src="js/version-v1.6.7.js"></script>')||index.indexOf('js/version-v1.6.7.js')>index.indexOf('js/app-v1.6.7.js'))throw Error('Version script ordering mismatch');
 
           if(app.length>=54000)throw Error('app.js unexpectedly large: '+app.length);
           if(!app.includes('ANALYTICS_SCHEMA_VERSION=1')||!app.includes("VALID_ACQUISITION_SOURCES=new Set(['nfc','qr','link','unattributed'])")||!app.includes("VALID_SESSION_ENTRIES=new Set(['nfc','qr','link','web','pwa'])"))throw Error('Analytics source/session model missing');
@@ -104,8 +105,8 @@ jobs:
 
           if(css.includes('.modal-action.primary'))throw Error('Dead primary-button CSS returned');
           if(!css.includes('.payment-brand-logo svg')||!css.includes('.social-facebook .brand-mark img'))throw Error('Brand rendering CSS mismatch');
-          if(read('css/style-v1.6.6.css')!==css||read('js/app-v1.6.6.js')!==app||read('js/version-v1.6.6.js')!==read('js/version.js'))throw Error('Release-pinned runtime assets drifted from canonical sources');
-          if(!index.includes('css/style-v1.6.6.css')||!index.includes('js/app-v1.6.6.js'))throw Error('Release-pinned runtime assets missing from index');
+          if(read('css/style-v1.6.7.css')!==css||read('js/app-v1.6.7.js')!==app||read('js/version-v1.6.7.js')!==read('js/version.js'))throw Error('Release-pinned runtime assets drifted from canonical sources');
+          if(!index.includes('css/style-v1.6.7.css')||!index.includes('js/app-v1.6.7.js'))throw Error('Release-pinned runtime assets missing from index');
           if(sw.includes('caches.match(')||sw.includes('ignoreSearch'))throw Error('Global/ignoreSearch cache lookup returned');
           if(!sw.includes("cache:'reload'")||!sw.includes('purgeOldCaches')||!sw.includes("type==='REPAIR_CACHES'"))throw Error('Cache reliability/repair strategy missing');
           if(!app.includes("STORAGE_VERSION_KEY='mpdgiHubVersion'")||!app.includes("type:'REPAIR_CACHES'"))throw Error('Stored-version cache repair trigger missing');
@@ -170,7 +171,7 @@ jobs:
           if(!css.includes('@media(max-height:680px)'))throw Error('Short-screen readability rule missing');
           if(!css.includes('@media (forced-colors: active)')||!css.includes('@media (prefers-contrast: more)'))throw Error('High contrast styles missing');
           if(!sw.includes('self.skipWaiting()')||!sw.includes('self.clients.claim()'))throw Error('Service Worker immediate activation missing');
-          for(const p of ['./assets/icons/icon-512-maskable.png','./index.html','./css/style-v1.6.6.css','./js/version-v1.6.6.js','./js/app-v1.6.6.js','./manifest.json','./data/config.json','./data/links.json','./assets/profile/logo-mpdg.png','./assets/icons/icon-192.png','./assets/icons/icon-512.png','./assets/icons/apple-touch-icon.png'])if(!sw.includes("'"+p+"'"))throw Error('SW missing critical asset: '+p);
+          for(const p of ['./assets/icons/icon-512-maskable.png','./index.html','./css/style-v1.6.7.css','./js/version-v1.6.7.js','./js/app-v1.6.7.js','./manifest.json','./data/config.json','./data/links.json','./assets/profile/logo-mpdg.png','./assets/icons/icon-192.png','./assets/icons/icon-512.png','./assets/icons/apple-touch-icon.png'])if(!sw.includes("'"+p+"'"))throw Error('SW missing critical asset: '+p);
 
           if(pkg.devDependencies?.['@playwright/test']!=='1.63.0')throw Error('Playwright version mismatch');
           if(lock.lockfileVersion!==3||lock.packages?.['node_modules/@playwright/test']?.version!=='1.63.0')throw Error('Package lock mismatch');
@@ -180,9 +181,9 @@ jobs:
           if(!tests.includes('giving destinations match approved values end to end')||!tests.includes('navigator.clipboard.readText()'))throw Error('Giving browser QA missing');
           if(!tests.includes('high-contrast accessibility preferences preserve usable controls')||!tests.includes('prefers-contrast: more strengthens text and borders')||!tests.includes('keyboard-accessible primary navigation'))throw Error('Accessibility QA missing');
           if(!qa.includes('node tests/contrast-mutation.mjs'))throw Error('Contrast mutation QA missing');
-          if(!tests.includes('cached shell reloads offline in Chromium')||!tests.includes('payment logos remain stable across repeated Chromium reopen cycles')||!tests.includes('stored version mismatch repairs old MPDGI caches')||!tests.includes('copyright year range never goes below')||!tests.includes('About modal renders automatic copyright')||!tests.includes('church address opens directions'))throw Error('v1.6.6 inherited reliability/navigation QA tests missing');
-          if(!app.includes('navigator.share')||!app.includes('https://hub.mpdgi.org/?src=link')||!app.includes('formattedReleaseDate'))throw Error('v1.6.6 share/release metadata missing');
-          if(!tests.includes('NFC source is captured')||!tests.includes('first acquisition source stays immutable')||!tests.includes('cookie continuity restores anonymous acquisition')||!tests.includes('switching from browser use to installed-PWA mode')||!tests.includes('without exposing Stats in the public Hub UI'))throw Error('v1.6.6 analytics QA tests missing');
+          if(!tests.includes('cached shell reloads offline in Chromium')||!tests.includes('payment logos remain stable across repeated Chromium reopen cycles')||!tests.includes('stored version mismatch repairs old MPDGI caches')||!tests.includes('copyright year range never goes below')||!tests.includes('About modal renders automatic copyright')||!tests.includes('church address opens directions'))throw Error('v1.6.7 inherited reliability/navigation QA tests missing');
+          if(!app.includes('navigator.share')||!app.includes('https://hub.mpdgi.org/?src=link')||!app.includes('formattedReleaseDate'))throw Error('v1.6.7 share/release metadata missing');
+          if(!tests.includes('NFC source is captured')||!tests.includes('first acquisition source stays immutable')||!tests.includes('cookie continuity restores anonymous acquisition')||!tests.includes('switching from browser use to installed-PWA mode')||!tests.includes('without exposing Stats in the public Hub UI'))throw Error('v1.6.7 analytics QA tests missing');
           if(!qa.includes('actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7')||!qa.includes('actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7')||!qa.includes("node-version: '24'")||!qa.includes('npm ci --no-audit --no-fund'))throw Error('Pinned/reproducible GitHub Actions runtime missing');
           if(!qa.includes('lighthouse@13.5.0')||!qa.includes('chromium webkit'))throw Error('QA dependency/runtime upgrade missing');
           if(!qa.includes('Production smoke after Pages deployment')||!qa.includes('https://hub.mpdgi.org/'))throw Error('Production smoke check missing');
@@ -218,5 +219,5 @@ jobs:
             for(const re of secretPatterns)if(re.test(body))throw Error('Potential secret detected in '+p+': '+re);
           }
 
-          console.log('MPDGI Hub v1.6.6 validated');
+          console.log('MPDGI Hub v1.6.7 validated');
           NODE

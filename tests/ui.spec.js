@@ -170,9 +170,9 @@ test('shared runtime version is loaded and matches config',async({page})=>{
       config:config.version
     };
   });
-  expect(values.runtime).toBe('1.6.6');
-  expect(values.source).toBe('1.6.6');
-  expect(values.config).toBe('1.6.6');
+  expect(values.runtime).toBe('1.6.7');
+  expect(values.source).toBe('1.6.7');
+  expect(values.config).toBe('1.6.7');
 });
 
 test('accessibility labels switch with language',async({page})=>{
@@ -216,9 +216,9 @@ test('payment logos use known-good inline SVG rendering',async({page})=>{
 
 test('release-pinned assets prevent mixed-version CSS and JS',async({page})=>{
   await page.goto('/',{waitUntil:'networkidle'});
-  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.6.6.css');
-  await expect(page.locator('script[src="js/version-v1.6.6.js"]')).toHaveCount(1);
-  await expect(page.locator('script[src="js/app-v1.6.6.js"]')).toHaveCount(1);
+  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.6.7.css');
+  await expect(page.locator('script[src="js/version-v1.6.7.js"]')).toHaveCount(1);
+  await expect(page.locator('script[src="js/app-v1.6.7.js"]')).toHaveCount(1);
 });
 
 test('church address opens directions and translates its accessibility label',async({page})=>{
@@ -258,7 +258,7 @@ test('stored version mismatch repairs old MPDGI caches',async({page})=>{
     return !keys.includes('mpdgi-hub-shell-1.4.5')&&!keys.includes('mpdgi-hub-runtime-1.4.6-stale');
   },null,{timeout:10000});
   const keys=await page.evaluate(()=>caches.keys());
-  expect(keys).toContain('mpdgi-hub-shell-1.6.6');
+  expect(keys).toContain('mpdgi-hub-shell-1.6.7');
 });
 
 test('payment logos remain stable across repeated Chromium reopen cycles',async({context})=>{
@@ -434,7 +434,7 @@ test('About exposes attributed Share Hub and changelog-derived Last Updated meta
   const modal=page.locator('#modal-body');
   await expect(modal).toContainText(/Última actualización|Last updated/);
   await expect(modal.locator('button.share-hub')).toHaveCount(1);
-  const appSource=await page.request.get('/js/app-v1.6.6.js').then(r=>r.text());
+  const appSource=await page.request.get('/js/app-v1.6.7.js').then(r=>r.text());
   expect(appSource).toContain('https://hub.mpdgi.org/?src=link');
   expect(appSource).toContain('navigator.share');
 });
@@ -500,6 +500,44 @@ test('high-contrast accessibility preferences preserve usable controls',async({p
   expect(forced.borderStyle).toBe('solid');
   expect(forced.borderWidth).toBeGreaterThanOrEqual(1);
   expect(await page.locator('#language-toggle').getAttribute('aria-label')).toBeTruthy();
+});
+
+test('N3 payment and social marks stay legible in forced dark and light palettes',async({page})=>{
+  await page.goto('/',{waitUntil:'networkidle'});
+  for(const scheme of ['dark','light']){
+    await page.emulateMedia({forcedColors:'active',colorScheme:scheme});
+    await expect(page.locator('[data-card-id]')).toHaveCount(8);
+    await page.locator('[data-card-id="give"] .card-action').click();
+    const marks=page.locator('.payment-brand-logo,.payment-card-chip,.payment-wallet-chip');
+    await expect(page.locator('.payment-brand-logo')).toHaveCount(11);
+    const payments=await marks.evaluateAll(nodes=>nodes.map(el=>{
+      const css=getComputedStyle(el),r=el.getBoundingClientRect();
+      return {adjust:css.forcedColorAdjust,bg:css.backgroundColor,w:r.width,h:r.height};
+    }));
+    expect(payments.length).toBe(20);
+    for(const mark of payments){
+      expect(mark.adjust).toBe('none');
+      expect(mark.bg).toBe('rgb(255, 255, 255)');
+      expect(mark.w).toBeGreaterThan(10);
+      expect(mark.h).toBeGreaterThan(10);
+    }
+    await page.locator('#modal-close').click();
+    await page.locator('[data-card-id="social"] .card-action').click();
+    await expect.poll(async()=>page.locator('.social-facebook .brand-mark img,.social-instagram .brand-mark img,.social-youtube .brand-mark img,.social-tiktok .brand-mark img').evaluateAll(nodes=>nodes.length===4&&nodes.every(img=>img.complete&&img.naturalWidth>0))).toBe(true);
+    const socials=await page.locator('.social-facebook .brand-mark,.social-instagram .brand-mark,.social-youtube .brand-mark,.social-tiktok .brand-mark').evaluateAll(nodes=>nodes.map(el=>{
+      const css=getComputedStyle(el),rect=el.getBoundingClientRect(),img=el.querySelector('img');
+      return {adjust:css.forcedColorAdjust,bg:css.backgroundColor,w:rect.width,h:rect.height,loaded:Boolean(img&&img.complete&&img.naturalWidth>0)};
+    }));
+    expect(socials).toHaveLength(4);
+    for(const mark of socials){
+      expect(mark.adjust).toBe('none');
+      expect(mark.bg).toBe('rgb(255, 255, 255)');
+      expect(mark.w).toBeGreaterThan(20);
+      expect(mark.h).toBeGreaterThan(20);
+      expect(mark.loaded).toBe(true);
+    }
+    await page.locator('#modal-close').click();
+  }
 });
 
 test('prefers-contrast: more strengthens text and borders',async({page})=>{

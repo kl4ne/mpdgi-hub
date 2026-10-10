@@ -1,5 +1,15 @@
 [
   {
+    "version": "1.6.7",
+    "title": "Brand Contrast Legibility",
+    "date": "2026-10-10",
+    "changes": [
+      "Preserved payment and social logos on white backing when the operating system forces high-contrast colors.",
+      "Added browser regression checks for payment and social marks in forced dark and light modes.",
+      "Preserved the approved default layout, giving destinations, language behavior, analytics, privacy, NFC/QR and hosting."
+    ]
+  },
+  {
     "version": "1.6.6",
     "title": "Isolated Quality Validation",
     "date": "2026-10-10",
