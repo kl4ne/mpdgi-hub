@@ -46,6 +46,11 @@ jobs:
           BASE_URL: http://127.0.0.1:4173
         run: npm run test:ui:chromium
 
+      - name: Verify contrast regressions
+        env:
+          BASE_URL: http://127.0.0.1:4173
+        run: node tests/contrast-mutation.mjs
+
       - name: Lighthouse
         shell: bash
         run: |

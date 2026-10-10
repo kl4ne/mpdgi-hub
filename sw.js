@@ -1,8 +1,8 @@
 'use strict';
 
 const SCRIPT_VERSION=new URL(self.location.href).searchParams.get('v')||'dev';
-const BUILD_ID='2026-10-10-v1.6.4-giving-integrity';
-importScripts('./js/version-v1.6.4.js');
+const BUILD_ID='2026-10-10-v1.6.5-contrast-qa';
+importScripts('./js/version-v1.6.5.js');
 const VERSION=self.MPDGI_HUB_VERSION||SCRIPT_VERSION;
 const CACHE_PREFIX='mpdgi-hub';
 const SHELL_CACHE=`${CACHE_PREFIX}-shell-${VERSION}`;
@@ -11,9 +11,9 @@ const RUNTIME_CACHE=`${CACHE_PREFIX}-runtime-${VERSION}`;
 const CRITICAL_ASSETS=[
   './',
   './index.html',
-  './css/style-v1.6.4.css',
-  './js/version-v1.6.4.js',
-  './js/app-v1.6.4.js',
+  './css/style-v1.6.5.css',
+  './js/version-v1.6.5.js',
+  './js/app-v1.6.5.js',
   './manifest.json',
   './data/config.json',
   './data/links.json',
