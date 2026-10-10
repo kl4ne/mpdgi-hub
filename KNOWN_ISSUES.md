@@ -88,3 +88,11 @@ Do not force a login or expose password_hash/password_salt merely to inspect mig
 - **Social preview (planned v1.6.1 patch):** PNG 1200x630 generated and metadata targeted in PR, subject to CI and live-social-platform verification.
 - **Owner privacy decision:** all privacy/cookies/analytics behavior intentionally remains as previously implemented; no changes authorized or attempted.
 - **Optional follow-up:** periodic real-provider URL checks, Android/iOS share previews, offline NFC and physical-device accessibility. Not confirmed failures.
+
+
+## Header evidence refresh — production QA 38069042784 (2026-10-10)
+
+- The latest GitHub Pages runner reported **no observed HSTS, nosniff or X-Frame-Options/frame-ancestors** header, while the prior 2026-10-05 runner reported HSTS but not the other two.
+- This is an HTTP hosting response observation with inconsistent HSTS results between runs, NOT a verified security incident or a change made in Hub JS/PWA code.
+- These are reported as **advisory / infrastructure pending**. No header change is claimed without verified support at the serving layer, and no proxy, DNS or platform migration is authorized.
+- PR #67 v1.6.1 release completed with 31 Chromium / 5 WebKit and production smoke in green.
