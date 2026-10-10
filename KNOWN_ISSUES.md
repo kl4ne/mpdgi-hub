@@ -80,3 +80,11 @@ Do not force a login or expose password_hash/password_salt merely to inspect mig
 - Do not casually rotate AUTH_PEPPER.
 - Do not lower password work factor without measured production evidence.
 - Do not declare custom domains active without production verification.
+
+
+## New audit 2026-10-10 — explicit status
+
+- **Known security-header limitation (medium/configuration):** Hub `hub.mpdgi.org` GitHub Pages QA logged missing `X-Content-Type-Options: nosniff` and both `X-Frame-Options` / header CSP `frame-ancestors` (QA 37388089277). HSTS was observed. Github Pages does not process Cloudflare Pages `_headers`; do not pretend this is repaired without an authorized hosting change.
+- **Social preview (planned v1.6.1 patch):** PNG 1200x630 generated and metadata targeted in PR, subject to CI and live-social-platform verification.
+- **Owner privacy decision:** all privacy/cookies/analytics behavior intentionally remains as previously implemented; no changes authorized or attempted.
+- **Optional follow-up:** periodic real-provider URL checks, Android/iOS share previews, offline NFC and physical-device accessibility. Not confirmed failures.
