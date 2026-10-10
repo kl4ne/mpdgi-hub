@@ -73,4 +73,7 @@ body.modal-open{overflow:hidden}.skip-link{position:fixed;top:8px;left:8px;z-ind
   .developer-credit a,.visit-address-link{color:LinkText!important}
   .hub-card::before,.page-glow,.logo-glow,.wave-separator{display:none}
   :focus-visible{outline:3px solid Highlight;outline-offset:3px}
+  /* N3: retain legible brand marks under OS-enforced high contrast, without altering normal styling. */
+  .payment-card-chip,.payment-wallet-chip,.payment-brand-logo,.social-facebook .brand-mark,.social-instagram .brand-mark,.social-youtube .brand-mark,.social-tiktok .brand-mark{forced-color-adjust:none;background:#fff!important;color:#111!important}
+  .payment-brand-logo,.social-facebook .brand-mark,.social-instagram .brand-mark,.social-youtube .brand-mark,.social-tiktok .brand-mark{border-radius:5px}
 }
