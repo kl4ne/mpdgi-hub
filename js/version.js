@@ -1,2 +1,2 @@
 'use strict';
-globalThis.MPDGI_HUB_VERSION='1.6.0';
+globalThis.MPDGI_HUB_VERSION='1.6.1';
