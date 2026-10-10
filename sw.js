@@ -1,7 +1,7 @@
 'use strict';
 
 const SCRIPT_VERSION=new URL(self.location.href).searchParams.get('v')||'dev';
-const BUILD_ID='2026-09-30-v1.6.1-quality-maturity';
+const BUILD_ID='2026-10-10-v1.6.1-social-pwa';
 importScripts('./js/version-v1.6.1.js');
 const VERSION=self.MPDGI_HUB_VERSION||SCRIPT_VERSION;
 const CACHE_PREFIX='mpdgi-hub';
