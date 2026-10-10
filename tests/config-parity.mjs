@@ -10,14 +10,14 @@ const cutoff=app.indexOf('const ICONS=');
 assert(cutoff>0,'Defaults declaration not found');
 const {DEFAULT_CONFIG,FALLBACK_LINKS}=runInNewContext(
   app.slice(0,cutoff)+'\n({DEFAULT_CONFIG,FALLBACK_LINKS})',
-  {MPDGI_HUB_VERSION:'1.6.4'},{timeout:1000}
+  {MPDGI_HUB_VERSION:'1.6.5'},{timeout:1000}
 );
 
 for(const [key,value] of Object.entries(DEFAULT_CONFIG)){
   assert(Object.hasOwn(config,key),'Missing configured fallback key: '+key);
   assert.equal(JSON.stringify(config[key]),JSON.stringify(value),'Configuration mismatch: '+key);
 }
-assert.equal(config.version,'1.6.4');
+assert.equal(config.version,'1.6.5');
 assert.equal(FALLBACK_LINKS.length,links.length,'Fallback link count mismatch');
 const byId=new Map(links.map(item=>[item.id,item]));
 assert.equal(byId.size,links.length,'Duplicate link ID');

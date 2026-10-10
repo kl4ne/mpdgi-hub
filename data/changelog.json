@@ -1,5 +1,15 @@
 [
   {
+    "version": "1.6.5",
+    "title": "Contrast Accessibility QA",
+    "date": "2026-10-10",
+    "changes": [
+      "Strengthened contrast accessibility browser assertions using computed styles.",
+      "Added negative verification ensuring missing contrast rules are detected.",
+      "Preserved approved interface, giving links, analytics, privacy and hosting."
+    ]
+  },
+  {
     "version": "1.6.4",
     "title": "Giving Integrity Assurance",
     "date": "2026-10-10",

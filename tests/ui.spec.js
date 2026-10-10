@@ -474,20 +474,52 @@ test('keyboard-accessible primary navigation and modal focus',async({page})=>{
 });
 
 test('high-contrast accessibility preferences preserve usable controls',async({page})=>{
-  await page.emulateMedia({forcedColors:'active'});
+  await page.emulateMedia({forcedColors:'none',contrast:'no-preference'});
   await page.goto('/',{waitUntil:'networkidle'});
   await expect(page.locator('[data-card-id]')).toHaveCount(8);
-  const forced=await page.evaluate(()=>({
-    enabled:matchMedia('(forced-colors: active)').matches,
-    borderStyle:getComputedStyle(document.querySelector('.hub-card')).borderStyle,
-    borderWidth:getComputedStyle(document.querySelector('.hub-card')).borderTopWidth,
-    buttonName:document.querySelector('#language-toggle').getAttribute('aria-label')
-  }));
-  expect(forced.enabled).toBe(true);
+  const read=()=>page.evaluate(()=>{
+    const display=(selector,pseudo)=>getComputedStyle(document.querySelector(selector),pseudo).display;
+    const card=getComputedStyle(document.querySelector('.hub-card'));
+    return {
+      wave:display('.wave-separator'),
+      glow:display('.page-glow'),
+      logoGlow:display('.logo-glow'),
+      cardBefore:display('.hub-card','::before'),
+      borderStyle:card.borderTopStyle,
+      borderWidth:parseFloat(card.borderTopWidth)
+    };
+  });
+  const normal=await read();
+  await page.emulateMedia({forcedColors:'active'});
+  const forced=await read();
+  expect(await page.evaluate(()=>matchMedia('(forced-colors: active)').matches)).toBe(true);
+  for(const key of ['wave','glow','logoGlow','cardBefore']){
+    expect(normal[key],key+' normally visible').not.toBe('none');
+    expect(forced[key],key+' should be hidden in forced-colors').toBe('none');
+  }
   expect(forced.borderStyle).toBe('solid');
-  expect(parseFloat(forced.borderWidth)).toBeGreaterThanOrEqual(1);
-  expect(forced.buttonName.length).toBeGreaterThan(0);
-  await page.emulateMedia({forcedColors:'none',contrast:'more'});
+  expect(forced.borderWidth).toBeGreaterThanOrEqual(1);
+  expect(await page.locator('#language-toggle').getAttribute('aria-label')).toBeTruthy();
+});
+
+test('prefers-contrast: more strengthens text and borders',async({page})=>{
+  await page.emulateMedia({forcedColors:'none',contrast:'no-preference'});
+  await page.goto('/',{waitUntil:'networkidle'});
+  const read=()=>page.evaluate(()=>({
+    subtitle:getComputedStyle(document.querySelector('.card-subtitle')).color,
+    footer:getComputedStyle(document.querySelector('.hub-footer')).color,
+    cardBorder:getComputedStyle(document.querySelector('.hub-card')).borderTopColor
+  }));
+  const normal=await read();
+  await page.emulateMedia({contrast:'more'});
+  const more=await read();
   expect(await page.evaluate(()=>matchMedia('(prefers-contrast: more)').matches)).toBe(true);
-  await expect(page.locator('#developer-credit a')).toHaveAttribute('href','https://rmcard.pages.dev/');
+  expect(more.subtitle).toBe('rgb(255, 255, 255)');
+  expect(more.footer).toBe('rgb(255, 255, 255)');
+  const match=more.cardBorder.match(/^rgba\(255,\s*255,\s*255,\s*([0-9.]+)\)$/);
+  expect(match,'Contrast border must be translucent white').not.toBeNull();
+  expect(Number(match[1])).toBeCloseTo(0.85,2);
+  expect(normal.subtitle).not.toBe(more.subtitle);
+  expect(normal.footer).not.toBe(more.footer);
+  expect(normal.cardBorder).not.toBe(more.cardBorder);
 });
