@@ -170,9 +170,9 @@ test('shared runtime version is loaded and matches config',async({page})=>{
       config:config.version
     };
   });
-  expect(values.runtime).toBe('1.6.3');
-  expect(values.source).toBe('1.6.3');
-  expect(values.config).toBe('1.6.3');
+  expect(values.runtime).toBe('1.6.4');
+  expect(values.source).toBe('1.6.4');
+  expect(values.config).toBe('1.6.4');
 });
 
 test('accessibility labels switch with language',async({page})=>{
@@ -216,9 +216,9 @@ test('payment logos use known-good inline SVG rendering',async({page})=>{
 
 test('release-pinned assets prevent mixed-version CSS and JS',async({page})=>{
   await page.goto('/',{waitUntil:'networkidle'});
-  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.6.3.css');
-  await expect(page.locator('script[src="js/version-v1.6.3.js"]')).toHaveCount(1);
-  await expect(page.locator('script[src="js/app-v1.6.3.js"]')).toHaveCount(1);
+  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.6.4.css');
+  await expect(page.locator('script[src="js/version-v1.6.4.js"]')).toHaveCount(1);
+  await expect(page.locator('script[src="js/app-v1.6.4.js"]')).toHaveCount(1);
 });
 
 test('church address opens directions and translates its accessibility label',async({page})=>{
@@ -258,7 +258,7 @@ test('stored version mismatch repairs old MPDGI caches',async({page})=>{
     return !keys.includes('mpdgi-hub-shell-1.4.5')&&!keys.includes('mpdgi-hub-runtime-1.4.6-stale');
   },null,{timeout:10000});
   const keys=await page.evaluate(()=>caches.keys());
-  expect(keys).toContain('mpdgi-hub-shell-1.6.3');
+  expect(keys).toContain('mpdgi-hub-shell-1.6.4');
 });
 
 test('payment logos remain stable across repeated Chromium reopen cycles',async({context})=>{
@@ -434,7 +434,7 @@ test('About exposes attributed Share Hub and changelog-derived Last Updated meta
   const modal=page.locator('#modal-body');
   await expect(modal).toContainText(/Última actualización|Last updated/);
   await expect(modal.locator('button.share-hub')).toHaveCount(1);
-  const appSource=await page.request.get('/js/app-v1.6.3.js').then(r=>r.text());
+  const appSource=await page.request.get('/js/app-v1.6.4.js').then(r=>r.text());
   expect(appSource).toContain('https://hub.mpdgi.org/?src=link');
   expect(appSource).toContain('navigator.share');
 });

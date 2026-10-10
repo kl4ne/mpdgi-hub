@@ -1,8 +1,14 @@
-# MPDGI Hub — v1.6.3
+# MPDGI Hub — v1.6.4
 
 Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
+
+## v1.6.4 — Giving Integrity Assurance
+
+- Verified official giving links and copy-email actions with cross-checked configuration and browser tests.
+- Added automatic regression checks to the existing validation workflow.
+- No changes to privacy, analytics, Stats, hosting, NFC/QR, offline operation or approved visual design.
 
 ## v1.6.3 — Quality, Consistency & Accessibility
 - Automated configuration consistency and approved giving destination checks.
