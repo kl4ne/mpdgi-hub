@@ -30,4 +30,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Generate high-resolution social preview and safe maskable icon"
+          git pull --rebase origin fix/hub-v1.6.1-post-audit
           git push origin HEAD:fix/hub-v1.6.1-post-audit
