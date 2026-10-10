@@ -523,6 +523,7 @@ test('N3 payment and social marks stay legible in forced dark and light palettes
     }
     await page.locator('#modal-close').click();
     await page.locator('[data-card-id="social"] .card-action').click();
+    await expect.poll(async()=>page.locator('.social-facebook .brand-mark img,.social-instagram .brand-mark img,.social-youtube .brand-mark img,.social-tiktok .brand-mark img').evaluateAll(nodes=>nodes.length===4&&nodes.every(img=>img.complete&&img.naturalWidth>0))).toBe(true);
     const socials=await page.locator('.social-facebook .brand-mark,.social-instagram .brand-mark,.social-youtube .brand-mark,.social-tiktok .brand-mark').evaluateAll(nodes=>nodes.map(el=>{
       const css=getComputedStyle(el),rect=el.getBoundingClientRect(),img=el.querySelector('img');
       return {adjust:css.forcedColorAdjust,bg:css.backgroundColor,w:rect.width,h:rect.height,loaded:Boolean(img&&img.complete&&img.naturalWidth>0)};
