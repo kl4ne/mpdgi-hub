@@ -61,3 +61,16 @@ body.modal-open{overflow:hidden}.skip-link{position:fixed;top:8px;left:8px;z-ind
   .scripture{font-size:.59rem}
   .tagline{font-size:.67rem}
 }
+
+@media (prefers-contrast: more){
+  .hub-card,.hub-modal,.modal-action,.language-toggle{border-color:rgba(255,255,255,.85)}
+  .card-subtitle,.scripture,.visit-row p,.hub-footer{color:#fff}
+  .developer-credit a{text-decoration-thickness:2px}
+}
+@media (forced-colors: active){
+  .hub-card[class*="card-"],.hub-modal,.language-toggle,.modal-action,.modal-close{background:Canvas!important;color:CanvasText!important;border:1px solid CanvasText;box-shadow:none}
+  .card-title,.card-subtitle,.card-arrow,.card-icon,.visit-icon,.scripture,.visit-row p,.visit-row strong,.hub-footer,.developer-credit{color:CanvasText!important}
+  .developer-credit a,.visit-address-link{color:LinkText!important}
+  .hub-card::before,.page-glow,.logo-glow,.wave-separator{display:none}
+  :focus-visible{outline:3px solid Highlight;outline-offset:3px}
+}

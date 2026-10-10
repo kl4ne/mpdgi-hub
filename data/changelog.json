@@ -1,5 +1,16 @@
 [
   {
+    "version": "1.6.3",
+    "title": "Quality, Consistency & Accessibility",
+    "date": "2026-10-10",
+    "changes": [
+      "Added automated verification of approved giving destinations and consistency between runtime fallback data and public configuration.",
+      "Improved service-worker initialization sequencing while preserving automatic updates, offline use and cache repair.",
+      "Added accessibility checks for keyboard interaction, modal focus and optional high-contrast display modes.",
+      "Preserved the approved layout, languages, NFC/QR behavior, privacy settings, analytics and existing hosting."
+    ]
+  },
+  {
     "version": "1.6.2",
     "title": "Developer Business Card Link",
     "date": "2026-10-10",

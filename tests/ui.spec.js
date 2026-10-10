@@ -155,9 +155,9 @@ test('shared runtime version is loaded and matches config',async({page})=>{
       config:config.version
     };
   });
-  expect(values.runtime).toBe('1.6.2');
-  expect(values.source).toBe('1.6.2');
-  expect(values.config).toBe('1.6.2');
+  expect(values.runtime).toBe('1.6.3');
+  expect(values.source).toBe('1.6.3');
+  expect(values.config).toBe('1.6.3');
 });
 
 test('accessibility labels switch with language',async({page})=>{
@@ -201,9 +201,9 @@ test('payment logos use known-good inline SVG rendering',async({page})=>{
 
 test('release-pinned assets prevent mixed-version CSS and JS',async({page})=>{
   await page.goto('/',{waitUntil:'networkidle'});
-  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.6.2.css');
-  await expect(page.locator('script[src="js/version-v1.6.2.js"]')).toHaveCount(1);
-  await expect(page.locator('script[src="js/app-v1.6.2.js"]')).toHaveCount(1);
+  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.6.3.css');
+  await expect(page.locator('script[src="js/version-v1.6.3.js"]')).toHaveCount(1);
+  await expect(page.locator('script[src="js/app-v1.6.3.js"]')).toHaveCount(1);
 });
 
 test('church address opens directions and translates its accessibility label',async({page})=>{
@@ -243,7 +243,7 @@ test('stored version mismatch repairs old MPDGI caches',async({page})=>{
     return !keys.includes('mpdgi-hub-shell-1.4.5')&&!keys.includes('mpdgi-hub-runtime-1.4.6-stale');
   },null,{timeout:10000});
   const keys=await page.evaluate(()=>caches.keys());
-  expect(keys).toContain('mpdgi-hub-shell-1.6.2');
+  expect(keys).toContain('mpdgi-hub-shell-1.6.3');
 });
 
 test('payment logos remain stable across repeated Chromium reopen cycles',async({context})=>{
@@ -419,7 +419,7 @@ test('About exposes attributed Share Hub and changelog-derived Last Updated meta
   const modal=page.locator('#modal-body');
   await expect(modal).toContainText(/Última actualización|Last updated/);
   await expect(modal.locator('button.share-hub')).toHaveCount(1);
-  const appSource=await page.request.get('/js/app-v1.6.2.js').then(r=>r.text());
+  const appSource=await page.request.get('/js/app-v1.6.3.js').then(r=>r.text());
   expect(appSource).toContain('https://hub.mpdgi.org/?src=link');
   expect(appSource).toContain('navigator.share');
 });
@@ -442,4 +442,37 @@ test('social preview raster and maskable PWA icon have valid metadata and dimens
   }
   const manifest=await page.request.get('/manifest.json').then(r=>r.json());
   expect(manifest.icons.some(icon=>icon.src==='assets/icons/icon-512-maskable.png'&&icon.purpose==='maskable')).toBeTruthy();
+});
+
+test('keyboard-accessible primary navigation and modal focus',async({page})=>{
+  await page.goto('/',{waitUntil:'networkidle'});
+  await page.keyboard.press('Tab');
+  await expect(page.locator('.skip-link')).toBeFocused();
+  const give=page.locator('[data-card-id="give"] .card-action');
+  await give.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await expect(page.locator('#modal-close')).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toBeHidden();
+  await expect(give).toBeFocused();
+});
+
+test('high-contrast accessibility preferences preserve usable controls',async({page})=>{
+  await page.emulateMedia({forcedColors:'active'});
+  await page.goto('/',{waitUntil:'networkidle'});
+  await expect(page.locator('[data-card-id]')).toHaveCount(8);
+  const forced=await page.evaluate(()=>({
+    enabled:matchMedia('(forced-colors: active)').matches,
+    borderStyle:getComputedStyle(document.querySelector('.hub-card')).borderStyle,
+    borderWidth:getComputedStyle(document.querySelector('.hub-card')).borderTopWidth,
+    buttonName:document.querySelector('#language-toggle').getAttribute('aria-label')
+  }));
+  expect(forced.enabled).toBe(true);
+  expect(forced.borderStyle).toBe('solid');
+  expect(parseFloat(forced.borderWidth)).toBeGreaterThanOrEqual(1);
+  expect(forced.buttonName.length).toBeGreaterThan(0);
+  await page.emulateMedia({forcedColors:'none',contrast:'more'});
+  expect(await page.evaluate(()=>matchMedia('(prefers-contrast: more)').matches)).toBe(true);
+  await expect(page.locator('#developer-credit a')).toHaveAttribute('href','https://rmcard.pages.dev/');
 });

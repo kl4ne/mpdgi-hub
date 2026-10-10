@@ -574,6 +574,12 @@ function setupServiceWorker(){
     try{
       const hadController=Boolean(navigator.serviceWorker.controller);
       let reloadingForUpdate=false;
+      let registration=null;
+      const requestCacheRepair=()=>{
+        if(!cacheRepairNeeded)return;
+        const worker=registration?.active||navigator.serviceWorker.controller;
+        if(worker){worker.postMessage({type:'REPAIR_CACHES',version:HUB_VERSION});cacheRepairNeeded=false;}
+      };
       if(hadController){
         navigator.serviceWorker.addEventListener('controllerchange',()=>{
           if(reloadingForUpdate)return;
@@ -584,11 +590,7 @@ function setupServiceWorker(){
         });
       }
       const r=await navigator.serviceWorker.register(`./sw.js?v=${encodeURIComponent(HUB_VERSION)}`,{scope:'./',updateViaCache:'none'});
-      const requestCacheRepair=()=>{
-        if(!cacheRepairNeeded)return;
-        const worker=r.active||navigator.serviceWorker.controller;
-        if(worker){worker.postMessage({type:'REPAIR_CACHES',version:HUB_VERSION});cacheRepairNeeded=false;}
-      };
+      registration=r;
       const activateWaiting=()=>{if(r.waiting)r.waiting.postMessage({type:'SKIP_WAITING'});};
       const checkForUpdate=async()=>{try{await r.update();activateWaiting();}catch{}};
       activateWaiting();
