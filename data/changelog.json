@@ -1,5 +1,15 @@
 [
   {
+    "version": "1.6.6",
+    "title": "Isolated Quality Validation",
+    "date": "2026-10-10",
+    "changes": [
+      "Improved automatic regression checks using isolated temporary environments and unchanged reference files.",
+      "Verified both baseline and negative display-preference cases with browser testing.",
+      "Preserved the existing layout, privacy behavior, analytics, giving destinations, NFC/QR and hosting."
+    ]
+  },
+  {
     "version": "1.6.5",
     "title": "Contrast Accessibility QA",
     "date": "2026-10-10",
