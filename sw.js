@@ -1,8 +1,8 @@
 'use strict';
 
 const SCRIPT_VERSION=new URL(self.location.href).searchParams.get('v')||'dev';
-const BUILD_ID='2026-09-30-v1.6.0-quality-maturity';
-importScripts('./js/version-v1.6.0.js');
+const BUILD_ID='2026-10-10-v1.6.1-social-pwa';
+importScripts('./js/version-v1.6.1.js');
 const VERSION=self.MPDGI_HUB_VERSION||SCRIPT_VERSION;
 const CACHE_PREFIX='mpdgi-hub';
 const SHELL_CACHE=`${CACHE_PREFIX}-shell-${VERSION}`;
@@ -11,15 +11,16 @@ const RUNTIME_CACHE=`${CACHE_PREFIX}-runtime-${VERSION}`;
 const CRITICAL_ASSETS=[
   './',
   './index.html',
-  './css/style-v1.6.0.css',
-  './js/version-v1.6.0.js',
-  './js/app-v1.6.0.js',
+  './css/style-v1.6.1.css',
+  './js/version-v1.6.1.js',
+  './js/app-v1.6.1.js',
   './manifest.json',
   './data/config.json',
   './data/links.json',
   './assets/profile/logo-mpdg.png',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
+  './assets/icons/icon-512-maskable.png',
   './assets/icons/apple-touch-icon.png',
   './assets/brands/social/facebook.svg',
   './assets/brands/social/instagram.svg',

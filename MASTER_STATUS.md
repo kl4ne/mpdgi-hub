@@ -170,3 +170,14 @@ Before any mutation:
 - update runtime checkpoint references only when application/runtime behavior changes and is validated.
 
 This avoids a self-invalidating loop where a documentation PR makes its own recorded main SHA stale immediately after merge.
+
+
+## Hub v1.6.1 follow-up audit remediation — checkpoint (2026-10-10)
+
+- **Production last verified before patch:** Hub v1.6.0 / main `9c49994aec423307eae4cb4bff72c22f118b3082`; checks validate, QA, Pages deployment successful.
+- **Active patch:** `fix/hub-v1.6.1-post-audit`, target v1.6.1; production release not confirmed until merge and deploy checks.
+- **Completed on patch branch:** social preview PNG 1200×630 and safe maskable icon 512×512 generated from existing artwork; metadata changed to PNG; release-pinned JS/CSS/version files updated; original v1.6.0 pinned files removed; service-worker cache version and icon precache updated; QA/validator updated.
+- **Privacy is frozen by explicit owner decision:** do not change analytics, identifiers, consent, cookies, localStorage, Stats or retention. No such code changes made in patch.
+- **Known infrastructure limitation:** GitHub Pages response lacked nosniff and clickjacking headers in last runner evidence; HSTS present. No hosting/DNS/proxy changes authorized; cannot fix HTTP response headers from HTML meta or Cloudflare Pages _headers on GitHub Pages.
+- **Remaining:** CI validation on PR, production deploy, final source/header/image preview checks, update handoff after merge.
+- **Next exact step:** run required `validate` and `browser-qa` on PR; merge only when green.

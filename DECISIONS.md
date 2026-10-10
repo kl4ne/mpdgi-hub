@@ -102,3 +102,12 @@ Updated: 2026-10-04
     - Failed logins must never mutate password fields.
     - Legacy support remains until every active admin is migrated or deliberately reset.
     - Production rollout requires a dual-scheme rollback checkpoint first.
+
+
+## Hub v1.6.1 scope decision — 2026-10-10
+
+- The owner explicitly rejected all privacy changes: preserve cookies, localStorage, analytics identifiers, collection, retention, Stats and privacy UI *exactly as implemented*.
+- Approved corrections other than privacy, including bumping the Hub patch version to 1.6.1.
+- Preserve GitHub Pages as hosting; no Namecheap, DNS, Cloudflare or production D1 changes.
+- Preserve approved branding, visual layout, ES/EN, NFC/QR attribution and giving links.
+- The unversioned files remain canonical mirrors of release-pinned files by existing enforced CI design. Removing just one side of each pair would break validation, so do not delete these intentional mirrors.

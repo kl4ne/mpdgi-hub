@@ -34,3 +34,13 @@ Hub QA note:
 Use `CLOUDFLARE_FIX_RUNBOOK.md` for infrastructure changes.
 
 Do not reset D1, rotate AUTH_PEPPER, alter card artwork, or remove verified Pages fallbacks during these phases.
+
+
+## Active next action — Hub 1.6.1 (2026-10-10)
+
+1. Continue only in `fix/hub-v1.6.1-post-audit`; check live SHA before modifications.
+2. Open PR to `main` and review diff for privacy-free scope.
+3. Wait for required `validate` and `browser-qa` success; repair on branch if needed.
+4. Merge with head-SHA lease; verify Pages deployment and production smoke.
+5. Verify production social PNG and PWA maskable icon, plus manual WhatsApp/Facebook cached preview when accessible.
+6. Update documentation to verified post-deployment state. No DNS, hosting, Stats, Cloudflare or privacy edits.
