@@ -1,4 +1,5 @@
 const {test,expect}=require('@playwright/test');
+const APPROVED=require('./approved-destinations.json');
 
 const viewports=[
   {name:'320x568',width:320,height:568},
@@ -88,9 +89,9 @@ test('service worker registers on localhost',async({page,browserName})=>{
 test('giving modal includes Tithe.ly, Square, Zelle and accepted card branding',async({page})=>{
   await page.goto('/',{waitUntil:'networkidle'});
   await page.locator('[data-card-id="give"] .card-action').click();
-  await expect(page.locator('.tithely-button')).toHaveAttribute('href','https://tithe.ly/give_new/www/#/tithely/give-one-time/6513581');
-  await expect(page.locator('.square-button')).toHaveAttribute('href','https://square.link/u/8veQoUxF');
-  await expect(page.locator('.zelle-email')).toHaveText('mpdginc@gmail.com');
+  await expect(page.locator('.tithely-button')).toHaveAttribute('href',APPROVED.tithely);
+  await expect(page.locator('.square-button')).toHaveAttribute('href',APPROVED.square);
+  await expect(page.locator('.zelle-email')).toHaveText(APPROVED.zelle);
   await expect(page.locator('.payment-card-chip')).toHaveCount(6);
   await expect(page.locator('.payment-brand-visa')).toHaveCount(1);
   await expect(page.locator('.payment-brand-mastercard')).toHaveCount(1);
@@ -100,6 +101,20 @@ test('giving modal includes Tithe.ly, Square, Zelle and accepted card branding',
   await expect(page.locator('.payment-brand-unionpay')).toHaveCount(1);
 });
 
+
+test('giving destinations match approved values end to end',async({page,context,browserName})=>{
+  test.skip(browserName!=='chromium','Clipboard permissions are Chromium-only');
+  await context.grantPermissions(['clipboard-read','clipboard-write']);
+  await page.goto('/',{waitUntil:'networkidle'});
+  await page.locator('[data-card-id="give"] .card-action').click();
+  const dialog=page.getByRole('dialog');
+  await expect(dialog.locator('a.tithely-button')).toHaveAttribute('href',APPROVED.tithely);
+  await expect(dialog.locator('a.square-button')).toHaveAttribute('href',APPROVED.square);
+  await expect(dialog.locator('.zelle-email')).toHaveText(APPROVED.zelle);
+  await dialog.locator('.copy-button').click();
+  await expect(dialog.locator('.copy-status')).toHaveText('Copiado');
+  expect(await page.evaluate(()=>navigator.clipboard.readText())).toBe(APPROVED.zelle);
+});
 
 test('Square wallets and Zelle instructions are present and readable',async({page})=>{
   await page.goto('/',{waitUntil:'networkidle'});
