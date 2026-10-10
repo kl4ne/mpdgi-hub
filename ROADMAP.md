@@ -41,3 +41,8 @@ Updated: 2026-10-05
 - Hosting security-header gaps (nosniff, clickjacking) are confirmed by the October 5 runner. GitHub Pages does not provide repository-level HTTP headers; no DNS/proxy/hosting changes are authorized. Keep as an explicit hosting limitation until a separately approved infrastructure change.
 - External link health checks, physical NFC / WhatsApp previews and mobile-device accessibility checks are recommended follow-up verification, not inferred code defects.
 - The older Infrastructure/Governance track above is historical: Hub/Stats branch protection, NPCard domain and phone testing are already completed; do not rerun those tasks.
+
+
+### Completion evidence — Hub v1.6.1
+
+PR #67 was merged into `main` at `eb15695a5c8181b6d312c14cb571cb677ea261b9`. Post-merge GitHub Pages, validation and browser QA passed; production smoke verified v1.6.1. The earlier phase marked "deployment pending" is now complete. Real-device share-preview and platform HTTP-header follow-up remain distinct external checks, not application blockers.
