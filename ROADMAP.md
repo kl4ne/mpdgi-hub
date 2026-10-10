@@ -32,3 +32,12 @@ Updated: 2026-10-05
 - AUTH_PEPPER rotation without a dedicated credential-rotation plan.
 - changing Nancy's approved artwork.
 - replacing verified Pages fallbacks before custom-domain validation.
+
+
+## Post-audit Hub v1.6.1 (2026-10-10)
+
+- A v1.6.1 patch is prepared in `fix/hub-v1.6.1-post-audit` with social PNG, maskable icon, release-pinned assets and QA checks. Deployment is pending PR checks and merge.
+- Privacy and analytics are explicitly **out of scope** by owner decision; retain existing behavior and data with no consent banners, DNT/GPC changes, cookie changes or Stats modifications.
+- Hosting security-header gaps (nosniff, clickjacking) are confirmed by the October 5 runner. GitHub Pages does not provide repository-level HTTP headers; no DNS/proxy/hosting changes are authorized. Keep as an explicit hosting limitation until a separately approved infrastructure change.
+- External link health checks, physical NFC / WhatsApp previews and mobile-device accessibility checks are recommended follow-up verification, not inferred code defects.
+- The older Infrastructure/Governance track above is historical: Hub/Stats branch protection, NPCard domain and phone testing are already completed; do not rerun those tasks.
