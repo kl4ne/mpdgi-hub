@@ -8,7 +8,7 @@ Repository: `kl4ne/mpdgi-hub`
 Production branch: `main`  
 Production hostname: `hub.mpdgi.org`
 
-The Hub is a static PWA served through GitHub Pages. The repository root `CNAME` contains `hub.mpdgi.org`. The current service worker owns Hub caching/offline behavior.
+The Hub is a static PWA served through GitHub Pages. The repository root `CNAME` contains `hub.mpdgi.org`. The current service worker owns Hub caching/offline behavior. GitHub Pages does not provide application-defined `_headers` processing, so missing `nosniff` / clickjacking headers require a hosting-layer solution and are not silently treated as fixed.
 
 Hub analytics are sent anonymously to the Stats collector at the verified Cloudflare Pages endpoint.
 
@@ -36,8 +36,8 @@ Verified deployments:
 - RSCard: `rscard.mpdgi.org`
 - NPCard fallback: `npcard.pages.dev`
 
-Intended Nancy custom domain:
-- `npcard.mpdgi.org`
+Nancy custom domain:
+- `npcard.mpdgi.org` — confirmed working by the user
 
 Cards are generated from a master template, remain independently deployable, and report only approved anonymous events to Stats.
 
