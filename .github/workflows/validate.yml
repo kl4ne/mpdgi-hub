@@ -38,6 +38,8 @@ jobs:
           node --check tests/contrast-mutation.mjs
           node --check tests/payment-guards.mjs
           node tests/payment-guards.mjs
+          node --check tests/public-docs-guard.mjs
+          node tests/public-docs-guard.mjs
           node <<'NODE'
           const fs=require('fs');
           const path=require('path');
@@ -51,12 +53,12 @@ jobs:
             'assets/brands/social/tiktok.svg'
           ];
           const must=[
-            'index.html','sw.js','manifest.json','README.md','.nojekyll','CNAME',
+            'index.html','sw.js','manifest.json','README.md','SECURITY.md','.nojekyll','CNAME',
             'css/style.css','css/style-v1.6.6.css','js/version.js','js/version-v1.6.6.js','js/app.js','js/app-v1.6.6.js','data/config.json','data/links.json','data/changelog.json',
             'assets/profile/logo-mpdg.png','assets/icons/icon-192.png','assets/icons/icon-512.png','assets/icons/icon-512-maskable.png','assets/icons/apple-touch-icon.png',
             'assets/social/mpdgi-hub-share.svg','assets/social/mpdgi-hub-share.png','assets/qr/README.md',
             'package.json','package-lock.json','playwright.config.js','tests/ui.spec.js','tests/webkit.spec.js',
-            '.github/workflows/qa.yml','.github/workflows/cleanup-merged-branches.yml','.github/scripts/branch-cleanup.mjs','tests/branch-cleanup-unit.mjs','tests/config-parity.mjs','tests/payment-guards.mjs','tests/approved-destinations.json','tests/contrast-mutation.mjs',
+            '.github/workflows/qa.yml','.github/workflows/cleanup-merged-branches.yml','.github/scripts/branch-cleanup.mjs','tests/branch-cleanup-unit.mjs','tests/config-parity.mjs','tests/payment-guards.mjs','tests/approved-destinations.json','tests/contrast-mutation.mjs','tests/public-docs-guard.mjs',
             ...brandAssets
           ];
           for(const p of must)if(!fs.existsSync(p))throw Error('Missing: '+p);
