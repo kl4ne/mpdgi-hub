@@ -1,8 +1,12 @@
-# MPDGI Hub — v1.6.1
+# MPDGI Hub — v1.6.2
 
 Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
+
+## v1.6.2 — Developer Business Card Link
+
+The developer name **Roberto S. Macfie** in the footer opens the RMCard digital business card at https://rmcard.pages.dev/. The link works in both interface languages. All other approved functionality remains unchanged.
 
 ## v1.6.1 — Sharing Preview & PWA Quality
 - Social previews now use the original church artwork rasterized to `assets/social/mpdgi-hub-share.png` (1200 × 630); the source SVG remains intact.

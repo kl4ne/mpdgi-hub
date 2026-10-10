@@ -387,6 +387,19 @@ const INITIAL_ANALYTICS_ENTRY=captureEntryHint();
 
 let config={...DEFAULT_CONFIG},links=[...FALLBACK_LINKS],currentLanguage='es',installPrompt=null,lastModalTrigger=null,pendingUpdateReload=false,cacheRepairNeeded=detectStoredVersionMismatch(),analyticsState=null;
 
+function renderDeveloperCredit(credit){
+  const container=document.getElementById('developer-credit');
+  const name='Roberto S. Macfie';
+  const position=credit.indexOf(name);
+  if(position<0){container.textContent=credit;return;}
+  const a=document.createElement('a');
+  a.href='https://rmcard.pages.dev/';
+  a.target='_blank';
+  a.rel='noopener noreferrer';
+  a.textContent=name;
+  container.replaceChildren(document.createTextNode(credit.slice(0,position)),a,document.createTextNode(credit.slice(position+name.length)));
+}
+
 function setLanguage(language,persist=true){
   currentLanguage=language==='en'?'en':'es';document.documentElement.lang=currentLanguage;
   if(persist){try{localStorage.setItem(STORAGE_LANGUAGE_KEY,currentLanguage);}catch{}}
@@ -401,7 +414,7 @@ function setLanguage(language,persist=true){
   document.getElementById('scripture').textContent=currentLanguage==='es'?config.scripture:config.scriptureEn;
   document.getElementById('sunday-label').textContent=s.sunday;document.getElementById('wednesday-label').textContent=s.wednesday;
   document.getElementById('modal-close').setAttribute('aria-label',s.close);
-  document.getElementById('developer-credit').textContent=s.developerCredit;document.getElementById('copyright-text').textContent=copyrightText(currentLanguage);const addressLink=document.getElementById('address-link');addressLink.setAttribute('aria-label',s.directionsLabel);addressLink.title=s.directionsLabel;
+  renderDeveloperCredit(s.developerCredit);document.getElementById('copyright-text').textContent=copyrightText(currentLanguage);const addressLink=document.getElementById('address-link');addressLink.setAttribute('aria-label',s.directionsLabel);addressLink.title=s.directionsLabel;
   updateOfflineState();renderCards();
 }
 

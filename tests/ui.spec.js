@@ -56,7 +56,17 @@ test('primary links and footer structure are correct',async({page})=>{
   await expect(page.locator('[data-card-id="ministries"] a')).toHaveAttribute('href','https://mpdgi.org/ministerios');
   await expect(page.locator('[data-card-id="website"] a')).toHaveAttribute('href','https://mpdgi.org/');
   await expect(page.locator('.hub-footer #install-button')).toHaveCount(0);
-  await expect(page.locator('#developer-credit')).toContainText('Roberto S. Macfie');
+  await expect(page.locator('#developer-credit')).toHaveText('Designed & Developed by Roberto S. Macfie for MPDGI');
+  const developerLink=page.locator('#developer-credit a');
+  await expect(developerLink).toHaveCount(1);
+  await expect(developerLink).toHaveText('Roberto S. Macfie');
+  await expect(developerLink).toHaveAttribute('href','https://rmcard.pages.dev/');
+  await expect(developerLink).toHaveAttribute('target','_blank');
+  await expect(developerLink).toHaveAttribute('rel','noopener noreferrer');
+  await page.locator('#language-toggle').click();
+  await expect(page.locator('#developer-credit')).toHaveText('Designed & Developed by Roberto S. Macfie for MPDGI');
+  await expect(developerLink).toHaveCount(1);
+  await expect(developerLink).toHaveAttribute('href','https://rmcard.pages.dev/');
 });
 
 test('service worker registers on localhost',async({page,browserName})=>{
@@ -145,9 +155,9 @@ test('shared runtime version is loaded and matches config',async({page})=>{
       config:config.version
     };
   });
-  expect(values.runtime).toBe('1.6.1');
-  expect(values.source).toBe('1.6.1');
-  expect(values.config).toBe('1.6.1');
+  expect(values.runtime).toBe('1.6.2');
+  expect(values.source).toBe('1.6.2');
+  expect(values.config).toBe('1.6.2');
 });
 
 test('accessibility labels switch with language',async({page})=>{
@@ -191,9 +201,9 @@ test('payment logos use known-good inline SVG rendering',async({page})=>{
 
 test('release-pinned assets prevent mixed-version CSS and JS',async({page})=>{
   await page.goto('/',{waitUntil:'networkidle'});
-  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.6.1.css');
-  await expect(page.locator('script[src="js/version-v1.6.1.js"]')).toHaveCount(1);
-  await expect(page.locator('script[src="js/app-v1.6.1.js"]')).toHaveCount(1);
+  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.6.2.css');
+  await expect(page.locator('script[src="js/version-v1.6.2.js"]')).toHaveCount(1);
+  await expect(page.locator('script[src="js/app-v1.6.2.js"]')).toHaveCount(1);
 });
 
 test('church address opens directions and translates its accessibility label',async({page})=>{
@@ -233,7 +243,7 @@ test('stored version mismatch repairs old MPDGI caches',async({page})=>{
     return !keys.includes('mpdgi-hub-shell-1.4.5')&&!keys.includes('mpdgi-hub-runtime-1.4.6-stale');
   },null,{timeout:10000});
   const keys=await page.evaluate(()=>caches.keys());
-  expect(keys).toContain('mpdgi-hub-shell-1.6.1');
+  expect(keys).toContain('mpdgi-hub-shell-1.6.2');
 });
 
 test('payment logos remain stable across repeated Chromium reopen cycles',async({context})=>{
@@ -409,7 +419,7 @@ test('About exposes attributed Share Hub and changelog-derived Last Updated meta
   const modal=page.locator('#modal-body');
   await expect(modal).toContainText(/Última actualización|Last updated/);
   await expect(modal.locator('button.share-hub')).toHaveCount(1);
-  const appSource=await page.request.get('/js/app-v1.6.1.js').then(r=>r.text());
+  const appSource=await page.request.get('/js/app-v1.6.2.js').then(r=>r.text());
   expect(appSource).toContain('https://hub.mpdgi.org/?src=link');
   expect(appSource).toContain('navigator.share');
 });
