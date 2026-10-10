@@ -103,3 +103,14 @@ PR #52 captured Hub v1.6.0 runtime checkpoint `739d7523e50f3ad9923143c8c922cd495
 The SHA in this handoff identifies the last validated runtime checkpoint, not a promise that `main` still points to that exact commit after documentation-only merges.
 
 Always verify live Hub/Stats/Cards branch HEADs before changing code.
+
+
+## Hub v1.6.1 checkpoint — 2026-10-10
+
+- Repository `kl4ne/mpdgi-hub`; patch branch `fix/hub-v1.6.1-post-audit` targeting `main`.
+- Base pre-patch main SHA `9c49994aec423307eae4cb4bff72c22f118b3082`, Hub production v1.6.0 before patch.
+- Patch: social OpenGraph/Twitter PNG 1200×630 rendered from existing SVG, maskable 512 PNG with safe padding, app/manifest/service worker references and 1.6.1 version aligned, validator/browser QA extended, original v1.6.0 pinned assets retired.
+- Duplicated canonical/release-pinned app/CSS/version files are **intentional** and validated by CI; do not delete unversioned variants.
+- Owner explicitly rejected privacy changes. Keep existing cookies/analytics/Stats behavior and privacy UI unchanged. No user reapproval needed for this prohibition.
+- No DNS/Namecheap/Cloudflare/Pages hosting migration authorized; nosniff + clickjacking headers remain unresolved GitHub Pages hosting limitations.
+- Next: PR -> checks -> merge -> live verification -> final checkpoint. Do not restart, use do -> validate -> checkpoint -> continue.
