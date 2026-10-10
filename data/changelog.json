@@ -1,5 +1,16 @@
 [
   {
+    "version": "1.6.1",
+    "title": "Sharing Preview & PWA Quality",
+    "date": "2026-10-10",
+    "changes": [
+      "Replaced SVG social preview metadata with a 1200x630 PNG for more reliable sharing on messaging and social platforms.",
+      "Added a safe-area maskable PWA icon while preserving the church's existing approved artwork.",
+      "Expanded release validation and documented security-header limitations of GitHub Pages.",
+      "Preserved the approved v1.6.0 design, NFC/QR attribution, anonymous analytics, cookies, privacy behavior, offline support and all existing buttons."
+    ]
+  },
+  {
     "version": "1.6.0",
     "title": "Sharing, Release Metadata & Quality Maturity",
     "date": "2026-09-30",
