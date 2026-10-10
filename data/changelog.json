@@ -1,5 +1,15 @@
 [
   {
+    "version": "1.6.2",
+    "title": "Developer Business Card Link",
+    "date": "2026-10-10",
+    "changes": [
+      "The developer name Roberto S. Macfie in the footer now links directly to the RMCard digital business card.",
+      "The link remains functional after switching languages; automated browser checks cover the footer.",
+      "The approved design, public navigation and other Hub behavior remain unchanged."
+    ]
+  },
+  {
     "version": "1.6.1",
     "title": "Sharing Preview & PWA Quality",
     "date": "2026-10-10",

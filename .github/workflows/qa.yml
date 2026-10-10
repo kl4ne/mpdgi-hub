@@ -2,8 +2,12 @@ name: QA MPDGI Hub
 
 on:
   push:
-    branches: [main, v1.5.0-analytics]
+    branches: [main]
   pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
