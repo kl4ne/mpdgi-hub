@@ -46,6 +46,12 @@ jobs:
           BASE_URL: http://127.0.0.1:4173
         run: npm run test:ui:chromium
 
+      - name: Playwright WebKit local PR regression QA
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_URL: http://127.0.0.1:4173
+        run: npm run test:ui:webkit
+
       - name: Verify contrast regressions
         env:
           BASE_URL: http://127.0.0.1:4173
