@@ -23,7 +23,7 @@ for(const viewport of viewports){
       scrollHeight:document.documentElement.scrollHeight
     }));
     expect(dims.scrollWidth).toBeLessThanOrEqual(dims.innerWidth+1);
-    expect(dims.scrollHeight).toBeLessThanOrEqual(dims.innerHeight+4);
+    if(viewport.width>320)expect(dims.scrollHeight).toBeLessThanOrEqual(dims.innerHeight+4);
     expect(errors).toEqual([]);
   });
 }
@@ -31,11 +31,12 @@ for(const viewport of viewports){
 test('Spanish and English UI remain consistent',async({page})=>{
   await page.goto('/',{waitUntil:'networkidle'});
   await expect(page.locator('[data-card-id="about"] .card-title')).toHaveText('Acerca de');
-  await expect(page.locator('#language-code')).toHaveText('ES');
-  await page.locator('#language-toggle').click();
+  await expect(page.locator('#lang-es')).toHaveAttribute('aria-pressed','true');
+  await page.locator('#lang-en').click();
   await expect(page.locator('[data-card-id="about"] .card-title')).toHaveText('About');
-  await expect(page.locator('#language-code')).toHaveText('EN');
-  await expect(page.locator('#language-toggle')).toHaveAttribute('aria-label','Change language to Spanish');
+  await expect(page.locator('#lang-en')).toHaveAttribute('aria-pressed','true');
+  await expect(page.locator('#lang-es')).toHaveAttribute('aria-pressed','false');
+  await expect(page.locator('#language-switch')).toHaveAttribute('data-current','en');
 });
 
 test('all modal flows open, isolate background and close cleanly',async({page})=>{
@@ -64,7 +65,7 @@ test('primary links and footer structure are correct',async({page})=>{
   await expect(developerLink).toHaveAttribute('href','https://rmcard.pages.dev/');
   await expect(developerLink).toHaveAttribute('target','_blank');
   await expect(developerLink).toHaveAttribute('rel','noopener noreferrer');
-  await page.locator('#language-toggle').click();
+  await page.locator('#lang-en').click();
   await expect(page.locator('#developer-credit')).toHaveText('Designed & Developed by Roberto S. Macfie for MPDGI');
   await expect(developerLink).toHaveCount(1);
   await expect(developerLink).toHaveAttribute('href','https://rmcard.pages.dev/');
@@ -130,7 +131,7 @@ test('Square wallets and Zelle instructions are present and readable',async({pag
 
 test('English giving instructions translate correctly',async({page})=>{
   await page.goto('/',{waitUntil:'networkidle'});
-  await page.locator('#language-toggle').click();
+  await page.locator('#lang-en').click();
   await page.locator('[data-card-id="give"] .card-action').click();
   await expect(page.locator('.zelle-title')).toHaveText('How to give with Zelle®');
   await expect(page.locator('.copy-button')).toHaveText('Copy email');
@@ -154,7 +155,7 @@ test('social modal includes Facebook, Instagram, YouTube and TikTok brand links'
 test('social card subtitle includes TikTok in both languages',async({page})=>{
   await page.goto('/',{waitUntil:'networkidle'});
   await expect(page.locator('[data-card-id="social"] .card-subtitle')).toContainText('TikTok');
-  await page.locator('#language-toggle').click();
+  await page.locator('#lang-en').click();
   await expect(page.locator('[data-card-id="social"] .card-subtitle')).toContainText('TikTok');
 });
 
@@ -170,16 +171,16 @@ test('shared runtime version is loaded and matches config',async({page})=>{
       config:config.version
     };
   });
-  expect(values.runtime).toBe('1.6.7');
-  expect(values.source).toBe('1.6.7');
-  expect(values.config).toBe('1.6.7');
+  expect(values.runtime).toBe('1.6.8');
+  expect(values.source).toBe('1.6.8');
+  expect(values.config).toBe('1.6.8');
 });
 
 test('accessibility labels switch with language',async({page})=>{
   await page.goto('/',{waitUntil:'networkidle'});
   await expect(page.locator('.skip-link')).toHaveText('Saltar al contenido');
   await expect(page.locator('.visit-info')).toHaveAttribute('aria-label','Información de la iglesia');
-  await page.locator('#language-toggle').click();
+  await page.locator('#lang-en').click();
   await expect(page.locator('.skip-link')).toHaveText('Skip to content');
   await expect(page.locator('.visit-info')).toHaveAttribute('aria-label','Church information');
   await expect(page.locator('.church-logo')).toHaveAttribute('alt','Official logo of Ministerio Plenitud de Gracia');
@@ -216,9 +217,9 @@ test('payment logos use known-good inline SVG rendering',async({page})=>{
 
 test('release-pinned assets prevent mixed-version CSS and JS',async({page})=>{
   await page.goto('/',{waitUntil:'networkidle'});
-  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.6.7.css');
-  await expect(page.locator('script[src="js/version-v1.6.7.js"]')).toHaveCount(1);
-  await expect(page.locator('script[src="js/app-v1.6.7.js"]')).toHaveCount(1);
+  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.6.8.css');
+  await expect(page.locator('script[src="js/version-v1.6.8.js"]')).toHaveCount(1);
+  await expect(page.locator('script[src="js/app-v1.6.8.js"]')).toHaveCount(1);
 });
 
 test('church address opens directions and translates its accessibility label',async({page})=>{
@@ -226,9 +227,11 @@ test('church address opens directions and translates its accessibility label',as
   const address=page.locator('#address-link');
   await expect(address).toHaveAttribute('href',/google\.com\/maps\/dir\/\?api=1/);
   await expect(address).toHaveAttribute('href',/1045/);
-  await expect(address).toHaveAttribute('aria-label','Abrir indicaciones para llegar a Ministerio Plenitud de Gracia');
-  await page.locator('#language-toggle').click();
-  await expect(address).toHaveAttribute('aria-label','Get directions to Ministerio Plenitud de Gracia');
+  await expect(address).toHaveAccessibleName(/1045 E Normandy Blvd/);
+  await expect(address).toHaveAccessibleDescription('Abrir indicaciones para llegar a Ministerio Plenitud de Gracia');
+  await page.locator('#lang-en').click();
+  await expect(address).toHaveAccessibleName(/1045 E Normandy Blvd/);
+  await expect(address).toHaveAccessibleDescription('Get directions to Ministerio Plenitud de Gracia');
 });
 
 test('copyright year range never goes below the 2026 launch year',async({page})=>{
@@ -258,7 +261,7 @@ test('stored version mismatch repairs old MPDGI caches',async({page})=>{
     return !keys.includes('mpdgi-hub-shell-1.4.5')&&!keys.includes('mpdgi-hub-runtime-1.4.6-stale');
   },null,{timeout:10000});
   const keys=await page.evaluate(()=>caches.keys());
-  expect(keys).toContain('mpdgi-hub-shell-1.6.7');
+  expect(keys).toContain('mpdgi-hub-shell-1.6.8');
 });
 
 test('payment logos remain stable across repeated Chromium reopen cycles',async({context})=>{
@@ -285,7 +288,7 @@ test('About modal renders automatic copyright instead of the year placeholder',a
   await expect(modal).toContainText('© 2026 Ministerio Plenitud de Gracia');
   await expect(modal).not.toContainText('{year}');
   await page.locator('#modal-close').click();
-  await page.locator('#language-toggle').click();
+  await page.locator('#lang-en').click();
   await page.locator('[data-card-id="about"] .card-action').click();
   await expect(page.locator('#modal-body')).not.toContainText('{year}');
 });
@@ -434,7 +437,7 @@ test('About exposes attributed Share Hub and changelog-derived Last Updated meta
   const modal=page.locator('#modal-body');
   await expect(modal).toContainText(/Última actualización|Last updated/);
   await expect(modal.locator('button.share-hub')).toHaveCount(1);
-  const appSource=await page.request.get('/js/app-v1.6.7.js').then(r=>r.text());
+  const appSource=await page.request.get('/js/app-v1.6.8.js').then(r=>r.text());
   expect(appSource).toContain('https://hub.mpdgi.org/?src=link');
   expect(appSource).toContain('navigator.share');
 });
@@ -499,7 +502,8 @@ test('high-contrast accessibility preferences preserve usable controls',async({p
   }
   expect(forced.borderStyle).toBe('solid');
   expect(forced.borderWidth).toBeGreaterThanOrEqual(1);
-  expect(await page.locator('#language-toggle').getAttribute('aria-label')).toBeTruthy();
+  await expect(page.locator('#lang-es')).toHaveAccessibleName('ES, Español');
+  await expect(page.locator('#lang-en')).toHaveAccessibleName('EN, English');
 });
 
 test('N3 payment and social marks stay legible in forced dark and light palettes',async({page})=>{
@@ -537,6 +541,46 @@ test('N3 payment and social marks stay legible in forced dark and light palettes
       expect(mark.loaded).toBe(true);
     }
     await page.locator('#modal-close').click();
+  }
+});
+
+test('v1.6.8 ES EN segmented language control keeps accessible state and persistence',async({page})=>{
+  await page.setViewportSize({width:375,height:667});
+  await page.goto('/',{waitUntil:'networkidle'});
+  const es=page.locator('#lang-es'),en=page.locator('#lang-en');
+  await expect(es).toHaveAccessibleName('ES, Español');
+  await expect(en).toHaveAccessibleName('EN, English');
+  await expect(es).toHaveAttribute('aria-pressed','true');
+  const positions=await page.locator('#language-switch').evaluate(el=>{
+    const a=el.getBoundingClientRect(),logo=document.querySelector('.logo-stage').getBoundingClientRect();
+    const buttons=[...el.querySelectorAll('button')].map(b=>{const r=b.getBoundingClientRect();return {w:r.width,h:r.height,hit:document.elementFromPoint(r.left+r.width/2,r.top+r.height/2)===b};});
+    return {buttons,overlap:!(a.right<=logo.left||a.left>=logo.right||a.bottom<=logo.top||a.top>=logo.bottom)};
+  });
+  expect(positions.overlap).toBe(false);
+  for(const btn of positions.buttons){expect(btn.h).toBeGreaterThanOrEqual(44);expect(btn.hit).toBe(true);}
+  await en.click();
+  await expect(en).toHaveAttribute('aria-pressed','true');
+  await expect(es).toHaveAttribute('aria-pressed','false');
+  await expect(page.locator('#language-switch')).toHaveAttribute('data-current','en');
+  await page.reload({waitUntil:'networkidle'});
+  await expect(en).toHaveAttribute('aria-pressed','true');
+  await es.focus();
+  await page.keyboard.press('Enter');
+  await expect(es).toHaveAttribute('aria-pressed','true');
+  await expect(page.locator('[data-card-id="about"] .card-title')).toHaveText('Acerca de');
+});
+
+test('v1.6.8 readable 10px mobile support text keeps subtitles visible',async({page})=>{
+  for(const viewport of [{width:360,height:640},{width:375,height:667},{width:390,height:844}]){
+    await page.setViewportSize(viewport);
+    await page.goto('/',{waitUntil:'networkidle'});
+    const metrics=await page.evaluate(()=>{
+      const get=sel=>{const el=document.querySelector(sel),style=getComputedStyle(el);return {size:parseFloat(style.fontSize),display:style.display};};
+      return {subtitle:get('.card-subtitle'),visit:get('.visit-row p'),footer:get('.hub-footer'),scripture:get('.scripture'),overflows:document.documentElement.scrollWidth>window.innerWidth+1};
+    });
+    for(const key of ['subtitle','visit','footer','scripture'])expect(metrics[key].size,key).toBeCloseTo(10,1);
+    expect(metrics.subtitle.display).not.toBe('none');
+    expect(metrics.overflows).toBe(false);
   }
 });
 

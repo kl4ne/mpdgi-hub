@@ -404,8 +404,8 @@ function setLanguage(language,persist=true){
   currentLanguage=language==='en'?'en':'es';document.documentElement.lang=currentLanguage;
   if(persist){try{localStorage.setItem(STORAGE_LANGUAGE_KEY,currentLanguage);}catch{}}
   const s=UI[currentLanguage];
-  document.getElementById('language-code').textContent=currentLanguage.toUpperCase();
-  document.getElementById('language-toggle').setAttribute('aria-label',s.languageLabel);
+  const languageSwitch=document.getElementById('language-switch');languageSwitch.dataset.current=currentLanguage;
+  languageSwitch.querySelectorAll('.lang-opt').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.lang===currentLanguage)));
   document.querySelector('.skip-link').textContent=s.skip;
   document.querySelector('.visit-info').setAttribute('aria-label',s.visitInfoLabel);
   document.querySelector('.church-logo').alt=s.logoAlt;
@@ -414,7 +414,7 @@ function setLanguage(language,persist=true){
   document.getElementById('scripture').textContent=currentLanguage==='es'?config.scripture:config.scriptureEn;
   document.getElementById('sunday-label').textContent=s.sunday;document.getElementById('wednesday-label').textContent=s.wednesday;
   document.getElementById('modal-close').setAttribute('aria-label',s.close);
-  renderDeveloperCredit(s.developerCredit);document.getElementById('copyright-text').textContent=copyrightText(currentLanguage);const addressLink=document.getElementById('address-link');addressLink.setAttribute('aria-label',s.directionsLabel);addressLink.title=s.directionsLabel;
+  renderDeveloperCredit(s.developerCredit);document.getElementById('copyright-text').textContent=copyrightText(currentLanguage);const addressLink=document.getElementById('address-link');document.getElementById('address-hint').textContent=s.directionsLabel;addressLink.title=s.directionsLabel;
   updateOfflineState();renderCards();
 }
 
@@ -566,7 +566,7 @@ function setupModal(){
   document.addEventListener('keydown',e=>{if(o.hidden)return;if(e.key==='Escape'){e.preventDefault();closeModal();return;}if(e.key!=='Tab')return;const items=focusableElements();if(!items.length){e.preventDefault();document.getElementById('hub-modal').focus();return;}const first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}});
 }
 function updateOfflineState(){const b=document.getElementById('offline-badge');b.hidden=navigator.onLine;b.textContent=navigator.onLine?'':UI[currentLanguage].offline;}
-function setupLanguage(){document.getElementById('language-toggle').addEventListener('click',()=>{const next=currentLanguage==='es'?'en':'es';setLanguage(next,true);trackAnalytics('action','language_change',next);});}
+function setupLanguage(){document.querySelectorAll('#language-switch .lang-opt').forEach(button=>button.addEventListener('click',()=>{const next=button.dataset.lang;if(next===currentLanguage)return;setLanguage(next,true);trackAnalytics('action','language_change',next);}));}
 function setupInstall(){window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;});window.addEventListener('appinstalled',()=>{installPrompt=null;trackAnalytics('action','pwa_installed','installed');});}
 function setupServiceWorker(){
   if(!('serviceWorker'in navigator))return;
