@@ -67,9 +67,8 @@ jobs:
           if(pkg.version!=='1.4.10'||!statsVersion.includes("MPDGI_STATS_VERSION='1.4.10'"))throw Error('Stats version mismatch');
           if(!headers.includes('X-Robots-Tag: noindex')||!headers.includes("frame-ancestors 'none'")||!headers.includes('Strict-Transport-Security: max-age=31536000'))throw Error('Stats security headers missing');
 
-          const deploy=read('STATS_DEPLOYMENT.md');
           const wrangler=read('wrangler.example.toml');
-          if(!deploy.includes('Build output directory: `public`')||!wrangler.includes('pages_build_output_dir = "public"'))throw Error('Stats deploy root documentation drift');
+          if(!wrangler.includes('pages_build_output_dir = "public"'))throw Error('Stats deployed directory mismatch');
 
           const collector=read('functions/api/collect.js');
           if(!collector.includes('INSERT OR IGNORE INTO events')||collector.includes('CF-Connecting-IP')&&collector.includes('INSERT')&&collector.includes('ip_address'))throw Error('Collector privacy/dedupe invariant failed');
@@ -84,7 +83,11 @@ jobs:
           if(!campaignApi.includes("context.request.method==='POST'&&!isSameOrigin(context.request)"))throw Error('Campaign POST same-origin guard missing');
           if(!authApi.includes('export async function requireRole')||!campaignApi.includes("requireRole(context,['owner','admin'])"))throw Error('Campaign write RBAC missing');
           if(!bootstrapApi.includes("BOOTSTRAP_ENABLED!=='true'")||!bootstrapApi.includes('isSameOrigin(context.request)'))throw Error('Bootstrap explicit-enable guard missing');
-          if(!read('README.md').startsWith('# MPDGI Stats — v1.4.10'))throw Error('Stats README version stale');
+          // Internal Stats documentation is archived in the private mpdgi-internal repository.
+          // Keep the publicly hosted branch free of duplicate internal operating notes.
+          for(const doc of ['README.md','STATS_DEPLOYMENT.md','ANALYTICS_METHODOLOGY.md','DATA_RETENTION_POLICY.md']){
+            if(fs.existsSync(doc))throw Error('Restricted Stats documentation returned to public branch: '+doc);
+          }
 
           const reporting=read('functions/_lib/reporting.js');
           if(!reporting.includes('COUNT(DISTINCT session_id)')||!reporting.includes("['nfc','qr','link','unattributed']"))throw Error('Reporting definitions drifted');
@@ -115,7 +118,7 @@ jobs:
           if(!statsJs.includes("'nancy-pagan':'Pastora Nancy Pagán'"))throw Error('NPCard display mapping missing');
           if(!index.includes('data-view="methodology"')||!index.includes('data-view-panel="methodology"'))throw Error('Methodology view missing');
           if(!statsJs.includes("navMethodology:'Metodología'")||!statsJs.includes("navMethodology:'Methodology'"))throw Error('Bilingual methodology navigation missing');
-          if(!fs.existsSync('ANALYTICS_METHODOLOGY.md')||!fs.existsSync('DATA_RETENTION_POLICY.md'))throw Error('Analytics governance documentation missing');
+          // The analytics governance source is retained under private stats/; test runtime methodology separately above.
 
           const walk=dir=>fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>{
             const p=require('path').join(dir,e.name);
