@@ -15,8 +15,9 @@ test('WebKit mobile layout stays compact and usable',async({page})=>{
 test('WebKit language and accessibility labels switch correctly',async({page})=>{
   await page.goto('/',{waitUntil:'domcontentloaded'});
   await expect(page.locator('.skip-link')).toHaveText('Saltar al contenido');
-  await page.locator('#language-toggle').click();
-  await expect(page.locator('#language-code')).toHaveText('EN');
+  await page.locator('#lang-en').click();
+  await expect(page.locator('#lang-en')).toHaveAttribute('aria-pressed','true');
+  await expect(page.locator('#lang-en')).toHaveAccessibleName('EN, English');
   await expect(page.locator('.skip-link')).toHaveText('Skip to content');
   await expect(page.locator('.visit-info')).toHaveAttribute('aria-label','Church information');
 });

@@ -1,5 +1,15 @@
 [
   {
+    "version": "1.6.8",
+    "title": "Mobile Readability & Language Switch",
+    "date": "2026-10-11",
+    "changes": [
+      "Introduced the approved navy-and-gold ES/EN sliding language selector with 44px touch targets and accessible selected states.",
+      "Improved 10px supporting text legibility on mobile, keeping subtitles visible without abbreviating card copy.",
+      "Corrected accessible directions naming and descriptions, preserving all existing Hub destinations, NFC/QR, analytics and hosting."
+    ]
+  },
+  {
     "version": "1.6.7",
     "title": "Brand Contrast Legibility",
     "date": "2026-10-10",

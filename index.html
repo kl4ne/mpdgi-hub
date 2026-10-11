@@ -14,7 +14,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
   <link rel="apple-touch-icon" sizes="192x192" href="assets/icons/apple-touch-icon.png">
   <link rel="canonical" href="https://hub.mpdgi.org/">
-  <link rel="stylesheet" href="css/style-v1.6.7.css">
+  <link rel="stylesheet" href="css/style-v1.6.8.css">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="MPDGI Hub">
@@ -42,10 +42,11 @@
     <header class="hero" aria-labelledby="church-name">
       <div class="hero-tools">
         <div id="offline-badge" class="offline-badge" role="status" aria-live="polite" hidden></div>
-        <button type="button" id="language-toggle" class="language-toggle" aria-label="Cambiar idioma a inglés">
-          <span class="globe-mark" aria-hidden="true">◎</span>
-          <span id="language-code">ES</span>
-        </button>
+        <div id="language-switch" class="lang-switch" role="group" aria-label="Idioma / Language" data-current="es">
+          <span class="lang-slider" aria-hidden="true"></span>
+          <button type="button" id="lang-es" class="lang-opt" data-lang="es" aria-label="ES, Español" aria-pressed="true" lang="es">ES</button>
+          <button type="button" id="lang-en" class="lang-opt" data-lang="en" aria-label="EN, English" aria-pressed="false" lang="en">EN</button>
+        </div>
       </div>
 
       <div class="hero-panel">
@@ -81,9 +82,10 @@
     <section class="visit-info" aria-label="Información de la iglesia">
       <div class="visit-row visit-address">
         <span class="visit-icon" data-info-icon="pin" aria-hidden="true"></span>
-        <a id="address-link" class="visit-address-link" href="https://www.google.com/maps/dir/?api=1&amp;destination=1045%20E%20Normandy%20Blvd%2C%20Deltona%2C%20FL%2032725" target="_blank" rel="noopener noreferrer" aria-label="Abrir indicaciones para llegar a Ministerio Plenitud de Gracia">
+        <a id="address-link" class="visit-address-link" href="https://www.google.com/maps/dir/?api=1&amp;destination=1045%20E%20Normandy%20Blvd%2C%20Deltona%2C%20FL%2032725" target="_blank" rel="noopener noreferrer" aria-describedby="address-hint">
           <p id="address-text">1045 E Normandy Blvd<br>Deltona, FL 32725</p>
         </a>
+        <span id="address-hint" class="visually-hidden">Abrir indicaciones para llegar a Ministerio Plenitud de Gracia</span>
       </div>
       <div class="visit-divider" aria-hidden="true"></div>
       <div class="visit-row">
@@ -116,7 +118,7 @@
     </section>
   </div>
 
-  <script src="js/version-v1.6.7.js"></script>
-  <script src="js/app-v1.6.7.js"></script>
+  <script src="js/version-v1.6.8.js"></script>
+  <script src="js/app-v1.6.8.js"></script>
 </body>
 </html>
