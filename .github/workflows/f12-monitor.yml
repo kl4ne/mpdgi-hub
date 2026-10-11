@@ -1,6 +1,11 @@
 name: F12 - Giving Link Availability
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/f12-monitor.yml'
+      - '.github/scripts/f12-monitor.mjs'
   schedule:
     - cron: '17 12 * * *' # Daily 12:17 UTC; GitHub schedule may run late.
   workflow_dispatch:
