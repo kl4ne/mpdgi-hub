@@ -41,6 +41,26 @@ jobs:
           cat /tmp/mpdgi-hub-http.log
           exit 1
 
+      - name: Start localhost HTTPS for WebKit CSP parity
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          openssl req -x509 -newkey rsa:2048 -nodes -keyout /tmp/mpdgi-local.key -out /tmp/mpdgi-local.crt -days 1 -subj '/CN=localhost' -addext 'subjectAltName=DNS:localhost,IP:127.0.0.1' >/dev/null 2>&1
+          nohup python3 -c '
+          import http.server, ssl
+          server=http.server.ThreadingHTTPServer(("127.0.0.1",4174),http.server.SimpleHTTPRequestHandler)
+          ctx=ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+          ctx.load_cert_chain("/tmp/mpdgi-local.crt","/tmp/mpdgi-local.key")
+          server.socket=ctx.wrap_socket(server.socket,server_side=True)
+          server.serve_forever()
+          ' > /tmp/mpdgi-local-https.log 2>&1 &
+          for i in {1..30}; do
+            if curl -kfsS https://127.0.0.1:4174/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/mpdgi-local-https.log
+          exit 1
+
       - name: Playwright Chromium functional QA
         env:
           BASE_URL: http://127.0.0.1:4173
@@ -49,13 +69,13 @@ jobs:
       - name: WebKit app-initialization diagnostic
         if: github.event_name == 'pull_request'
         env:
-          BASE_URL: http://127.0.0.1:4173
+          BASE_URL: https://127.0.0.1:4174
         run: |
           node <<'NODE'
           const {webkit}=require('playwright');
           (async()=>{
             const browser=await webkit.launch();
-            const page=await browser.newPage({viewport:{width:390,height:844}});
+            const page=await browser.newPage({viewport:{width:390,height:844},ignoreHTTPSErrors:true});
             const errors=[];
             page.on('pageerror',e=>errors.push('PAGEERROR '+e.message));
             page.on('console',msg=>{if(msg.type()==='error')errors.push('CONSOLE '+msg.text())});
@@ -80,7 +100,8 @@ jobs:
       - name: Playwright WebKit local PR regression QA
         if: github.event_name == 'pull_request'
         env:
-          BASE_URL: http://127.0.0.1:4173
+          BASE_URL: https://127.0.0.1:4174
+          WEBKIT_LOCAL_HTTPS: '1'
         run: npm run test:ui:webkit
 
       - name: Verify contrast regressions
