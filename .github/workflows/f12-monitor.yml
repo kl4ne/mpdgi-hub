@@ -1,0 +1,42 @@
+name: F12 - Giving Link Availability
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/f12-monitor.yml'
+      - '.github/scripts/f12-monitor.mjs'
+  schedule:
+    - cron: '17 12 * * *' # Daily 12:17 UTC; GitHub schedule may run late.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: f12-giving-availability
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    if: github.repository == 'kl4ne/mpdgi-hub'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout production branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Verify monitoring safety tests
+        run: node tests/f12-monitor-unit.mjs
+
+      - name: Check Hub, Tithe.ly and Square; manage GitHub incidents
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node .github/scripts/f12-monitor.mjs
