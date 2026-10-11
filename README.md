@@ -1,8 +1,18 @@
-# MPDGI Hub — v1.6.6
+# MPDGI Hub — v1.6.8
 
 Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
+
+## v1.6.8 — Mobile Readability & Language Switch
+- Approved navy-and-gold segmented ES/EN switch with clear 44px touch targets and keyboard/assistive-technology state.
+- Mobile option B restores supporting subtitles and makes small supporting text approximately 10px at widths up to 600px.
+- The church address uses its visible text as its accessible name and a translated hidden hint for the directions purpose.
+- The original church logo, public destinations, privacy, NFC/QR, payments, analytics and hosting are unchanged.
+
+## v1.6.7 — Brand Contrast Legibility
+- Brand colors stay legible on protected white backgrounds in forced-color display modes.
+- Added dark and light forced-color browser regression coverage.
 
 ## v1.6.6 — Isolated Quality Validation
 
