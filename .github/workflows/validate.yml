@@ -41,6 +41,9 @@ jobs:
           node tests/http-server-shutdown-unit.mjs
           node --check tests/payment-guards.mjs
           node tests/payment-guards.mjs
+          node --check .github/scripts/f12-monitor.mjs
+          node --check tests/f12-monitor-unit.mjs
+          node tests/f12-monitor-unit.mjs
           node --check tests/public-docs-guard.mjs
           node tests/public-docs-guard.mjs
           node --check tests/public-docs-guard-unit.mjs
