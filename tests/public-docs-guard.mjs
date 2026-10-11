@@ -3,7 +3,7 @@ import {execFileSync} from 'node:child_process';
 import {readFileSync} from 'node:fs';
 
 // Explicitly reviewed public documentation: new types must be approved before publishing.
-const allowed=new Set(['README.md','SECURITY.md','assets/qr/README.md']);
+const allowed=new Set(['README.md','SECURITY.md','assets/qr/README.md','robots.txt','sitemap.xml']);
 const tracked=execFileSync('git',['ls-files','-z'],{encoding:'utf8'}).split('\0').filter(Boolean);
 
 // Fail closed for alternative document formats and for private/backup directories.

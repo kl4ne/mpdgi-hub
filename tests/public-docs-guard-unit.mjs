@@ -21,12 +21,14 @@ try{
   put('README.md','# Public introduction');
   put('SECURITY.md','# Public security contact');
   put('assets/qr/README.md','# QR setup');
+  put('robots.txt','User-agent: *\nAllow: /\n\nSitemap: https://hub.mpdgi.org/sitemap.xml\n');
+  put('sitemap.xml','<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://hub.mpdgi.org/</loc></url></urlset>');
   check(true,'approved baseline');
   for(const path of [
     'MASTER_STATUS.md','internal/ARCHITECTURE.md','docs/audit.rst','records/notes.txt',
     'reports/internal.pdf','files/private.docx','notes/presentation.pptx',
     'reports/export.xlsx','archive/record.json','backup.zip','backup.sql',
-    'keys/owner.pem','confidential/notes.json','robots.txt'
+    'keys/owner.pem','confidential/notes.json','donor-list.txt'
   ]){
     put(path);
     check(false,'reject '+path);
