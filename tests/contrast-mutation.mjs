@@ -5,6 +5,7 @@ import {createServer} from 'node:http';
 import {tmpdir} from 'node:os';
 import {extname,join,normalize,sep} from 'node:path';
 import {spawn} from 'node:child_process';
+import {closeHttpServer} from './http-server-shutdown.mjs';
 
 const ROOT=process.cwd();
 const sha=file=>createHash('sha256').update(readFileSync(file)).digest('hex');
@@ -110,6 +111,9 @@ try{
   for(const [file,digest] of before)assert.equal(sha(join(ROOT,file)),digest,'Original CSS was modified: '+file);
   console.log('Contrast mutation regressions verified; original CSS unchanged');
 }finally{
-  if(server)await new Promise(resolve=>server.close(resolve));
-  rmSync(sandbox,{recursive:true,force:true});
+  try{
+    if(server)await closeHttpServer(server);
+  }finally{
+    rmSync(sandbox,{recursive:true,force:true});
+  }
 }

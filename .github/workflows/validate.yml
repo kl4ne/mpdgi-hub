@@ -36,6 +36,9 @@ jobs:
           node --check tests/config-parity.mjs
           node tests/config-parity.mjs
           node --check tests/contrast-mutation.mjs
+          node --check tests/http-server-shutdown.mjs
+          node --check tests/http-server-shutdown-unit.mjs
+          node tests/http-server-shutdown-unit.mjs
           node --check tests/payment-guards.mjs
           node tests/payment-guards.mjs
           node --check tests/public-docs-guard.mjs
@@ -60,7 +63,7 @@ jobs:
             'assets/profile/logo-mpdg.png','assets/icons/icon-192.png','assets/icons/icon-512.png','assets/icons/icon-512-maskable.png','assets/icons/apple-touch-icon.png',
             'assets/social/mpdgi-hub-share.svg','assets/social/mpdgi-hub-share.png','assets/qr/README.md',
             'package.json','package-lock.json','playwright.config.js','tests/ui.spec.js','tests/webkit.spec.js',
-            '.github/workflows/qa.yml','.github/workflows/cleanup-merged-branches.yml','.github/scripts/branch-cleanup.mjs','tests/branch-cleanup-unit.mjs','tests/config-parity.mjs','tests/payment-guards.mjs','tests/approved-destinations.json','tests/contrast-mutation.mjs','tests/public-docs-guard.mjs','tests/public-docs-guard-unit.mjs',
+            '.github/workflows/qa.yml','.github/workflows/cleanup-merged-branches.yml','.github/scripts/branch-cleanup.mjs','tests/branch-cleanup-unit.mjs','tests/config-parity.mjs','tests/payment-guards.mjs','tests/approved-destinations.json','tests/contrast-mutation.mjs','tests/http-server-shutdown.mjs','tests/http-server-shutdown-unit.mjs','tests/public-docs-guard.mjs','tests/public-docs-guard-unit.mjs',
             ...brandAssets
           ];
           for(const p of must)if(!fs.existsSync(p))throw Error('Missing: '+p);
