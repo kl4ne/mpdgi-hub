@@ -45,6 +45,8 @@ jobs:
           node tests/public-docs-guard.mjs
           node --check tests/public-docs-guard-unit.mjs
           node tests/public-docs-guard-unit.mjs
+          node --check tests/seo-metadata-unit.mjs
+          node tests/seo-metadata-unit.mjs
           node <<'NODE'
           const fs=require('fs');
           const path=require('path');
