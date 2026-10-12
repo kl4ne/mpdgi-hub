@@ -93,7 +93,7 @@ jobs:
           const release=globalThis.MPDGI_HUB_VERSION;
           if(release!=='1.6.9')throw Error('Runtime version source mismatch');
           if(pkg.version!==release||config.version!==release||changelog[0]?.version!==release)throw Error('Release metadata mismatch');
-          if(changelog[0]?.title!=='Mobile Readability & Language Switch')throw Error('Changelog title mismatch');
+          if(changelog[0]?.title!=='Responsive Support Text Readability')throw Error('Changelog title mismatch');
           if(!app.includes("globalThis.MPDGI_HUB_VERSION||'dev'"))throw Error('App does not consume shared version');
           if(!sw.includes("importScripts('./js/version-v1.6.9.js')")||!sw.includes("self.MPDGI_HUB_VERSION||SCRIPT_VERSION"))throw Error('Service Worker does not consume release-pinned shared version');
           if(!index.includes('<script src="js/version-v1.6.9.js"></script>')||index.indexOf('js/version-v1.6.9.js')>index.indexOf('js/app-v1.6.9.js'))throw Error('Version script ordering mismatch');
