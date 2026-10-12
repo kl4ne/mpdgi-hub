@@ -73,6 +73,16 @@ jobs:
           WEBKIT_LOCAL_HTTPS: '1'
         run: npm run test:ui:webkit
 
+
+      - name: Attach responsive readability screenshots for review
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: mpdgi-v1.6.9-responsive-visual-review
+          path: artifacts/readability-*.png
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Verify contrast regressions
         env:
           BASE_URL: http://127.0.0.1:4173

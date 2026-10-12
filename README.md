@@ -1,8 +1,13 @@
-# MPDGI Hub — v1.6.8
+# MPDGI Hub — v1.6.9
 
 Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
+
+## v1.6.9 — Responsive Support Text Readability
+- Kept the approved 10px supporting text and appearance on common narrow phones.
+- Improved card subtitle to 11px for 470–600px screens and supporting text to 10px above 600px.
+- Preserved giving destinations, privacy, service-worker architecture, graphics and bilingual experience.
 
 ## v1.6.8 — Mobile Readability & Language Switch
 - Approved navy-and-gold segmented ES/EN switch with clear 44px touch targets and keyboard/assistive-technology state.

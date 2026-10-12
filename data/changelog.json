@@ -1,5 +1,15 @@
 [
   {
+    "version": "1.6.9",
+    "title": "Responsive Support Text Readability",
+    "date": "2026-10-12",
+    "changes": [
+      "Improved supporting text readability on medium and large displays without changing approved mobile layouts.",
+      "Set card subtitles to 11px on 470–600px widths and visit, footer and scripture supporting text to 10px above 600px.",
+      "Preserved approved giving destinations, ES/EN controls, privacy and analytics, icons, PWA recovery and design geometry."
+    ]
+  },
+  {
     "version": "1.6.8",
     "title": "Mobile Readability & Language Switch",
     "date": "2026-10-11",
