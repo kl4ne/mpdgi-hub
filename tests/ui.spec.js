@@ -608,7 +608,8 @@ test('v1.6.9 Claude V2 responsive readability and screenshots',async({page},test
     }else{
       for(const k of ['visit','footer','scripture'])expect(m[k],k+' '+v.width).toBeCloseTo(10,1);
     }
-    await page.screenshot({path:testInfo.outputPath('readability-'+v.width+'.png'),fullPage:true});
+    require('node:fs').mkdirSync('artifacts',{recursive:true});
+    await page.screenshot({path:'artifacts/readability-'+v.width+'.png',fullPage:true});
   }
 });
 
