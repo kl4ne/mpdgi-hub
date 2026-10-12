@@ -73,7 +73,7 @@ body.modal-open{overflow:hidden}.skip-link{position:fixed;top:8px;left:8px;z-ind
 }
 /* Claude V2: only support-text font sizes change; preserve mobile <= 430px layout. */
 @media(min-width:470px) and (max-width:600px){.card-subtitle{font-size:.6875rem}}
-@media(min-width:601px){.visit-row p,.visit-row strong,.visit-address p,.hub-footer,.scripture{font-size:.625rem}}
+@media(min-width:601px){.visit-row p,.visit-row strong,.visit-address p,.hub-footer{font-size:.625rem}}
 @media(prefers-reduced-motion:reduce){.lang-slider{transition:none}}
 
 @media (prefers-contrast: more){
