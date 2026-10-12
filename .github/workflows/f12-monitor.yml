@@ -6,8 +6,10 @@ on:
     paths:
       - '.github/workflows/f12-monitor.yml'
       - '.github/scripts/f12-monitor.mjs'
+      - 'tests/f12-schedule-unit.mjs'
   schedule:
-    - cron: '17 12 * * *' # Daily 12:17 UTC; GitHub schedule may run late.
+    - cron: '17 10 * * *' # Daily 10:17 a.m. Eastern (EST/EDT), never scheduled overnight.
+      timezone: "America/New_York"
   workflow_dispatch:
 
 permissions:
@@ -33,8 +35,10 @@ jobs:
           node-version: '24'
           package-manager-cache: false
 
-      - name: Verify monitoring safety tests
-        run: node tests/f12-monitor-unit.mjs
+      - name: Verify monitoring safety and daytime schedule
+        run: |
+          node tests/f12-monitor-unit.mjs
+          node tests/f12-schedule-unit.mjs
 
       - name: Check Hub, Tithe.ly and Square; manage GitHub incidents
         env:
