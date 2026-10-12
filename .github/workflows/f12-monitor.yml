@@ -7,7 +7,8 @@ on:
       - '.github/workflows/f12-monitor.yml'
       - '.github/scripts/f12-monitor.mjs'
   schedule:
-    - cron: '17 12 * * *' # Daily 12:17 UTC; GitHub schedule may run late.
+    - cron: '17 10 * * *' # Daily 10:17 a.m. Eastern (EST/EDT), never scheduled overnight.
+      timezone: "America/New_York"
   workflow_dispatch:
 
 permissions:
