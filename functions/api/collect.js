@@ -50,9 +50,26 @@ export async function onRequest(context){
   if(!context.env.STATS_DB||!context.env.AUTH_PEPPER)return json({error:'collector_unavailable'},503,corsHeaders(origin));
   if(isLikelyBot(context.request.headers.get('User-Agent')))return new Response(null,{status:204,headers:corsHeaders(origin)});
 
+  // Budget ALL non-bot POST requests before any metric or event writes.
+  // Once a source exceeds 200 requests per ten-minute bucket, do not write
+  // collector_metrics (including rejected) or update the rate counter.
+  const now=new Date(),serverTs=now.toISOString(),day=easternDay(now);
+  const ip=context.request.headers.get('CF-Connecting-IP')||'unknown';
+  const nowSeconds=Math.floor(now.getTime()/1000);
+  const windowStarted=Math.floor(nowSeconds/600)*600;
+  const rateKey=await sha256('collector-rate|'+ip+'|'+windowStarted+'|'+context.env.AUTH_PEPPER);
+  const rate=await context.env.STATS_DB.prepare('SELECT event_count FROM collector_rate WHERE rate_key=?').bind(rateKey).first();
+  if(Number(rate?.event_count||0)>=200)return new Response(null,{status:204,headers:corsHeaders(origin)});
+  // The conditional upsert is atomic across concurrent requests, unlike
+  // a SELECT followed by an unconditional increment.
+  const admitted=await context.env.STATS_DB.prepare(
+    'INSERT INTO collector_rate(rate_key,window_started,event_count) VALUES(?,?,1) ON CONFLICT(rate_key) DO UPDATE SET event_count=event_count+1 WHERE collector_rate.event_count < 200'
+  ).bind(rateKey,windowStarted).run();
+  if(Number(admitted?.meta?.changes||0)!==1)return new Response(null,{status:204,headers:corsHeaders(origin)});
+  if(Math.random()<0.01)await context.env.STATS_DB.prepare('DELETE FROM collector_rate WHERE window_started<?').bind(windowStarted-7200).run();
+
   const raw=await context.request.text();
   try{await ensureCampaignSchema(context.env);}catch(error){console.error('[MPDGI Stats] schema upgrade failed',error);return json({error:'collector_unavailable'},503,corsHeaders(origin));}
-  const now=new Date(),serverTs=now.toISOString(),day=easternDay(now);
   await bumpCollectorMetric(context.env.STATS_DB,day,{received:1,timestamp:serverTs});
   if(raw.length>8192){
     await bumpCollectorMetric(context.env.STATS_DB,day,{rejected:1,timestamp:serverTs});
@@ -62,7 +79,7 @@ export async function onRequest(context){
     await bumpCollectorMetric(context.env.STATS_DB,day,{rejected:1,timestamp:serverTs});
     return json({error:'invalid_json'},400,corsHeaders(origin));
   }
-  const checked=validateEvent(parsed);
+  let checked;try{checked=validateEvent(parsed);}catch{checked={ok:false,error:'invalid_event'};}
   if(!checked.ok){
     await bumpCollectorMetric(context.env.STATS_DB,day,{rejected:1,timestamp:serverTs});
     return json({error:checked.error},400,corsHeaders(origin));
@@ -73,23 +90,6 @@ export async function onRequest(context){
   if(!identityCheck.ok){
     await bumpCollectorMetric(context.env.STATS_DB,day,{rejected:1,timestamp:serverTs});
     return json({error:identityCheck.error},400,corsHeaders(origin));
-  }
-
-  // Anonymous rate control: raw IP is never persisted.
-  {
-    const ip=context.request.headers.get('CF-Connecting-IP')||'unknown';
-    const nowSeconds=Math.floor(now.getTime()/1000);
-    const windowStarted=Math.floor(nowSeconds/600)*600;
-    const rateKey=await sha256('collector-rate|'+ip+'|'+windowStarted+'|'+context.env.AUTH_PEPPER);
-    const rate=await context.env.STATS_DB.prepare('SELECT event_count FROM collector_rate WHERE rate_key=?').bind(rateKey).first();
-    if(Number(rate?.event_count||0)>=200){
-      await bumpCollectorMetric(context.env.STATS_DB,day,{rejected:1,timestamp:serverTs});
-      return new Response(null,{status:204,headers:corsHeaders(origin)});
-    }
-    await context.env.STATS_DB.prepare(
-      'INSERT INTO collector_rate(rate_key,window_started,event_count) VALUES(?,?,1) ON CONFLICT(rate_key) DO UPDATE SET event_count=event_count+1'
-    ).bind(rateKey,windowStarted).run();
-    if(Math.random()<0.01)await context.env.STATS_DB.prepare('DELETE FROM collector_rate WHERE window_started<?').bind(windowStarted-7200).run();
   }
 
   try{
