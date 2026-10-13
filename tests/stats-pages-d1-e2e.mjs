@@ -261,6 +261,37 @@ try{
     assert.equal(response.headers.get('set-cookie'),null);
   }
 
+
+  // Phase 4: isolated local D1 API authentication and malformed-cookie checks.
+  for(const endpoint of ['/api/auth/session','/api/dashboard','/api/campaigns','/api/export']){
+    const response=await fetch(BASE+endpoint,{signal:AbortSignal.timeout(10000)});
+    assert.equal(response.status,401,endpoint+' must reject anonymous GET');
+    assert.equal((await response.json()).error,'unauthorized');
+    const malformed=await fetch(BASE+endpoint,{
+      headers:{Cookie:'mpdgi_stats_session=%E0%A4%A'},
+      signal:AbortSignal.timeout(10000)
+    });
+    assert.equal(malformed.status,401,endpoint+' must reject malformed cookies');
+  }
+
+  const ownerResponse=await login('modern@example.test',MODERN_INPUT,'203.0.113.101');
+  assert.equal(ownerResponse.status,200);
+  const ownerCookie=cookiePair(ownerResponse);
+  const signedInHeaders={Cookie:ownerCookie};
+
+  // Real D1 reporting and CSV, not mocked browser responses.
+  const liveDashboard=await fetch(BASE+'/api/dashboard',{headers:signedInHeaders});
+  assert.equal(liveDashboard.status,200);
+  const liveReport=await liveDashboard.json();
+  assert.equal(typeof liveReport.summary.visits,'number');
+  assert.ok(Array.isArray(liveReport.digital_cards));
+  assert.ok(liveReport.digital_cards.some(card=>card.card_id==='ruben-suarez'));
+
+  const csvResponse=await fetch(BASE+'/api/export',{headers:signedInHeaders});
+  assert.equal(csvResponse.status,200);
+  assert.match(csvResponse.headers.get('content-type')||'',/^text\/csv/);
+  assert.match((await csvResponse.text()).slice(0,40),/^Section,Category,Value/);
+
   console.log('MPDGI Stats real Pages + local D1 auth E2E passed');
 }finally{
   const stop=signal=>{
