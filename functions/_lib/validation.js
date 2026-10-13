@@ -58,7 +58,11 @@ export function validateEvent(input){
 
 export function validateCollectorIdentity(origin,event){
   const expectedTarget=CARD_ORIGIN_TARGETS.get(String(origin||''));
-  if(!expectedTarget)return {ok:true};
+  if(!expectedTarget){
+    // Only mapped Digital Card origins may submit business_card events.
+    if(String(event?.target||'').startsWith('business_card:'))return {ok:false,error:'invalid_target'};
+    return {ok:true};
+  }
   if(event.target!==expectedTarget)return {ok:false,error:'invalid_target'};
   if(event.event_type==='action'&&!CARD_ACTIONS.has(event.action_name))return {ok:false,error:'invalid_action'};
   if(event.event_type!=='action'&&event.action_name)return {ok:false,error:'invalid_action'};

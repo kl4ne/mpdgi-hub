@@ -33,6 +33,14 @@ assert.equal(validateCollectorIdentity('https://rscard.mpdgi.org',{...valid,targ
 assert.equal(validateCollectorIdentity('https://npcard.pages.dev',{...valid,event_type:'action',action_name:'bc_call',target:'business_card:nancy-pagan'}).ok,true);
 assert.equal(validateCollectorIdentity('https://npcard.mpdgi.org',{...valid,event_type:'action',action_name:'unknown_action',target:'business_card:nancy-pagan'}).error,'invalid_action');
 assert.equal(validateCollectorIdentity('https://hub.mpdgi.org',{...valid,target:'https://mpdgi.org/'}).ok,true);
+// S6: Hub, or any unmapped origin, cannot forge reserved Digital Card targets.
+for(const target of ['business_card:ruben-suarez','business_card:nancy-pagan']){
+  assert.equal(validateCollectorIdentity('https://hub.mpdgi.org',{...valid,target}).error,'invalid_target');
+  assert.equal(validateCollectorIdentity('https://unknown.test',{...valid,target}).error,'invalid_target');
+}
+assert.equal(validateCollectorIdentity('https://rscard.mpdgi.org',{...valid,target:'business_card:ruben-suarez'}).ok,true);
+assert.equal(validateCollectorIdentity('https://npcard.mpdgi.org',{...valid,target:'business_card:nancy-pagan'}).ok,true);
+assert.equal(validateCollectorIdentity('https://hub.mpdgi.org',{...valid,target:'link:facebook'}).ok,true);
 assert.equal(isLikelyBot('Mozilla/5.0 HeadlessChrome Lighthouse'),true);
 assert.equal(isLikelyBot('Mozilla/5.0 iPhone Version/26.0 Mobile Safari/605.1.15'),false);
 assert.equal(easternDay(new Date('2026-09-29T16:00:00Z')),'2026-09-29');

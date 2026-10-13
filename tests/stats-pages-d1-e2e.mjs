@@ -193,6 +193,54 @@ try{
     assert.equal(response.status,400,'hostile Collector input must not cause HTTP 500');
   }
 
+
+  // S6: Hub-origin spoofing cannot contaminate Digital Card reporting.
+  const cardPayload={
+    schema_version:1,
+    event_id:'a1111111-1111-4111-8111-111111111111',
+    visitor_id:'b2222222-2222-4222-8222-222222222222',
+    session_id:'c3333333-3333-4333-8333-333333333333',
+    event_type:'page_view',
+    acquisition_source:'nfc',
+    acquisition_campaign:'',
+    session_campaign:'',
+    session_entry:'nfc',
+    display_mode:'browser',
+    language:'es',
+    app_version:'1.4.10',
+    device_category:'mobile',
+    browser:'chrome',
+    action_name:'',
+    target:'business_card:ruben-suarez',
+    client_ts:''
+  };
+  const postCollector=(origin,event,ip)=>fetch(BASE+'/api/collect',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Origin':origin,'User-Agent':'Mozilla/5.0','CF-Connecting-IP':ip},
+    body:JSON.stringify(event),
+    signal:AbortSignal.timeout(10000)
+  });
+  {
+    const blocked=await postCollector('https://hub.mpdgi.org',cardPayload,'203.0.113.212');
+    assert.equal(blocked.status,400,'Hub-origin Digital Card target must be rejected');
+    assert.equal((await blocked.json()).error,'invalid_target');
+  }
+  {
+    const accepted=await postCollector('https://rscard.mpdgi.org',cardPayload,'203.0.113.213');
+    assert.equal(accepted.status,204,'legitimate Digital Card origin must continue working');
+  }
+  {
+    const hubEvent={
+      ...cardPayload,
+      event_id:'d4444444-4444-4444-8444-444444444444',
+      visitor_id:'e5555555-5555-4555-8555-555555555555',
+      session_id:'f6666666-6666-4666-8666-666666666666',
+      target:'https://mpdgi.org/'
+    };
+    const accepted=await postCollector('https://hub.mpdgi.org',hubEvent,'203.0.113.214');
+    assert.equal(accepted.status,204,'legitimate Hub events must continue working');
+  }
+
   console.log('MPDGI Stats real Pages + local D1 auth E2E passed');
 }finally{
   const stop=signal=>{
