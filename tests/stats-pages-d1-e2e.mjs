@@ -11,6 +11,7 @@ const BASE='http://127.0.0.1:8788';
 const PEPPER='local-pages-d1-integration-pepper';
 const MODERN_INPUT='Modern-local-password-1234!';
 const LEGACY_INPUT='Legacy-local-password-1234!';
+const VIEWER_INPUT='Viewer-local-password-1234!';
 
 function runWrangler(args,{capture=false}={}){
   const result=spawnSync('npx',[...WRANGLER,...args],{
@@ -40,6 +41,7 @@ async function prepareLocalD1(){
   const modern=await createTargetPasswordRecord(MODERN_INPUT,PEPPER);
   const legacySalt=passwordSalt();
   const legacyHash=await passwordVerifier(LEGACY_INPUT,legacySalt,PEPPER);
+  const viewer=await createTargetPasswordRecord(VIEWER_INPUT,PEPPER);
 
   const seed=[
     `INSERT INTO admin_users(id,email,password_hash,password_salt,password_scheme,role,active) VALUES(
@@ -47,7 +49,10 @@ async function prepareLocalD1(){
     );`,
     `INSERT INTO admin_users(id,email,password_hash,password_salt,password_scheme,role,active) VALUES(
       'legacy-local','legacy@example.test',${sql(legacyHash)},${sql(legacySalt)},${sql(LEGACY_PASSWORD_SCHEME)},'admin',1
-    );`
+    );`,
+    `INSERT INTO admin_users(id,email,password_hash,password_salt,password_scheme,role,active) VALUES(
+      'viewer-local','viewer@example.test',${sql(viewer.password_hash)},${sql(viewer.password_salt)},${sql(viewer.password_scheme)},'viewer',1
+    );
   ].join('\n');
 
   runWrangler(['d1','execute',DB,'--local','--config',CONFIG,'--command',seed]);
