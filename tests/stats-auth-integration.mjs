@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {onRequest as loginHandler} from '../functions/api/auth/login.js';
+import {onRequest as loginHandler,reserveLoginAttempt} from '../functions/api/auth/login.js';
 import {onRequest as dashboardHandler} from '../functions/api/dashboard.js';
 import {onRequest as campaignsHandler} from '../functions/api/campaigns.js';
 import {onRequest as exportHandler} from '../functions/api/export.js';
@@ -47,14 +47,18 @@ class FakeD1{
               }
               return {meta:{changes}};
             }
-            if(normalized.startsWith('INSERT INTO login_rate')){
-              db.loginRate.set(args[0],{window_started:Number(args[1]),attempts:1});
+            if(normalized.startsWith('INSERT INTO login_rate')&&normalized.includes('WHERE excluded.window_started-login_rate.window_started>=')){
+              const [key,now,win1,win2,win3,limit]=args;
+              assert.equal(win1,win2);
+              assert.equal(win2,win3);
+              const old=db.loginRate.get(key);
+              if(!old||Number(now)-Number(old.window_started)>=Number(win3)){
+                db.loginRate.set(key,{window_started:Number(now),attempts:1});
+                return {meta:{changes:1}};
+              }
+              if(Number(old.attempts)>=Number(limit))return {meta:{changes:0}};
+              old.attempts++;
               return {meta:{changes:1}};
-            }
-            if(normalized.startsWith('UPDATE login_rate SET attempts=attempts+1')){
-              const row=db.loginRate.get(args[0]);
-              if(row)row.attempts=Number(row.attempts)+1;
-              return {meta:{changes:row?1:0}};
             }
             if(normalized.startsWith('DELETE FROM login_rate WHERE rate_key=')){
               const changes=db.loginRate.delete(args[0])?1:0;
@@ -181,15 +185,15 @@ async function runLogin(db,email,password,options={}){
   assert.equal(db.sessions.size,0);
 }
 
-// Unsupported/corrupt credential scheme is a service failure, not a false invalid-password response.
+// Unsupported/corrupt credential schemes fail closed without leaking account existence.
 {
   const user=await legacyUser('scheme@example.com');
   user.password_scheme='future-scheme';
   const db=new FakeD1([user]);
   const response=await runLogin(db,user.email,LEGACY_INPUT);
-  assert.equal(response.status,503);
+  assert.equal(response.status,401);
   const body=await response.json();
-  assert.equal(body.error,'unsupported_password_scheme');
+  assert.equal(body.error,'invalid_credentials');
 }
 
 // Missing auth configuration fails closed.
@@ -264,6 +268,65 @@ async function runLogin(db,email,password,options={}){
     });
     assert.equal(response.status,401,route+' must reject malformed cookies with 401');
     assert.deepEqual(await response.json(),{error:'unauthorized'});
+  }
+}
+
+// S5: atomic reservation enforces exactly eight admits under concurrency.
+{
+  const db=new FakeD1([]);
+  const results=await Promise.all(Array.from({length:20},()=>
+    reserveLoginAttempt(db,'test-atomic-pair',1000,600,8)
+  ));
+  assert.equal(results.filter(Boolean).length,8);
+  assert.equal(results.filter(value=>!value).length,12);
+  assert.equal(db.loginRate.get('test-atomic-pair').attempts,8);
+  assert.equal(await reserveLoginAttempt(db,'test-atomic-pair',1600,600,8),true);
+  assert.equal(db.loginRate.get('test-atomic-pair').attempts,1);
+}
+// S5: IP budget blocks an attacker cycling email addresses before KDF.
+{
+  const ip='203.0.113.90',db=new FakeD1([]);
+  const ipKey=await sha256('login-ip|'+ip+'|'+PEPPER);
+  db.loginRate.set(ipKey,{window_started:Math.floor(Date.now()/1000),attempts:30});
+  const response=await runLogin(db,'unrelated@example.com','Unknown-password-1234!',{ip});
+  assert.equal(response.status,429);
+  assert.equal(db.loginRate.size,1,'blocked IP must not write other rate keys');
+}
+// S5: Email budget blocks an attacker cycling IP addresses.
+{
+  const email='target@example.com',db=new FakeD1([]);
+  const emailKey=await sha256('login-email|'+email+'|'+PEPPER);
+  db.loginRate.set(emailKey,{window_started:Math.floor(Date.now()/1000),attempts:60});
+  const response=await runLogin(db,email,'Unknown-password-1234!',{ip:'203.0.113.91'});
+  assert.equal(response.status,429);
+}
+// S4: absent accounts fail generically, including after a hypothetical pepper change.
+{
+  const db=new FakeD1([]);
+  const response=await runLogin(db,'absent@example.com','Unknown-password-1234!',{ip:'203.0.113.92'});
+  assert.equal(response.status,401);
+  assert.equal((await response.json()).error,'invalid_credentials');
+  const withOtherPepper=await runLogin(db,'absent@example.com','Unknown-password-1234!',{ip:'203.0.113.93',pepper:'different-pepper'});
+  assert.equal(withOtherPepper.status,401);
+  assert.equal(db.sessions.size,0);
+}
+// S4: malformed credential JSON is rejected as invalid credentials, never 500.
+{
+  const db=new FakeD1([]);
+  for(const body of [
+    {email:{toString:1,valueOf:1},password:'A'.repeat(20)},
+    {email:'absent@example.com',password:{toString:1,valueOf:1}},
+    null
+  ]){
+    const response=await loginHandler({
+      request:new Request(ORIGIN+'/api/auth/login',{
+        method:'POST',
+        headers:{'Content-Type':'application/json',Origin:ORIGIN},
+        body:JSON.stringify(body)
+      }),
+      env:{STATS_DB:db,AUTH_PEPPER:PEPPER}
+    });
+    assert.equal(response.status,401);
   }
 }
 
