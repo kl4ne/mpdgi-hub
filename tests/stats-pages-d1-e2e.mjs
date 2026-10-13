@@ -219,9 +219,9 @@ try{
     target:'business_card:ruben-suarez',
     client_ts:''
   };
-  const postCollector=(origin,event,ip)=>fetch(BASE+'/api/collect',{
+  const postCollector=(origin,event,ip,userAgent='Mozilla/5.0')=>fetch(BASE+'/api/collect',{
     method:'POST',
-    headers:{'Content-Type':'application/json','Origin':origin,'User-Agent':'Mozilla/5.0','CF-Connecting-IP':ip},
+    headers:{'Content-Type':'application/json','Origin':origin,'User-Agent':userAgent,'CF-Connecting-IP':ip},
     body:JSON.stringify(event),
     signal:AbortSignal.timeout(10000)
   });
@@ -282,6 +282,16 @@ try{
       event_type:'action',action_name:'bc_website'};
     const tap=await postCollector('https://rmcard.pages.dev',action,'203.0.113.217');
     assert.equal(tap.status,204,'real local D1 must accept RMCard website action');
+    // The HTTP 204 is also used for discarded bot traffic, so verify this human
+    // WhatsApp webview really increases local D1 card sessions below.
+    const whatsappEvent={...rmEvent,
+      event_id:'a1111111-1111-4111-8111-777777777777',
+      visitor_id:'b2222222-2222-4222-8222-888888888888',
+      session_id:'c3333333-3333-4333-8333-999999999999',
+      acquisition_source:'link',session_entry:'link',app_version:'1.0.4'};
+    const whatsapp=await postCollector('https://rmcard.pages.dev',whatsappEvent,
+      '203.0.113.219','Mozilla/5.0 (Linux; Android 15) Chrome/130 Mobile Safari/537.36 WhatsApp/2.26');
+    assert.equal(whatsapp.status,204,'WhatsApp in-app browser telemetry must not be blocked');
     const dashboard=await login('modern@example.test',MODERN_INPUT,'203.0.113.218');
     assert.equal(dashboard.status,200);
     const privateRequest=await fetch(BASE+'/api/dashboard',{headers:{Cookie:cookiePair(dashboard)}});
@@ -295,15 +305,15 @@ try{
     const roberto=data.digital_cards.find(card=>card.card_id==='roberto-macfie');
     assert.ok(ruben.sessions>=1,'existing RSCard activity remains visible');
     assert.equal(nancy.sessions,0,'NPCard must appear without recent activity');
-    assert.equal(roberto.sessions,1,'RMCard sessions must be counted');
-    assert.equal(roberto.opens,1,'RMCard page views must be counted');
+    assert.equal(roberto.sessions,2,'RMCard and human WhatsApp sessions must be counted');
+    assert.equal(roberto.opens,2,'RMCard and human WhatsApp opens must be counted');
     assert.equal(roberto.website,1,'RMCard website taps must be counted');
     assert.equal(roberto.last_activity_at===null,false);
     const exported=await fetch(BASE+'/api/export',{headers:{Cookie:cookiePair(dashboard)}});
     // /api/export stays private; the public page never receives card history.
     // Fetch again with an authenticated session cookie (same token as login).
     assert.equal(exported.status,200);
-    assert.match(await exported.text(),/Digital Card Sessions,roberto-macfie,1/);
+    assert.match(await exported.text(),/Digital Card Sessions,roberto-macfie,2/);
   }
 
   // S4/S5 real Pages+D1: concurrent unknown-account attempts must be
