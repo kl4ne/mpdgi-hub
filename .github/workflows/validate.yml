@@ -45,6 +45,8 @@ jobs:
           node --check tests/f12-monitor-unit.mjs
           node tests/f12-monitor-unit.mjs
           node tests/f12-schedule-unit.mjs
+          node --check .github/scripts/daytime-schedule-guard.mjs
+          node tests/f12-runtime-guard-unit.mjs
           node --check tests/public-docs-guard.mjs
           node tests/public-docs-guard.mjs
           node --check tests/public-docs-guard-unit.mjs

@@ -6,6 +6,8 @@ on:
     paths:
       - '.github/workflows/f12-monitor.yml'
       - '.github/scripts/f12-monitor.mjs'
+      - '.github/scripts/daytime-schedule-guard.mjs'
+      - 'tests/f12-runtime-guard-unit.mjs'
       - 'tests/f12-schedule-unit.mjs'
   schedule:
     - cron: '17 10 * * *' # Daily 10:17 a.m. Eastern (EST/EDT), never scheduled overnight.
@@ -29,18 +31,26 @@ jobs:
       - name: Checkout production branch
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
+      - name: Gate delayed scheduled checks to Eastern daytime
+        id: daytime
+        run: node .github/scripts/daytime-schedule-guard.mjs
+
       - name: Setup Node
+        if: steps.daytime.outputs.allow == 'true'
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: '24'
           package-manager-cache: false
 
       - name: Verify monitoring safety and daytime schedule
+        if: steps.daytime.outputs.allow == 'true'
         run: |
           node tests/f12-monitor-unit.mjs
           node tests/f12-schedule-unit.mjs
+          node tests/f12-runtime-guard-unit.mjs
 
       - name: Check Hub, Tithe.ly and Square; manage GitHub incidents
+        if: steps.daytime.outputs.allow == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node .github/scripts/f12-monitor.mjs
