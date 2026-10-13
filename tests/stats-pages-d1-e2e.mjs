@@ -52,7 +52,7 @@ async function prepareLocalD1(){
     );`,
     `INSERT INTO admin_users(id,email,password_hash,password_salt,password_scheme,role,active) VALUES(
       'viewer-local','viewer@example.test',${sql(viewer.password_hash)},${sql(viewer.password_salt)},${sql(viewer.password_scheme)},'viewer',1
-    );
+    );`,
   ].join('\n');
 
   runWrangler(['d1','execute',DB,'--local','--config',CONFIG,'--command',seed]);
