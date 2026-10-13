@@ -72,7 +72,9 @@ export function validateCollectorIdentity(origin,event){
 
 export function isLikelyBot(userAgent){
   const ua=String(userAgent||'').toLowerCase();
-  return /(bot|crawler|spider|slurp|headlesschrome|lighthouse|playwright|puppeteer|selenium|facebookexternalhit|discordbot|whatsapp|preview)/.test(ua);
+  // WhatsApp is also a real in-app browser; do not classify human clicks as bots.
+  // Actual unfurling/previews do not execute the card's tracking JavaScript.
+  return /(bot|crawler|spider|slurp|headlesschrome|lighthouse|playwright|puppeteer|selenium|facebookexternalhit|discordbot|preview)/.test(ua);
 }
 
 export function easternDay(date=new Date()){
