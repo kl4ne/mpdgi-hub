@@ -330,6 +330,37 @@ try{
     assert.equal(list.status,200);
     assert.ok((await list.json()).campaigns.some(c=>c.slug===candidate.slug));
   }
+
+  // S7: read-only viewer can read but cannot modify campaigns.
+  {
+    const viewerResponse=await login('viewer@example.test',VIEWER_INPUT,'203.0.113.105');
+    assert.equal(viewerResponse.status,200);
+    const viewerCookie=cookiePair(viewerResponse);
+    assert.equal((await verifySession(viewerCookie)).user.role,'viewer');
+    assert.equal((await postCampaign(viewerCookie,{
+      name:'Viewer Must Not Save',slug:'viewer-must-not-save',source:'link'
+    })).status,403);
+    assert.equal((await fetch(BASE+'/api/campaigns',{
+      headers:{Cookie:viewerCookie}
+    })).status,200);
+  }
+
+  // Session revocation must remove the actual local D1 session.
+  {
+    const response=await fetch(BASE+'/api/auth/logout',{
+      method:'POST',headers:{Cookie:ownerCookie,Origin:BASE},
+      signal:AbortSignal.timeout(10000)
+    });
+    assert.equal(response.status,200);
+    assert.match(response.headers.get('set-cookie')||'',/Max-Age=0/);
+    assert.equal((await fetch(BASE+'/api/auth/session',{
+      headers:{Cookie:ownerCookie}
+    })).status,401);
+    assert.equal((await fetch(BASE+'/api/dashboard',{
+      headers:{Cookie:ownerCookie}
+    })).status,401);
+  }
+
   console.log('MPDGI Stats real Pages + local D1 auth E2E passed');
 }finally{
   const stop=signal=>{
