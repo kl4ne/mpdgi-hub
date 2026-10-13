@@ -241,6 +241,26 @@ try{
     assert.equal(accepted.status,204,'legitimate Hub events must continue working');
   }
 
+  // S4/S5 real Pages+D1: concurrent unknown-account attempts must be
+  // reserved atomically; at most eight get through per IP/email pair.
+  {
+    const ip='203.0.113.76';
+    const responses=await Promise.all(Array.from({length:12},()=>login(
+      'unknown-concurrent@example.test','Wrong-concurrent-password-2026!',ip
+    )));
+    const statuses=responses.map(response=>response.status);
+    assert.equal(statuses.filter(code=>code===401).length,8,'eight attempts admitted');
+    assert.equal(statuses.filter(code=>code===429).length,4,'four attempts denied before KDF');
+  }
+
+  // S4: unknown users present the same status/body as a wrong password.
+  {
+    const response=await login('unregistered@example.test','Wrong-password-123456789!','203.0.113.77');
+    assert.equal(response.status,401);
+    assert.equal((await response.json()).error,'invalid_credentials');
+    assert.equal(response.headers.get('set-cookie'),null);
+  }
+
   console.log('MPDGI Stats real Pages + local D1 auth E2E passed');
 }finally{
   const stop=signal=>{
