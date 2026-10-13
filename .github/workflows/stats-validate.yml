@@ -151,6 +151,10 @@ jobs:
         if: github.event_name == 'pull_request' && github.head_ref == 'audit-fix/stats-benchmark-v1.4.10'
         run: npm run benchmark:kdf
 
+      - name: Diagnose live three-card telemetry endpoints (read-only)
+        if: github.event_name == 'pull_request' && github.head_ref == 'test/stats-live-three-card-readonly-probe-20261013'
+        run: node tests/stats-production-cards-readonly.mjs
+
       - name: Install Chromium and WebKit
         run: |
           for attempt in 1 2; do
