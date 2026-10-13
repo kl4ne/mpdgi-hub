@@ -194,7 +194,9 @@ assert.equal(await maybeUpgradePasswordRecord(
 assert.equal(writes.length,1,'current modern verifier must not be rewritten or downgraded');
 
 const loginSource=readFileSync(new URL('../functions/api/auth/login.js',import.meta.url),'utf8');
-assert.match(loginSource,/verifyPasswordRecord\(password,user,context\.env\.AUTH_PEPPER\)/);
+assert.match(loginSource,/verifyPasswordRecord\(password,user,pepper\)/);
+assert.match(loginSource,/reserveLoginAttempt\(context\.env\.STATS_DB,key,now,windowSeconds,limit\)/,'login rate reservations must precede password verification');
+assert.match(loginSource,/equalizeMissingAccount\(password,pepper\)/,'missing-account KDF equalizer must remain enabled');
 assert.match(loginSource,/maybeUpgradePasswordRecord\(context\.env\.STATS_DB,user,password,context\.env\.AUTH_PEPPER,verification\)/);
 const bootstrapSource=readFileSync(new URL('../functions/api/auth/bootstrap.js',import.meta.url),'utf8');
 assert.match(bootstrapSource,/createTargetPasswordRecord\(password,context\.env\.AUTH_PEPPER\)/);
