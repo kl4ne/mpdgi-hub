@@ -16,13 +16,13 @@ const CARD_ORIGIN_TARGETS=new Map([
 ]);
 const CARD_ACTIONS=new Set(['bc_save_contact','bc_call','bc_text','bc_directions','bc_website','bc_share','bc_flip','bc_language']);
 
-function clean(value,max=160){return String(value||'').trim().slice(0,max);}
+function clean(value,max=160){return (typeof value==='string'||typeof value==='number'?String(value):'').trim().slice(0,max);}
 function campaign(value){return clean(value,64).toLowerCase().replace(/[^a-z0-9_-]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');}
 
 export function validateEvent(input){
   if(!input||typeof input!=='object')return {ok:false,error:'invalid_event'};
   const event={
-    schema_version:Number(input.schema_version),
+    schema_version:(typeof input.schema_version==='string'||typeof input.schema_version==='number')?Number(input.schema_version):NaN,
     event_id:clean(input.event_id,64),
     visitor_id:clean(input.visitor_id,64),
     session_id:clean(input.session_id,64),

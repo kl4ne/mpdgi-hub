@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {validateEvent,validateCollectorIdentity,isLikelyBot,easternDay} from '../functions/_lib/validation.js';
 import {resolveRange} from '../functions/_lib/reporting.js';
+import {onRequest as collectHandler} from '../functions/api/collect.js';
 import {randomToken,sha256,passwordSalt,passwordVerifier,pbkdf2PasswordVerifier,parsePbkdf2Verifier,createTargetPasswordRecord,verifyPasswordRecord,maybeUpgradePasswordRecord,PBKDF2_ITERATIONS,LEGACY_PASSWORD_SCHEME,TARGET_PASSWORD_SCHEME,PASSWORD_SCHEME,constantTimeEqual} from '../functions/_lib/auth.js';
 
 const valid={
@@ -35,6 +36,37 @@ assert.equal(validateCollectorIdentity('https://hub.mpdgi.org',{...valid,target:
 assert.equal(isLikelyBot('Mozilla/5.0 HeadlessChrome Lighthouse'),true);
 assert.equal(isLikelyBot('Mozilla/5.0 iPhone Version/26.0 Mobile Safari/605.1.15'),false);
 assert.equal(easternDay(new Date('2026-09-29T16:00:00Z')),'2026-09-29');
+
+
+// S1: JSON-compatible hostile values may not trigger coercion exceptions.
+for(const body of [
+  '{"schema_version":1,"event_id":{"toString":1,"valueOf":1}}',
+  '{"schema_version":{"toString":1,"valueOf":1}}',
+  '{"schema_version":1,"visitor_id":[{"toString":1}]}',
+  '[]','null','5'
+]){
+  let result;
+  assert.doesNotThrow(()=>{result=validateEvent(JSON.parse(body));},'unsafe coercion: '+body);
+  assert.equal(result.ok,false,'hostile payload must be rejected: '+body);
+}
+
+// S2: even an invalid JSON request must be dropped before ALL writes if its
+// source has already reached the per-IP budget.
+const cappedDb={
+  prepare(sql){
+    assert.match(sql,/^SELECT event_count FROM collector_rate WHERE rate_key=\?/,'must read rate before writing anything');
+    return {bind:()=>({first:async()=>({event_count:200})})};
+  }
+};
+const blockedCollector=await collectHandler({
+  request:new Request('https://stats.test/api/collect',{
+    method:'POST',
+    headers:{Origin:'https://hub.mpdgi.org','CF-Connecting-IP':'203.0.113.210','User-Agent':'Mozilla/5.0'},
+    body:'{not-json'
+  }),
+  env:{STATS_DB:cappedDb,AUTH_PEPPER:'test-only-secret'}
+});
+assert.equal(blockedCollector.status,204,'rate-limited hostile traffic must not reach D1 metric writes');
 
 const range=resolveRange('https://stats.mpdgi.org/api/dashboard?from=2026-09-01&to=2026-09-29');
 assert.equal(range.from,'2026-09-01');

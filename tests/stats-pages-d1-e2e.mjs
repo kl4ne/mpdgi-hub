@@ -173,6 +173,26 @@ try{
     assert.equal(blocked.headers.get('retry-after'),'600');
   }
 
+
+  // S1 real Pages Function + local D1: adversarial JSON must yield 400, not 500.
+  for(const raw of [
+    '{"schema_version":1,"event_id":{"toString":1,"valueOf":1}}',
+    '{"schema_version":{"toString":1,"valueOf":1}}'
+  ]){
+    const response=await fetch(BASE+'/api/collect',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Origin':'https://hub.mpdgi.org',
+        'User-Agent':'Mozilla/5.0',
+        'CF-Connecting-IP':'203.0.113.211'
+      },
+      body:raw,
+      signal:AbortSignal.timeout(10000)
+    });
+    assert.equal(response.status,400,'hostile Collector input must not cause HTTP 500');
+  }
+
   console.log('MPDGI Stats real Pages + local D1 auth E2E passed');
 }finally{
   const stop=signal=>{
