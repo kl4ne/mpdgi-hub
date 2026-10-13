@@ -1,0 +1,65 @@
+name: TEMP - Approved v1.6.10 Icons (release branch only)
+
+on:
+  push:
+    branches:
+      - release/v1.6.10-preparation-20261012
+    paths:
+      - .github/workflows/v1610-icons-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  upload-only-approved-icons:
+    if: github.repository == 'kl4ne/mpdgi-hub' && github.ref == 'refs/heads/release/v1.6.10-preparation-20261012'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout exact release branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: true
+
+      - name: Rebuild approved 512px PNGs byte-for-byte
+        shell: bash
+        run: |
+          python3 -m pip install --disable-pip-version-check --no-deps 'pillow==12.3.0'
+          python3 - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          import hashlib
+          source=Path('assets/icons/icon-192.png')
+          sha=lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+          if sha(source)!='b2fffeb0211ca79888048581f1dd3900d1dec08f93144086597693aa63b820d4':
+              raise SystemExit('Approved 192px logo source mismatch: abort')
+          logo=Image.open(source).convert('RGBA')
+          logo=logo.crop(logo.getbbox())
+          approved={
+              'assets/icons/icon-512.png':(400,'3452bdf58748895e7c2a15e20cf8b9a7631ffafd95aa472e9226ced0a53c307b'),
+              'assets/icons/icon-512-maskable.png':(330,'8d3b5945cf5e161dea6f640690f0986e9c0ca862b1264e47ba1841de976a1f9e')
+          }
+          for filename,(diam,expected) in approved.items():
+              im=Image.new('RGBA',(512,512),(7,26,54,255))
+              lg=logo.resize((diam,round(diam*logo.height/logo.width)),Image.Resampling.LANCZOS)
+              im.alpha_composite(lg,((512-lg.width)//2,(512-lg.height)//2))
+              destination=Path(filename)
+              im.convert('RGB').quantize(colors=256,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE).save(destination,optimize=True)
+              if sha(destination)!=expected:
+                  raise SystemExit('Approved PNG byte mismatch: '+filename+'; abort')
+              print('Approved PNG verified:',filename,'bytes',destination.stat().st_size)
+          PY
+
+      - name: Commit only the two verified icons to release branch
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- assets/icons/icon-512.png assets/icons/icon-512-maskable.png
+          if git diff --cached --quiet; then
+            echo 'Already committed. No changes.'
+          else
+            git diff --cached --check
+            git commit -m 'assets: add owner-approved v1.6.10 color icons [skip ci]'
+            git push origin HEAD:refs/heads/release/v1.6.10-preparation-20261012
+          fi
