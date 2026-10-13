@@ -24,7 +24,10 @@ export function getCookie(request,name){
   const raw=request.headers.get('Cookie')||'';
   for(const item of raw.split(';')){
     const [key,...rest]=item.trim().split('=');
-    if(key===name)return decodeURIComponent(rest.join('='));
+    if(key===name){
+      try{return decodeURIComponent(rest.join('='));}
+      catch{return '';}
+    }
   }
   return '';
 }
