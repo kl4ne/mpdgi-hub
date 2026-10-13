@@ -5,10 +5,10 @@ import {ensureCampaignSchema} from '../_lib/schema.js';
 const VALID_SOURCES=new Set(['link','qr','nfc']);
 
 function cleanName(value){
-  return String(value||'').trim().replace(/\s+/g,' ').slice(0,64);
+  return (typeof value==='string'||typeof value==='number'?String(value):'').trim().replace(/\s+/g,' ').slice(0,64);
 }
 function slugify(value){
-  return String(value||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+  return (typeof value==='string'||typeof value==='number'?String(value):'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
     .replace(/[^a-z0-9_-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(0,64);
 }
 function buildUrl(source,slug){
@@ -42,8 +42,10 @@ export async function onRequest(context){
   const raw=await context.request.text();
   if(raw.length>4096)return json({error:'payload_too_large'},413);
   let body;try{body=JSON.parse(raw||'{}');}catch{return json({error:'invalid_json'},400);}
+  if(!body||typeof body!=='object'||Array.isArray(body))
+    return json({error:'invalid_campaign_payload'},400);
   const name=cleanName(body.name);
-  const source=String(body.source||'').trim().toLowerCase();
+  const source=typeof body.source==='string'?body.source.trim().toLowerCase():'';
   const slug=slugify(body.slug||name);
   if(!name||!slug)return json({error:'campaign_name_required'},400);
   if(!VALID_SOURCES.has(source))return json({error:'invalid_campaign_source'},400);

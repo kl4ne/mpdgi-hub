@@ -11,6 +11,7 @@ const BASE='http://127.0.0.1:8788';
 const PEPPER='local-pages-d1-integration-pepper';
 const MODERN_INPUT='Modern-local-password-1234!';
 const LEGACY_INPUT='Legacy-local-password-1234!';
+const VIEWER_INPUT='Viewer-local-password-1234!';
 
 function runWrangler(args,{capture=false}={}){
   const result=spawnSync('npx',[...WRANGLER,...args],{
@@ -40,6 +41,7 @@ async function prepareLocalD1(){
   const modern=await createTargetPasswordRecord(MODERN_INPUT,PEPPER);
   const legacySalt=passwordSalt();
   const legacyHash=await passwordVerifier(LEGACY_INPUT,legacySalt,PEPPER);
+  const viewer=await createTargetPasswordRecord(VIEWER_INPUT,PEPPER);
 
   const seed=[
     `INSERT INTO admin_users(id,email,password_hash,password_salt,password_scheme,role,active) VALUES(
@@ -47,7 +49,10 @@ async function prepareLocalD1(){
     );`,
     `INSERT INTO admin_users(id,email,password_hash,password_salt,password_scheme,role,active) VALUES(
       'legacy-local','legacy@example.test',${sql(legacyHash)},${sql(legacySalt)},${sql(LEGACY_PASSWORD_SCHEME)},'admin',1
-    );`
+    );`,
+    `INSERT INTO admin_users(id,email,password_hash,password_salt,password_scheme,role,active) VALUES(
+      'viewer-local','viewer@example.test',${sql(viewer.password_hash)},${sql(viewer.password_salt)},${sql(viewer.password_scheme)},'viewer',1
+    );`,
   ].join('\n');
 
   runWrangler(['d1','execute',DB,'--local','--config',CONFIG,'--command',seed]);
@@ -259,6 +264,101 @@ try{
     assert.equal(response.status,401);
     assert.equal((await response.json()).error,'invalid_credentials');
     assert.equal(response.headers.get('set-cookie'),null);
+  }
+
+
+  // Phase 4: isolated local D1 API authentication and malformed-cookie checks.
+  for(const endpoint of ['/api/auth/session','/api/dashboard','/api/campaigns','/api/export']){
+    const response=await fetch(BASE+endpoint,{signal:AbortSignal.timeout(10000)});
+    assert.equal(response.status,401,endpoint+' must reject anonymous GET');
+    assert.equal((await response.json()).error,'unauthorized');
+    const malformed=await fetch(BASE+endpoint,{
+      headers:{Cookie:'mpdgi_stats_session=%E0%A4%A'},
+      signal:AbortSignal.timeout(10000)
+    });
+    assert.equal(malformed.status,401,endpoint+' must reject malformed cookies');
+  }
+
+  const ownerResponse=await login('modern@example.test',MODERN_INPUT,'203.0.113.101');
+  assert.equal(ownerResponse.status,200);
+  const ownerCookie=cookiePair(ownerResponse);
+  const signedInHeaders={Cookie:ownerCookie};
+
+  // Real D1 reporting and CSV, not mocked browser responses.
+  const liveDashboard=await fetch(BASE+'/api/dashboard',{headers:signedInHeaders});
+  assert.equal(liveDashboard.status,200);
+  const liveReport=await liveDashboard.json();
+  assert.equal(typeof liveReport.summary.visits,'number');
+  assert.ok(Array.isArray(liveReport.digital_cards));
+  assert.ok(liveReport.digital_cards.some(card=>card.card_id==='ruben-suarez'));
+
+  const csvResponse=await fetch(BASE+'/api/export',{headers:signedInHeaders});
+  assert.equal(csvResponse.status,200);
+  assert.match(csvResponse.headers.get('content-type')||'',/^text\/csv/);
+  assert.match((await csvResponse.text()).slice(0,40),/^Section,Category,Value/);
+
+
+  // Phase 4: exercise actual campaign authorization and input handling.
+  const postCampaign=(cookie,body,origin=BASE)=>fetch(BASE+'/api/campaigns',{
+    method:'POST',
+    headers:{'Content-Type':'application/json',Origin:origin,...(cookie?{Cookie:cookie}:{})},
+    body:typeof body==='string'?body:JSON.stringify(body),
+    signal:AbortSignal.timeout(10000)
+  });
+  const candidate={name:'Phase Four Review',slug:'phase-four-review',source:'qr'};
+  assert.equal((await postCampaign(null,candidate)).status,401);
+  assert.equal((await postCampaign(ownerCookie,candidate,'https://example.invalid')).status,403);
+
+  for(const invalidBody of [
+    'null','[]','5',
+    '{"name":{"toString":1},"source":"qr"}',
+    '{"name":"Valid Name","source":{"toString":1}}',
+    '{"name":"Valid Name","source":"qr","slug":{"toString":1}}'
+  ]){
+    const response=await postCampaign(ownerCookie,invalidBody);
+    assert.equal(response.status,400,'malformed campaign fields must not cause 500');
+  }
+  {
+    const response=await postCampaign(ownerCookie,candidate);
+    assert.equal(response.status,201);
+    const created=await response.json();
+    assert.equal(created.campaign.slug,candidate.slug);
+    const repeated=await postCampaign(ownerCookie,candidate);
+    assert.equal(repeated.status,200);
+    assert.equal((await repeated.json()).created,false);
+    const list=await fetch(BASE+'/api/campaigns',{headers:signedInHeaders});
+    assert.equal(list.status,200);
+    assert.ok((await list.json()).campaigns.some(c=>c.slug===candidate.slug));
+  }
+
+  // S7: read-only viewer can read but cannot modify campaigns.
+  {
+    const viewerResponse=await login('viewer@example.test',VIEWER_INPUT,'203.0.113.105');
+    assert.equal(viewerResponse.status,200);
+    const viewerCookie=cookiePair(viewerResponse);
+    assert.equal((await verifySession(viewerCookie)).user.role,'viewer');
+    assert.equal((await postCampaign(viewerCookie,{
+      name:'Viewer Must Not Save',slug:'viewer-must-not-save',source:'link'
+    })).status,403);
+    assert.equal((await fetch(BASE+'/api/campaigns',{
+      headers:{Cookie:viewerCookie}
+    })).status,200);
+  }
+
+  // Session revocation must remove the actual local D1 session.
+  {
+    const response=await fetch(BASE+'/api/auth/logout',{
+      method:'POST',headers:{Cookie:ownerCookie,Origin:BASE},
+      signal:AbortSignal.timeout(10000)
+    });
+    assert.equal(response.status,200);
+    assert.match(response.headers.get('set-cookie')||'',/Max-Age=0/);
+    assert.equal((await fetch(BASE+'/api/auth/session',{
+      headers:{Cookie:ownerCookie}
+    })).status,401);
+    assert.equal((await fetch(BASE+'/api/dashboard',{
+      headers:{Cookie:ownerCookie}
+    })).status,401);
   }
 
   console.log('MPDGI Stats real Pages + local D1 auth E2E passed');
