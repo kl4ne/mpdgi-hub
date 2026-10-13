@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {validateEvent,validateCollectorIdentity,isLikelyBot,easternDay} from '../functions/_lib/validation.js';
-import {resolveRange} from '../functions/_lib/reporting.js';
+import {resolveRange,completeDigitalCards} from '../functions/_lib/reporting.js';
 import {onRequest as collectHandler} from '../functions/api/collect.js';
 import {randomToken,sha256,passwordSalt,passwordVerifier,pbkdf2PasswordVerifier,parsePbkdf2Verifier,createTargetPasswordRecord,verifyPasswordRecord,maybeUpgradePasswordRecord,PBKDF2_ITERATIONS,LEGACY_PASSWORD_SCHEME,TARGET_PASSWORD_SCHEME,PASSWORD_SCHEME,constantTimeEqual} from '../functions/_lib/auth.js';
 
@@ -30,11 +30,17 @@ assert.equal(validateEvent({...valid,acquisition_source:'magic'}).ok,false);
 assert.equal(validateEvent({...valid,event_type:'action',action_name:''}).ok,false);
 assert.deepEqual(validateCollectorIdentity('https://rscard.mpdgi.org',{...valid,target:'business_card:ruben-suarez'}),{ok:true});
 assert.equal(validateCollectorIdentity('https://rscard.mpdgi.org',{...valid,target:'business_card:nancy-pagan'}).error,'invalid_target');
+assert.deepEqual(validateCollectorIdentity('https://rmcard.pages.dev',{...valid,target:'business_card:roberto-macfie'}),{ok:true});
+assert.equal(validateCollectorIdentity('https://rmcard.pages.dev',{...valid,target:'business_card:ruben-suarez'}).error,'invalid_target');
+assert.equal(validateCollectorIdentity('https://rmcard.pages.dev',{...valid,target:'business_card:nancy-pagan'}).error,'invalid_target');
+assert.equal(validateCollectorIdentity('https://npcard.mpdgi.org',{...valid,target:'business_card:roberto-macfie'}).error,'invalid_target');
+assert.equal(validateCollectorIdentity('https://rmcard.pages.dev',{...valid,target:'business_card:roberto-macfie',event_type:'action',action_name:'bc_save_contact'}).ok,true);
+assert.equal(validateCollectorIdentity('https://rmcard.pages.dev',{...valid,target:'business_card:roberto-macfie',event_type:'action',action_name:'unauthorized_action'}).error,'invalid_action');
 assert.equal(validateCollectorIdentity('https://npcard.pages.dev',{...valid,event_type:'action',action_name:'bc_call',target:'business_card:nancy-pagan'}).ok,true);
 assert.equal(validateCollectorIdentity('https://npcard.mpdgi.org',{...valid,event_type:'action',action_name:'unknown_action',target:'business_card:nancy-pagan'}).error,'invalid_action');
 assert.equal(validateCollectorIdentity('https://hub.mpdgi.org',{...valid,target:'https://mpdgi.org/'}).ok,true);
 // S6: Hub, or any unmapped origin, cannot forge reserved Digital Card targets.
-for(const target of ['business_card:ruben-suarez','business_card:nancy-pagan']){
+for(const target of ['business_card:ruben-suarez','business_card:nancy-pagan','business_card:roberto-macfie']){
   assert.equal(validateCollectorIdentity('https://hub.mpdgi.org',{...valid,target}).error,'invalid_target');
   assert.equal(validateCollectorIdentity('https://unknown.test',{...valid,target}).error,'invalid_target');
 }
@@ -75,6 +81,28 @@ const blockedCollector=await collectHandler({
   env:{STATS_DB:cappedDb,AUTH_PEPPER:'test-only-secret'}
 });
 assert.equal(blockedCollector.status,204,'rate-limited hostile traffic must not reach D1 metric writes');
+
+// Active cards must not disappear when they register zero visits in a range.
+const emptyCards=completeDigitalCards([]);
+assert.deepEqual(emptyCards.map(card=>card.card_id),['ruben-suarez','nancy-pagan','roberto-macfie']);
+for(const card of emptyCards){
+  for(const field of ['sessions','visitors','opens','nfc_sessions','save_contact','website'])
+    assert.equal(card[field],0,'empty '+card.card_id+' must have zero '+field);
+  assert.equal(card.last_activity_at,null);
+}
+const mixedCards=completeDigitalCards([
+  {card_id:'nancy-pagan',sessions:12,visitors:10,nfc_sessions:9,save_contact:5,last_activity_at:'2026-10-01T15:00:00Z'},
+  {card_id:'future-card',sessions:2,visitors:1}
+]);
+assert.deepEqual(mixedCards.map(card=>card.card_id),[
+  'ruben-suarez','nancy-pagan','roberto-macfie','future-card'
+]);
+assert.equal(mixedCards[0].sessions,0);
+assert.equal(mixedCards[1].sessions,12);
+assert.equal(mixedCards[1].save_contact,5);
+assert.equal(mixedCards[2].sessions,0);
+assert.equal(mixedCards[3].sessions,2);
+assert.equal(completeDigitalCards(mixedCards).length,4,'fixed catalog does not duplicate existing cards');
 
 const range=resolveRange('https://stats.mpdgi.org/api/dashboard?from=2026-09-01&to=2026-09-29');
 assert.equal(range.from,'2026-09-01');
