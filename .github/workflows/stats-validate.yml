@@ -110,7 +110,7 @@ jobs:
           if(!index.includes('data-view="cards"')||!index.includes('data-view-panel="cards"')||!index.includes('digital-cards-list'))throw Error('Digital Cards view missing');
           if(!collector.includes('rscard.mpdgi.org')||!collector.includes('npcard.mpdgi.org')||!collector.includes('npcard.pages.dev'))throw Error('Digital card collector origins missing');
           if(collector.includes("[a-z0-9-]+card\\\\.mpdgi\\\\.org"))throw Error('Digital card collector must use explicit origins, not a card-domain regex');
-          if(!reporting.includes("target LIKE 'business_card:%'")||!reporting.includes('digital_cards:rows(result[16])'))throw Error('Digital card reporting missing');
+          if(!reporting.includes("target LIKE 'business_card:%'")||!reporting.includes('digital_cards:completeDigitalCards(rows(result[16]))')||!reporting.includes("'roberto-macfie'"))throw Error('Permanent three-card reporting missing');
           const hubIsolationFilters=(reporting.match(/NOT LIKE 'business_card:%'/g)||[]).length;
           if(hubIsolationFilters<11)throw Error('Hub/Digital Card reporting isolation missing');
           if(!reporting.includes("SELECT DISTINCT s.session_id,s.first_seen_at")||!reporting.includes("e.target NOT LIKE 'business_card:%'"))throw Error('Activity insights must exclude Digital Card sessions');

@@ -23,7 +23,8 @@ const sample={
   ],
   digital_cards:[
     {card_id:'ruben-suarez',sessions:41,visitors:29,opens:43,save_contact:16,calls:7,texts:5,directions:4,website:9,shares:3,flips:24,nfc_sessions:31,link_sessions:6,web_sessions:4,last_activity_at:'2026-09-29T18:57:00.000Z'},
-    {card_id:'nancy-pagan',sessions:12,visitors:10,opens:13,save_contact:5,calls:2,texts:1,directions:2,website:3,shares:1,flips:6,nfc_sessions:9,link_sessions:2,web_sessions:1,last_activity_at:'2026-10-04T18:20:00.000Z'}
+    {card_id:'nancy-pagan',sessions:12,visitors:10,opens:13,save_contact:5,calls:2,texts:1,directions:2,website:3,shares:1,flips:6,nfc_sessions:9,link_sessions:2,web_sessions:1,last_activity_at:'2026-10-04T18:20:00.000Z'},
+    {card_id:'roberto-macfie',sessions:0,visitors:0,opens:0,save_contact:0,calls:0,texts:0,directions:0,website:0,shares:0,flips:0,nfc_sessions:0,link_sessions:0,web_sessions:0,last_activity_at:null}
   ],
   activity:{
     hourly_sessions:Array.from({length:24},(_,hour)=>({key:String(hour),value:hour===10?31:hour===19?22:1})),
@@ -112,11 +113,16 @@ test('Digital Cards view renders NFC business-card usage and actions',async({pag
   const panel=page.locator('[data-view-panel="cards"]');
   await expect(panel).toBeVisible();
   const cards=panel.locator('.digital-card-result');
-  await expect(cards).toHaveCount(2);
+  await expect(cards).toHaveCount(3);
   const ruben=cards.filter({hasText:'Pastor Ruben Suárez'});
   const nancy=cards.filter({hasText:'Pastora Nancy Pagán'});
+  const roberto=cards.filter({hasText:'Roberto S. Macfie'});
   await expect(ruben).toHaveCount(1);
   await expect(nancy).toHaveCount(1);
+  await expect(roberto).toHaveCount(1);
+  await expect(roberto).toContainText('0');
+  await expect(roberto).toContainText('roberto-macfie');
+  await expect(roberto).toContainText('Sin eventos');
   await expect(ruben).toContainText('41');
   await expect(ruben).toContainText('Guardar contacto');
   await expect(ruben).toContainText('Llamar (toques)');

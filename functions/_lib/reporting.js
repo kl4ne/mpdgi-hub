@@ -1,6 +1,33 @@
 import {easternDay} from './validation.js';
 import {ensureCampaignSchema} from './schema.js';
 
+// Published Digital Cards remain listed for any selected report range.
+// Aggregates still come only from the queried events; no synthetic activity is stored.
+const DIGITAL_CARD_CATALOG=['ruben-suarez','nancy-pagan','roberto-macfie'];
+const CARD_METRICS=['sessions','visitors','opens','save_contact','calls','texts','directions',
+  'website','shares','flips','nfc_sessions','link_sessions','web_sessions'];
+export function completeDigitalCards(inputRows){
+  const present=new Map();
+  for(const row of Array.isArray(inputRows)?inputRows:[]){
+    const id=String(row?.card_id||'');
+    if(!id||present.has(id))continue;
+    const card={card_id:id};
+    for(const metric of CARD_METRICS)card[metric]=Number(row?.[metric])||0;
+    card.last_activity_at=row?.last_activity_at||null;
+    present.set(id,card);
+  }
+  const empty=id=>({
+    card_id:id,
+    ...Object.fromEntries(CARD_METRICS.map(metric=>[metric,0])),
+    last_activity_at:null
+  });
+  return [
+    ...DIGITAL_CARD_CATALOG.map(id=>present.get(id)||empty(id)),
+    ...[...present.entries()].filter(([id])=>!DIGITAL_CARD_CATALOG.includes(id))
+      .map(([,card])=>card)
+  ];
+}
+
 const PRESETS={ '7d':7,'30d':30,'90d':90,'365d':365 };
 const DATE_RE=/^\d{4}-\d{2}-\d{2}$/;
 
@@ -153,23 +180,7 @@ export async function getDashboardData(env,urlString){
     languages:normalize(rows(result[8]),['es','en','other']),
     top_actions:rows(result[9]).map(r=>({key:String(r.key),value:Number(r.value)||0})),
     visitor_mix:normalize(rows(result[10]),['new','returning']),
-    digital_cards:rows(result[16]).map(r=>({
-      card_id:String(r.card_id||''),
-      sessions:Number(r.sessions)||0,
-      visitors:Number(r.visitors)||0,
-      opens:Number(r.opens)||0,
-      save_contact:Number(r.save_contact)||0,
-      calls:Number(r.calls)||0,
-      texts:Number(r.texts)||0,
-      directions:Number(r.directions)||0,
-      website:Number(r.website)||0,
-      shares:Number(r.shares)||0,
-      flips:Number(r.flips)||0,
-      nfc_sessions:Number(r.nfc_sessions)||0,
-      link_sessions:Number(r.link_sessions)||0,
-      web_sessions:Number(r.web_sessions)||0,
-      last_activity_at:r.last_activity_at||null
-    })),
+    digital_cards:completeDigitalCards(rows(result[16])),
     campaigns:rows(result[11]).map(r=>({
       id:String(r.id||''),name:String(r.name||r.slug||''),slug:String(r.slug||''),source:String(r.source||''),
       created_at:r.created_at||null,sessions:Number(r.sessions)||0,visitors:Number(r.visitors)||0,

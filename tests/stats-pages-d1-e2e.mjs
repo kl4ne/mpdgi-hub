@@ -246,6 +246,66 @@ try{
     assert.equal(accepted.status,204,'legitimate Hub events must continue working');
   }
 
+  // RMCard v1.0.3 uses rmcard.pages.dev and business_card:roberto-macfie.
+  // Confirm browser preflight CORS and precise target isolation.
+  {
+    const preflight=await fetch(BASE+'/api/collect',{
+      method:'OPTIONS',
+      headers:{Origin:'https://rmcard.pages.dev','Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'content-type'},
+      signal:AbortSignal.timeout(10000)
+    });
+    assert.equal(preflight.status,204,'RMCard preflight must be permitted');
+    assert.equal(preflight.headers.get('access-control-allow-origin'),'https://rmcard.pages.dev');
+  }
+  const rmEvent={
+    ...cardPayload,
+    event_id:'a1111111-1111-4111-8111-222222222222',
+    visitor_id:'b2222222-2222-4222-8222-333333333333',
+    session_id:'c3333333-3333-4333-8333-444444444444',
+    app_version:'1.0.3',
+    target:'business_card:roberto-macfie'
+  };
+  {
+    const wrongTarget=await postCollector('https://rmcard.pages.dev',{
+      ...rmEvent,target:'business_card:ruben-suarez'
+    },'203.0.113.215');
+    assert.equal(wrongTarget.status,400,'RMCard cannot impersonate RSCard');
+    assert.equal((await wrongTarget.json()).error,'invalid_target');
+    const hubSpoof=await postCollector('https://hub.mpdgi.org',rmEvent,'203.0.113.216');
+    assert.equal(hubSpoof.status,400,'Hub cannot claim RMCard metrics');
+    assert.equal((await hubSpoof.json()).error,'invalid_target');
+  }
+  {
+    const response=await postCollector('https://rmcard.pages.dev',rmEvent,'203.0.113.217');
+    assert.equal(response.status,204,'real local D1 must accept RMCard open');
+    const action={...rmEvent,event_id:'d4444444-4444-4444-8444-555555555555',
+      event_type:'action',action_name:'bc_website'};
+    const tap=await postCollector('https://rmcard.pages.dev',action,'203.0.113.217');
+    assert.equal(tap.status,204,'real local D1 must accept RMCard website action');
+    const dashboard=await login('modern@example.test',MODERN_INPUT,'203.0.113.218');
+    assert.equal(dashboard.status,200);
+    const privateRequest=await fetch(BASE+'/api/dashboard',{headers:{Cookie:cookiePair(dashboard)}});
+    assert.equal(privateRequest.status,200);
+    const data=await privateRequest.json();
+    assert.deepEqual(data.digital_cards.slice(0,3).map(card=>card.card_id),[
+      'ruben-suarez','nancy-pagan','roberto-macfie'
+    ]);
+    const ruben=data.digital_cards.find(card=>card.card_id==='ruben-suarez');
+    const nancy=data.digital_cards.find(card=>card.card_id==='nancy-pagan');
+    const roberto=data.digital_cards.find(card=>card.card_id==='roberto-macfie');
+    assert.ok(ruben.sessions>=1,'existing RSCard activity remains visible');
+    assert.equal(nancy.sessions,0,'NPCard must appear without recent activity');
+    assert.equal(roberto.sessions,1,'RMCard sessions must be counted');
+    assert.equal(roberto.opens,1,'RMCard page views must be counted');
+    assert.equal(roberto.website,1,'RMCard website taps must be counted');
+    assert.equal(roberto.last_activity_at===null,false);
+    const exported=await fetch(BASE+'/api/export',{headers:{Cookie:cookiePair(dashboard)}});
+    // /api/export stays private; the public page never receives card history.
+    // Fetch again with an authenticated session cookie (same token as login).
+    assert.equal(exported.status,200);
+    assert.match(await exported.text(),/Digital Card Sessions,roberto-macfie,1/);
+  }
+
   // S4/S5 real Pages+D1: concurrent unknown-account attempts must be
   // reserved atomically; at most eight get through per IP/email pair.
   {

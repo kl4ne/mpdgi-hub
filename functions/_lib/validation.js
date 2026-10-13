@@ -12,7 +12,8 @@ const VERSION_RE=/^[0-9]+\.[0-9]+\.[0-9]+(?:[-+][a-z0-9.-]+)?$/i;
 const CARD_ORIGIN_TARGETS=new Map([
   ['https://rscard.mpdgi.org','business_card:ruben-suarez'],
   ['https://npcard.mpdgi.org','business_card:nancy-pagan'],
-  ['https://npcard.pages.dev','business_card:nancy-pagan']
+  ['https://npcard.pages.dev','business_card:nancy-pagan'],
+  ['https://rmcard.pages.dev','business_card:roberto-macfie']
 ]);
 const CARD_ACTIONS=new Set(['bc_save_contact','bc_call','bc_text','bc_directions','bc_website','bc_share','bc_flip','bc_language']);
 
