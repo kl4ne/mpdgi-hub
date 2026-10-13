@@ -292,6 +292,39 @@ try{
   assert.match(csvResponse.headers.get('content-type')||'',/^text\/csv/);
   assert.match((await csvResponse.text()).slice(0,40),/^Section,Category,Value/);
 
+
+  // Phase 4: exercise actual campaign authorization and input handling.
+  const postCampaign=(cookie,body,origin=BASE)=>fetch(BASE+'/api/campaigns',{
+    method:'POST',
+    headers:{'Content-Type':'application/json',Origin:origin,...(cookie?{Cookie:cookie}:{})},
+    body:typeof body==='string'?body:JSON.stringify(body),
+    signal:AbortSignal.timeout(10000)
+  });
+  const candidate={name:'Phase Four Review',slug:'phase-four-review',source:'qr'};
+  assert.equal((await postCampaign(null,candidate)).status,401);
+  assert.equal((await postCampaign(ownerCookie,candidate,'https://example.invalid')).status,403);
+
+  for(const invalidBody of [
+    'null','[]','5',
+    '{"name":{"toString":1},"source":"qr"}',
+    '{"name":"Valid Name","source":{"toString":1}}',
+    '{"name":"Valid Name","source":"qr","slug":{"toString":1}}'
+  ]){
+    const response=await postCampaign(ownerCookie,invalidBody);
+    assert.equal(response.status,400,'malformed campaign fields must not cause 500');
+  }
+  {
+    const response=await postCampaign(ownerCookie,candidate);
+    assert.equal(response.status,201);
+    const created=await response.json();
+    assert.equal(created.campaign.slug,candidate.slug);
+    const repeated=await postCampaign(ownerCookie,candidate);
+    assert.equal(repeated.status,200);
+    assert.equal((await repeated.json()).created,false);
+    const list=await fetch(BASE+'/api/campaigns',{headers:signedInHeaders});
+    assert.equal(list.status,200);
+    assert.ok((await list.json()).campaigns.some(c=>c.slug===candidate.slug));
+  }
   console.log('MPDGI Stats real Pages + local D1 auth E2E passed');
 }finally{
   const stop=signal=>{
