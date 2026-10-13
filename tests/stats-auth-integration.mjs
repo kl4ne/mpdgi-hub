@@ -1,5 +1,10 @@
 import assert from 'node:assert/strict';
 import {onRequest as loginHandler} from '../functions/api/auth/login.js';
+import {onRequest as dashboardHandler} from '../functions/api/dashboard.js';
+import {onRequest as campaignsHandler} from '../functions/api/campaigns.js';
+import {onRequest as exportHandler} from '../functions/api/export.js';
+import {onRequest as sessionHandler} from '../functions/api/auth/session.js';
+import {getCookie} from '../functions/_lib/http.js';
 import {
   passwordSalt,passwordVerifier,createTargetPasswordRecord,sha256,
   LEGACY_PASSWORD_SCHEME,TARGET_PASSWORD_SCHEME
@@ -239,6 +244,27 @@ async function runLogin(db,email,password,options={}){
   const db=new FakeD1([user]);
   const response=await runLogin(db,user.email,input,{ip:'203.0.113.85'});
   assert.equal(response.status,200);
+}
+
+// H2 regression: malformed cookie encoding must fail closed without a server error.
+{
+  const malformed='mpdgi_stats_session=%E0%A4%A';
+  const badCookieRequest=new Request(ORIGIN+'/',{headers:{Cookie:malformed}});
+  assert.equal(getCookie(badCookieRequest,'mpdgi_stats_session'),'');
+  assert.equal(getCookie(new Request(ORIGIN+'/',{headers:{Cookie:'mpdgi_stats_session=ok%3Dvalue'}}),'mpdgi_stats_session'),'ok=value');
+  for(const [route,handler] of [
+    ['/api/dashboard',dashboardHandler],
+    ['/api/campaigns',campaignsHandler],
+    ['/api/export',exportHandler],
+    ['/api/auth/session',sessionHandler]
+  ]){
+    const response=await handler({
+      request:new Request(ORIGIN+route,{headers:{Cookie:malformed}}),
+      env:{STATS_DB:{}}
+    });
+    assert.equal(response.status,401,route+' must reject malformed cookies with 401');
+    assert.deepEqual(await response.json(),{error:'unauthorized'});
+  }
 }
 
 console.log('MPDGI Stats auth integration validation passed');
