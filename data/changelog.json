@@ -5,7 +5,7 @@
     "date": "2026-10-12",
     "changes": [
       "Restored the approved 10.56px scripture size on displays wider than 600px; other responsive support text remains unchanged.",
-      "Prepared full-color standard and maskable 512px PWA icons from the existing approved 192px official logo, pending upload and release validation.",
+      "Restored owner-approved full-color normal and maskable 512px PWA icons from the approved official logo; original iPhone icon remains unchanged.",
       "Removed two unused bilingual language-label strings and refreshed service-worker cache identity without changing giving, Stats, privacy or other navigation."
     ]
   },

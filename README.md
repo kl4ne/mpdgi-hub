@@ -6,7 +6,7 @@ Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 ## v1.6.10 — Color Icon & Scripture Readability
 - Restores scripture text to its original 10.56px size on desktop and tablets wider than 600px.
-- Prepares full-color normal/maskable 512px Android/Desktop PWA icons approved for the release candidate; publication awaits final image upload, Browser QA and private Backup synchronization.
+- Restores approved full-color standard and maskable 512px PWA icons for Android and desktop installations, preserving the original iPhone icon.
 - Removes unused language labels and refreshes versioned Service Worker cache without changing approved giving destinations, Stats or approved layouts.
 
 ## v1.6.9 — Responsive Support Text Readability
