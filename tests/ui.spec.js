@@ -171,9 +171,9 @@ test('shared runtime version is loaded and matches config',async({page})=>{
       config:config.version
     };
   });
-  expect(values.runtime).toBe('1.6.9');
-  expect(values.source).toBe('1.6.9');
-  expect(values.config).toBe('1.6.9');
+  expect(values.runtime).toBe('1.6.10');
+  expect(values.source).toBe('1.6.10');
+  expect(values.config).toBe('1.6.10');
 });
 
 test('accessibility labels switch with language',async({page})=>{
@@ -217,9 +217,9 @@ test('payment logos use known-good inline SVG rendering',async({page})=>{
 
 test('release-pinned assets prevent mixed-version CSS and JS',async({page})=>{
   await page.goto('/',{waitUntil:'networkidle'});
-  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.6.9.css');
-  await expect(page.locator('script[src="js/version-v1.6.9.js"]')).toHaveCount(1);
-  await expect(page.locator('script[src="js/app-v1.6.9.js"]')).toHaveCount(1);
+  await expect(page.locator('link[rel="stylesheet"]')).toHaveAttribute('href','css/style-v1.6.10.css');
+  await expect(page.locator('script[src="js/version-v1.6.10.js"]')).toHaveCount(1);
+  await expect(page.locator('script[src="js/app-v1.6.10.js"]')).toHaveCount(1);
 });
 
 test('church address opens directions and translates its accessibility label',async({page})=>{
@@ -261,7 +261,7 @@ test('stored version mismatch repairs old MPDGI caches',async({page})=>{
     return !keys.includes('mpdgi-hub-shell-1.4.5')&&!keys.includes('mpdgi-hub-runtime-1.4.6-stale');
   },null,{timeout:10000});
   const keys=await page.evaluate(()=>caches.keys());
-  expect(keys).toContain('mpdgi-hub-shell-1.6.9');
+  expect(keys).toContain('mpdgi-hub-shell-1.6.10');
 });
 
 test('payment logos remain stable across repeated Chromium reopen cycles',async({context})=>{
@@ -437,7 +437,7 @@ test('About exposes attributed Share Hub and changelog-derived Last Updated meta
   const modal=page.locator('#modal-body');
   await expect(modal).toContainText(/Última actualización|Last updated/);
   await expect(modal.locator('button.share-hub')).toHaveCount(1);
-  const appSource=await page.request.get('/js/app-v1.6.9.js').then(r=>r.text());
+  const appSource=await page.request.get('/js/app-v1.6.10.js').then(r=>r.text());
   expect(appSource).toContain('https://hub.mpdgi.org/?src=link');
   expect(appSource).toContain('navigator.share');
 });
@@ -544,7 +544,7 @@ test('N3 payment and social marks stay legible in forced dark and light palettes
   }
 });
 
-test('v1.6.9 ES EN segmented language control keeps accessible state and persistence',async({page})=>{
+test('v1.6.10 ES EN segmented language control keeps accessible state and persistence',async({page})=>{
   await page.setViewportSize({width:375,height:667});
   await page.goto('/',{waitUntil:'networkidle'});
   const es=page.locator('#lang-es'),en=page.locator('#lang-en');
@@ -570,7 +570,7 @@ test('v1.6.9 ES EN segmented language control keeps accessible state and persist
   await expect(page.locator('[data-card-id="about"] .card-title')).toHaveText('Acerca de');
 });
 
-test('v1.6.9 readable 10px mobile support text keeps subtitles visible',async({page})=>{
+test('v1.6.10 readable 10px mobile support text keeps subtitles visible',async({page})=>{
   for(const viewport of [{width:360,height:640},{width:375,height:667},{width:390,height:844}]){
     await page.setViewportSize(viewport);
     await page.goto('/',{waitUntil:'networkidle'});
@@ -585,7 +585,7 @@ test('v1.6.9 readable 10px mobile support text keeps subtitles visible',async({p
 });
 
 
-test('v1.6.9 Claude V2 responsive readability and screenshots',async({page},testInfo)=>{
+test('v1.6.10 Claude V2 responsive readability and screenshots',async({page},testInfo)=>{
   const widths=[
     {width:360,height:640},{width:375,height:667},{width:390,height:844},
     {width:470,height:850},{width:600,height:900},{width:768,height:1024},{width:1280,height:800}
@@ -606,7 +606,8 @@ test('v1.6.9 Claude V2 responsive readability and screenshots',async({page},test
     }else if(v.width>=470&&v.width<=600){
       expect(m.subtitle,'medium-width subtitle').toBeCloseTo(11,1);
     }else{
-      for(const k of ['visit','footer','scripture'])expect(m[k],k+' '+v.width).toBeCloseTo(10,1);
+      for(const k of ['visit','footer'])expect(m[k],k+' '+v.width).toBeCloseTo(10,1);
+      expect(m.scripture,'scripture '+v.width).toBeCloseTo(10.56,1);
     }
     require('node:fs').mkdirSync('artifacts',{recursive:true});
     await page.screenshot({path:'artifacts/readability-'+v.width+'.png',fullPage:true});

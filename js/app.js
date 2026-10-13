@@ -42,7 +42,7 @@ const UI={
     privacy:'Privacidad',privacyText:'Este Hub no almacena contraseñas, información de pago ni información personal sensible.',
     developerCredit:'Designed & Developed by Roberto S. Macfie for MPDGI',
     copyright:'© {year} Ministerio Plenitud de Gracia. Todos los derechos reservados.',
-    updated:'Última actualización',shareHub:'Compartir Hub',shareText:'Ministerio Plenitud de Gracia — Hub digital oficial',shareCopied:'Enlace copiado',shareFailed:'No fue posible compartir. Intenta nuevamente.',officialWebsite:'Abrir mpdgi.org',languageLabel:'Cambiar idioma a inglés'
+    updated:'Última actualización',shareHub:'Compartir Hub',shareText:'Ministerio Plenitud de Gracia — Hub digital oficial',shareCopied:'Enlace copiado',shareFailed:'No fue posible compartir. Intenta nuevamente.',officialWebsite:'Abrir mpdgi.org'
   },
   en:{
     linksHeading:'Main access links',sunday:'Sundays',wednesday:'Wednesdays',install:'Install',about:'About',skip:'Skip to content',visitInfoLabel:'Church information',logoAlt:'Official logo of Ministerio Plenitud de Gracia',directionsLabel:'Get directions to Ministerio Plenitud de Gracia',
@@ -63,7 +63,7 @@ const UI={
     privacy:'Privacy',privacyText:'This Hub does not store passwords, payment information, or sensitive personal information.',
     developerCredit:'Designed & Developed by Roberto S. Macfie for MPDGI',
     copyright:'© {year} Ministerio Plenitud de Gracia. All Rights Reserved.',
-    updated:'Last updated',shareHub:'Share Hub',shareText:'Ministerio Plenitud de Gracia — official digital Hub',shareCopied:'Link copied',shareFailed:'Unable to share. Please try again.',officialWebsite:'Open mpdgi.org',languageLabel:'Change language to Spanish'
+    updated:'Last updated',shareHub:'Share Hub',shareText:'Ministerio Plenitud de Gracia — official digital Hub',shareCopied:'Link copied',shareFailed:'Unable to share. Please try again.',officialWebsite:'Open mpdgi.org'
   }
 };
 

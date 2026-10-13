@@ -1,8 +1,8 @@
 'use strict';
 
 const SCRIPT_VERSION=new URL(self.location.href).searchParams.get('v')||'dev';
-const BUILD_ID='2026-10-11-v1.6.9-mobile-language';
-importScripts('./js/version-v1.6.9.js');
+const BUILD_ID='2026-10-12-v1.6.10-icons-and-scripture';
+importScripts('./js/version-v1.6.10.js');
 const VERSION=self.MPDGI_HUB_VERSION||SCRIPT_VERSION;
 const CACHE_PREFIX='mpdgi-hub';
 const SHELL_CACHE=`${CACHE_PREFIX}-shell-${VERSION}`;
@@ -11,9 +11,9 @@ const RUNTIME_CACHE=`${CACHE_PREFIX}-runtime-${VERSION}`;
 const CRITICAL_ASSETS=[
   './',
   './index.html',
-  './css/style-v1.6.9.css',
-  './js/version-v1.6.9.js',
-  './js/app-v1.6.9.js',
+  './css/style-v1.6.10.css',
+  './js/version-v1.6.10.js',
+  './js/app-v1.6.10.js',
   './manifest.json',
   './data/config.json',
   './data/links.json',

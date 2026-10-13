@@ -1,8 +1,13 @@
-# MPDGI Hub — v1.6.9
+# MPDGI Hub — v1.6.10
 
 Official NFC-ready digital hub for **Ministerio Plenitud de Gracia**.
 
 **Designed & Developed by Roberto S. Macfie for MPDGI**
+
+## v1.6.10 — Color Icon & Scripture Readability
+- Restores scripture text to its original 10.56px size on desktop and tablets wider than 600px.
+- Restores approved full-color standard and maskable 512px PWA icons for Android and desktop installations, preserving the original iPhone icon.
+- Removes unused language labels and refreshes versioned Service Worker cache without changing approved giving destinations, Stats or approved layouts.
 
 ## v1.6.9 — Responsive Support Text Readability
 - Kept the approved 10px supporting text and appearance on common narrow phones.
