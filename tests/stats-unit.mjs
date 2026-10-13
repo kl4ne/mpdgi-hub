@@ -48,6 +48,11 @@ assert.equal(validateCollectorIdentity('https://rscard.mpdgi.org',{...valid,targ
 assert.equal(validateCollectorIdentity('https://npcard.mpdgi.org',{...valid,target:'business_card:nancy-pagan'}).ok,true);
 assert.equal(validateCollectorIdentity('https://hub.mpdgi.org',{...valid,target:'link:facebook'}).ok,true);
 assert.equal(isLikelyBot('Mozilla/5.0 HeadlessChrome Lighthouse'),true);
+assert.equal(isLikelyBot('Mozilla/5.0 (Linux; Android 15) Chrome/130 Mobile Safari/537.36 WhatsApp/2.26'),false,
+  'real WhatsApp in-app browsers must be counted as human visitors');
+assert.equal(isLikelyBot('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) WhatsApp/2.26 Mobile Safari/604.1'),false);
+assert.equal(isLikelyBot('facebookexternalhit/1.1'),true,'social preview crawler remains blocked');
+assert.equal(isLikelyBot('Discordbot/2.0'),true,'unfurl bot remains blocked');
 assert.equal(isLikelyBot('Mozilla/5.0 iPhone Version/26.0 Mobile Safari/605.1.15'),false);
 assert.equal(easternDay(new Date('2026-09-29T16:00:00Z')),'2026-09-29');
 
