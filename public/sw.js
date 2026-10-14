@@ -1,6 +1,6 @@
 'use strict';
 // Stats security and quality hardening 2026-10-04
-const VERSION='1.4.10';
+const VERSION='1.4.11';
 const CACHE='mpdgi-stats-shell-'+VERSION;
 const SHELL=['./','./index.html','./css/stats.css','./js/stats-version.js','./js/stats.js','./manifest.json','./assets/profile/logo-mpdg.png','./assets/icons/icon-192.png','./assets/icons/icon-512.png','./assets/icons/apple-touch-icon.png'];
 
@@ -9,7 +9,8 @@ self.addEventListener('install',event=>{
     const cache=await caches.open(CACHE);
     for(const asset of SHELL){
       const response=await fetch(new Request(asset,{cache:'reload'}));
-      if(response.ok)await cache.put(asset,response.clone());
+      if(!response.ok)throw new Error('Stats shell unavailable: '+asset+' (HTTP '+response.status+')');
+      await cache.put(asset,response.clone());
     }
     await self.skipWaiting();
   })());

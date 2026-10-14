@@ -4,18 +4,7 @@ on:
   push:
     branches: [mpdgi-stats-v1.0]
   pull_request:
-    paths:
-      - 'public/**'
-      - 'functions/**'
-      - 'migrations/**'
-      - 'tests/stats-*'
-      - 'playwright.stats.config.cjs'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'wrangler.example.toml'
-      - 'wrangler.test.toml'
-      - 'STATS_DEPLOYMENT.md'
-      - '.github/workflows/stats-validate.yml'
+    branches: [mpdgi-stats-v1.0]
 
 concurrency:
   group: stats-validate-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -27,17 +16,27 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+
+      - name: Verify Stats client version and CI change scope
+        id: guard
+        run: node .github/scripts/stats-ci-guard.mjs
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        if: steps.guard.outputs.run_full == 'true'
         with:
           node-version: '24'
           package-manager-cache: false
 
       - name: Install QA dependencies
+        if: steps.guard.outputs.run_full == 'true'
         run: npm ci --no-audit --no-fund
 
       - name: Syntax and unit validation
+        if: steps.guard.outputs.run_full == 'true'
         run: |
           node --check public/js/stats.js
           node --check public/sw.js
@@ -64,7 +63,7 @@ jobs:
           if(!migration.includes('events')||!migration.includes('event_id TEXT PRIMARY KEY')||!migration.includes('server_day_et'))throw Error('D1 event schema mismatch');
           if(!migration2.includes('CREATE TABLE IF NOT EXISTS campaigns')||!migration2.includes('session_campaign'))throw Error('Campaign migration missing');
           if(!migration3.includes('CREATE TABLE IF NOT EXISTS collector_metrics')||!migration3.includes('idx_collector_metrics_day'))throw Error('Collector metrics migration missing');
-          if(pkg.version!=='1.4.10'||!statsVersion.includes("MPDGI_STATS_VERSION='1.4.10'"))throw Error('Stats version mismatch');
+          if(!statsVersion.includes("MPDGI_STATS_VERSION='"+pkg.version+"'"))throw Error('Stats version mismatch');
           if(!headers.includes('X-Robots-Tag: noindex')||!headers.includes("frame-ancestors 'none'")||!headers.includes('Strict-Transport-Security: max-age=31536000'))throw Error('Stats security headers missing');
 
           const wrangler=read('wrangler.example.toml');
@@ -106,7 +105,7 @@ jobs:
           const sw=read('public/sw.js');
           if(!statsJs.includes("registration.update()")||!statsJs.includes("'controllerchange'")||!statsJs.includes("'visibilitychange'")||!statsJs.includes("15*60*1000"))throw Error('Silent Stats auto-update checks missing');
           if(!statsJs.includes('mpdgiStatsSwReloadAt')||!statsJs.includes('window.location.reload()'))throw Error('Stats update reload-loop guard missing');
-          if(!sw.includes("const VERSION='1.4.10'")||!sw.includes("type==='SKIP_WAITING'"))throw Error('Stats service worker activation/version mismatch');
+          if(!sw.includes("const VERSION='"+pkg.version+"'")||!sw.includes("type==='SKIP_WAITING'"))throw Error('Stats service worker activation/version mismatch');
           if(!index.includes('data-view="cards"')||!index.includes('data-view-panel="cards"')||!index.includes('digital-cards-list'))throw Error('Digital Cards view missing');
           if(!collector.includes('rscard.mpdgi.org')||!collector.includes('npcard.mpdgi.org')||!collector.includes('npcard.pages.dev'))throw Error('Digital card collector origins missing');
           if(collector.includes("[a-z0-9-]+card\\\\.mpdgi\\\\.org"))throw Error('Digital card collector must use explicit origins, not a card-domain regex');
@@ -144,7 +143,7 @@ jobs:
             for(const re of secretPatterns)if(re.test(body))throw Error('Potential secret detected in '+p+': '+re);
           }
 
-          console.log('MPDGI Stats v1.4.10 static validation passed');
+          console.log('MPDGI Stats v'+pkg.version+' static validation passed');
           NODE
 
       - name: PBKDF2 benchmark proxy
@@ -152,6 +151,7 @@ jobs:
         run: npm run benchmark:kdf
 
       - name: Install Chromium and WebKit
+        if: steps.guard.outputs.run_full == 'true'
         run: |
           for attempt in 1 2; do
             if timeout 240s npx playwright install --with-deps chromium webkit; then
@@ -162,6 +162,7 @@ jobs:
           exit 1
 
       - name: Start deployed Stats shell
+        if: steps.guard.outputs.run_full == 'true'
         run: |
           cd public
           nohup python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/mpdgi-stats-http.log 2>&1 &
@@ -173,6 +174,7 @@ jobs:
           exit 1
 
       - name: Playwright Chromium and WebKit
+        if: steps.guard.outputs.run_full == 'true'
         env:
           BASE_URL: http://127.0.0.1:4173
         run: npm run test:stats
@@ -181,7 +183,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/mpdgi-stats-v1.0'
         shell: bash
         run: |
-          EXPECTED="1.4.10"
+          EXPECTED="$(node -p \"require('./package.json').version\")"
           READY=0
           for i in {1..20}; do
             VERSION="$(curl -fsSL https://mpdgi-stats.pages.dev/js/stats-version.js 2>/dev/null || true)"
@@ -193,6 +195,8 @@ jobs:
             sleep 15
           done
           [[ "$READY" == "1" ]] || { echo "Stats production did not reach v$EXPECTED in time."; exit 1; }
+          SW_BODY="$(curl -fsSL https://mpdgi-stats.pages.dev/sw.js)"
+          grep -Fq "const VERSION='$EXPECTED'" <<<"$SW_BODY" || { echo "Production service worker did not reach v$EXPECTED"; exit 1; }
 
           HEADERS="$(curl -fsSI https://mpdgi-stats.pages.dev/)"
           printf '%s\n' "$HEADERS"
