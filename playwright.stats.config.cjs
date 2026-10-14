@@ -2,7 +2,7 @@ const {defineConfig}=require('@playwright/test');
 
 module.exports=defineConfig({
   testDir:'./tests',
-  testMatch:'**/stats-ui.spec.js',
+  testMatch:'**/stats-*.spec.js',
   timeout:30000,
   retries:1,
   workers:1,

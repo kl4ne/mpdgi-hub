@@ -22,9 +22,9 @@ const sample={
     {id:'c2',name:'Youth Campaign 2026',slug:'youth-campaign-2026',source:'link',created_at:'2026-09-24T14:00:00.000Z',sessions:9,visitors:8,acquired_visitors:6,last_activity_at:'2026-09-28T18:40:00.000Z'}
   ],
   digital_cards:[
-    {card_id:'ruben-suarez',sessions:41,visitors:29,opens:43,save_contact:16,calls:7,texts:5,directions:4,website:9,shares:3,flips:24,nfc_sessions:31,link_sessions:6,web_sessions:4,last_activity_at:'2026-09-29T18:57:00.000Z'},
-    {card_id:'nancy-pagan',sessions:12,visitors:10,opens:13,save_contact:5,calls:2,texts:1,directions:2,website:3,shares:1,flips:6,nfc_sessions:9,link_sessions:2,web_sessions:1,last_activity_at:'2026-10-04T18:20:00.000Z'},
-    {card_id:'roberto-macfie',sessions:0,visitors:0,opens:0,save_contact:0,calls:0,texts:0,directions:0,website:0,shares:0,flips:0,nfc_sessions:0,link_sessions:0,web_sessions:0,last_activity_at:null}
+    {card_id:'ruben-suarez',sessions:41,visitors:29,opens:43,save_contact:16,calls:7,texts:5,directions:4,website:9,shares:3,flips:24,nfc_sessions:31,qr_sessions:5,link_sessions:6,web_sessions:4,last_activity_at:'2026-09-29T18:57:00.000Z'},
+    {card_id:'nancy-pagan',sessions:12,visitors:10,opens:13,save_contact:5,calls:2,texts:1,directions:2,website:3,shares:1,flips:6,nfc_sessions:9,qr_sessions:0,link_sessions:2,web_sessions:1,last_activity_at:'2026-10-04T18:20:00.000Z'},
+    {card_id:'roberto-macfie',sessions:0,visitors:0,opens:0,save_contact:0,calls:0,texts:0,directions:0,website:0,shares:0,flips:0,nfc_sessions:0,qr_sessions:0,link_sessions:0,web_sessions:0,last_activity_at:null}
   ],
   activity:{
     hourly_sessions:Array.from({length:24},(_,hour)=>({key:String(hour),value:hour===10?31:hour===19?22:1})),
@@ -124,6 +124,8 @@ test('Digital Cards view renders NFC business-card usage and actions',async({pag
   await expect(roberto).toContainText('roberto-macfie');
   await expect(roberto).toContainText('Sin eventos');
   await expect(ruben).toContainText('41');
+  await expect(ruben.locator('[data-tooltip-key="tipCardQr"]')).toContainText('5');
+  await expect(nancy.locator('[data-tooltip-key="tipCardQr"]')).toContainText('0');
   await expect(ruben).toContainText('Guardar contacto');
   await expect(ruben).toContainText('Llamar (toques)');
   await expect(ruben).toContainText('Dirección (toques)');
@@ -133,6 +135,21 @@ test('Digital Cards view renders NFC business-card usage and actions',async({pag
   await expect(nancy).toContainText('12');
   await expect(nancy.locator('[data-tooltip-key="tipCardNfc"]')).toHaveAttribute('title',/NFC/);
   await expect(nancy.locator('[data-tooltip-key="tipCardSave"]')).toHaveAttribute('title',/no confirma/);
+});
+
+test('manual dashboard refresh requests new aggregates without reloading the app',async({page})=>{
+  let requests=0;
+  await page.route('**/api/auth/session',r=>r.fulfill({status:200,contentType:'application/json',body:'{"authenticated":true,"user":{"email":"owner@example.com","role":"owner"}}'}));
+  await page.route('**/api/dashboard**',r=>{
+    requests++;
+    return r.fulfill({status:200,contentType:'application/json',
+      body:JSON.stringify({...sample,summary:{...sample.summary,visits:128+requests}})});
+  });
+  await page.goto('/',{waitUntil:'domcontentloaded'});
+  await expect(page.locator('#metric-visits')).toHaveText('129');
+  await page.locator('#refresh-button').click();
+  await expect(page.locator('#metric-visits')).toHaveText('130');
+  expect(requests).toBe(2);
 });
 
 test('print layout exposes the professional report header and hides navigation',async({page})=>{
@@ -290,7 +307,7 @@ test('Methodology view documents definitions, privacy and retention without auto
   await expect(panel).toBeVisible();
   await expect(panel).toContainText('Estimated Visitor');
   await expect(panel).toContainText('24 meses');
-  await expect(panel).toContainText('v1.4.11');
+  await expect(panel).toContainText('v1.4.12');
   await expect(panel).toContainText('no activa borrado automático');
-  await expect(page.locator('#sidebar-version')).toHaveText('v1.4.11');
+  await expect(page.locator('#sidebar-version')).toHaveText('v1.4.12');
 });

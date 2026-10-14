@@ -1,6 +1,8 @@
 'use strict';
 
 const STATS_VERSION=globalThis.MPDGI_STATS_VERSION||'dev';
+const DASHBOARD_REFRESH_MS=5*60*1000;
+let dashboardLoadId=0;
 const LANGUAGE_KEY='mpdgiStatsLanguage';
 const HUB_BASE='https://hub.mpdgi.org/';
 const SOURCE_COLORS={nfc:'#1468e8',qr:'#5aa2f8',link:'#efb94f',unattributed:'#9ca9bb'};
@@ -9,12 +11,12 @@ const I18N={
   es:{
     authorized:'Acceso autorizado solamente',loginHelp:'Inicia sesión para ver las estadísticas privadas de MPDGI.',email:'Correo electrónico',password:'Contraseña',remember:'Recordarme en este dispositivo',signIn:'Entrar',secureNote:'🔒 Acceso privado para administradores aprobados de MPDGI.',
     navDashboard:'Dashboard',navReports:'Reportes',navSources:'Fuentes',navCampaigns:'Campañas',navEngagement:'Interacción',navCards:'Tarjetas Digitales',navTechnology:'Tecnología',navSystem:'Sistema',navMethodology:'Metodología',adminsOnly:'Solo administradores autorizados',
-    period:'Período',range7:'Últimos 7 días',range30:'Últimos 30 días',range90:'Últimos 90 días',rangeMonth:'Este mes',rangeYear:'Este año',range365:'Últimos 12 meses',rangeCustom:'Rango personalizado',from:'Desde',to:'Hasta',apply:'Aplicar',printPdf:'🖨 Imprimir / PDF',logout:'Salir',analyticsReport:'Reporte de Analítica',
+    period:'Período',range7:'Últimos 7 días',range30:'Últimos 30 días',range90:'Últimos 90 días',rangeMonth:'Este mes',rangeYear:'Este año',range365:'Últimos 12 meses',rangeCustom:'Rango personalizado',from:'Desde',to:'Hasta',apply:'Aplicar',printPdf:'🖨 Imprimir / PDF',refresh:'Actualizar',logout:'Salir',analyticsReport:'Reporte de Analítica',
     summary:'Resumen',loadingPeriod:'Cargando período…',visits:'Visitas (sesiones)',uniqueVisitors:'Visitantes únicos estimados',pwaSessions:'Sesiones desde PWA',pageViews:'Page Views',currentPeriod:'Período actual',lastUpdated:'Última actualización',executiveSnapshot:'Resumen ejecutivo',executivePeriod:'Período seleccionado',peakHour:'Hora de mayor actividad',peakDay:'Día de mayor actividad',sundayActivity:'Sesiones dominicales',wednesdayActivity:'Sesiones del miércoles',topSource:'Fuente principal',topAction:'Acción principal',hourlyActivity:'Actividad por hora',weekdayActivity:'Actividad por día de la semana',
     reportsTitle:'Reportes',reportsIntro:'Resumen visual e imprimible del período seleccionado.',dailyVisits:'Visitas diarias',newReturning:'Visitantes nuevos vs recurrentes',anonymousEstimate:'Estimación anónima',reportNoteTitle:'Acerca del reporte',reportNote:'El dashboard, el CSV y el reporte impreso utilizan los mismos datos agregados del servidor. No se exportan identificadores anónimos individuales.',
     sourcesTitle:'Fuentes',sourcesIntro:'Cómo llegaron los visitantes y cómo comenzó cada sesión.',acquisitionSource:'Fuente de adquisición',estimatedVisitors:'Visitantes estimados',total:'Total',source:'Fuente',visitorsShort:'Visitantes',sessionEntry:'Entrada de sesión',usageMode:'Modo de uso',
     campaignsTitle:'Campañas',campaignsIntro:'Crea enlaces etiquetados para saber cuándo una visita llega por Link, QR o NFC.',createCampaign:'Crear campaña',noCost:'Sin servicios adicionales',campaignName:'Nombre de campaña',campaignSource:'Tipo de acceso',sharedLink:'Enlace compartido',generatedUrl:'URL generada',copyUrl:'Copiar URL',openUrl:'Abrir URL',campaignResults:'Resultados de campañas',firstTouch:'Sesiones atribuidas y adquisición inicial',generalShareLink:'Enlace general para compartir',generalShareHelp:'Usa este enlace cuando envíes el Hub por WhatsApp, Messages, correo o redes y quieras que Stats lo clasifique como Enlace.',copy:'Copiar',
-    engagementTitle:'Interacción',engagementIntro:'Qué acciones realizan los visitantes dentro del Hub.',topActions:'Acciones principales',cardsTitle:'Tarjetas Digitales',cardsIntro:'Uso de las business cards NFC de los líderes de MPDGI.',cardsPerformance:'Rendimiento por tarjeta',cardsMeasurementTitle:'Qué mide esta sección',cardsMeasurementNote:'Guardar contacto, llamar y otras acciones cuentan el toque dentro de la tarjeta digital; no confirman que la acción se completó fuera del navegador.',cardsSessions:'Sesiones',cardsVisitors:'Visitantes estimados',cardsNfc:'NFC',cardsShared:'Enlace compartido',cardsDirect:'Web directa',cardsSave:'Guardar contacto (toques)',cardsCalls:'Llamar (toques)',cardsTexts:'Mensaje (toques)',cardsDirections:'Dirección (toques)',cardsWebsite:'Website (toques)',cardsShares:'Compartir (toques)',cardsLast:'Última actividad',
+    engagementTitle:'Interacción',engagementIntro:'Qué acciones realizan los visitantes dentro del Hub.',topActions:'Acciones principales',cardsTitle:'Tarjetas Digitales',cardsIntro:'Uso de las business cards NFC de los líderes de MPDGI.',cardsPerformance:'Rendimiento por tarjeta',cardsMeasurementTitle:'Qué mide esta sección',cardsMeasurementNote:'Guardar contacto, llamar y otras acciones cuentan el toque dentro de la tarjeta digital; no confirman que la acción se completó fuera del navegador.',cardsSessions:'Sesiones',cardsVisitors:'Visitantes estimados',cardsNfc:'NFC',cardsQr:'QR',cardsShared:'Enlace compartido',cardsDirect:'Web directa',cardsSave:'Guardar contacto (toques)',cardsCalls:'Llamar (toques)',cardsTexts:'Mensaje (toques)',cardsDirections:'Dirección (toques)',cardsWebsite:'Website (toques)',cardsShares:'Compartir (toques)',cardsLast:'Última actividad',
     technologyTitle:'Tecnología',technologyIntro:'Dispositivos, navegadores e idioma observado.',devices:'Dispositivos',browsers:'Navegadores',languages:'Idiomas',
     systemTitle:'Estado del sistema',systemIntro:'Comprobación de los componentes principales de MPDGI Stats.',systemHealth:'Salud del sistema',database:'Base de datos',lastEvent:'Último evento',lastCheck:'Última comprobación',dataQuality:'Calidad de datos',eventsReceived:'Eventos recibidos',eventsStored:'Eventos almacenados',duplicatesPrevented:'Duplicados evitados',rejectedEvents:'Eventos rechazados',delayedEvents:'Eventos retrasados / recuperados',qualityNote:'Los eventos retrasados indican registros recibidos más de dos minutos después de su marca de tiempo del cliente; suelen corresponder a entregas tardías o recuperación de cola offline.',authorizedFooter:'🔒 Solo administradores autorizados.',
     eventPipeline:'Flujo de eventos',degraded:'Degradado',noRecentActivity:'Sin actividad reciente',errorStatus:'Error',
@@ -45,7 +47,7 @@ const I18N={
     tipCampaignBuilder:'Genera URLs etiquetadas para que MPDGI Stats pueda distinguir enlaces compartidos, QR y NFC.',
     tipCampaignResults:'Campañas guardadas y resultados del período: sesiones atribuidas, visitantes estimados y adquisición inicial.',
     tipGeneralLink:'Enlace listo para compartir. El parámetro src=link permite clasificar la entrada como Enlace.',
-    tipActions:'Acciones más utilizadas dentro del Hub, como Portal de Miembros, Ofrendar, Biblia, redes o GPS.',tipDigitalCards:'Métricas agregadas de las tarjetas digitales NFC: sesiones, visitantes estimados, fuente de entrada y acciones principales.',tipCardSessions:'Sesiones registradas para esta tarjeta digital durante el período seleccionado.',tipCardVisitors:'Estimación anónima de visitantes únicos que abrieron esta tarjeta digital.',tipCardNfc:'Sesiones que comenzaron al tocar una tarjeta NFC y entrar con src=nfc.',tipCardShared:'Sesiones que llegaron mediante un enlace compartido de esta tarjeta.',tipCardDirect:'Sesiones que abrieron esta tarjeta directamente desde la web sin NFC ni enlace etiquetado.',tipCardSave:'Toques en Guardar contacto. Mide la intención de abrir el contacto; no confirma que se haya guardado.',tipCardCalls:'Toques en Llamar. No confirma que la llamada se haya completado.',tipCardTexts:'Toques en Mensaje. No confirma que el SMS se haya enviado.',tipCardDirections:'Toques en Dirección para abrir el mapa o GPS.',tipCardWebsite:'Toques en Website para abrir mpdgi.org desde la tarjeta.',tipCardShares:'Toques en Compartir tarjeta. No confirma que el destinatario haya abierto el enlace.',tipCardLast:'Fecha y hora de la actividad más reciente registrada para esta tarjeta.',
+    tipActions:'Acciones más utilizadas dentro del Hub, como Portal de Miembros, Ofrendar, Biblia, redes o GPS.',tipDigitalCards:'Métricas agregadas de las tarjetas digitales NFC: sesiones, visitantes estimados, fuente de entrada y acciones principales.',tipCardSessions:'Sesiones registradas para esta tarjeta digital durante el período seleccionado.',tipCardVisitors:'Estimación anónima de visitantes únicos que abrieron esta tarjeta digital.',tipCardNfc:'Sesiones que comenzaron al tocar una tarjeta NFC y entrar con src=nfc.',tipCardQr:'Sesiones que comenzaron al escanear el código QR de esta tarjeta; requiere una entrada etiquetada como QR',tipCardShared:'Sesiones que llegaron mediante un enlace compartido de esta tarjeta.',tipCardDirect:'Sesiones que abrieron esta tarjeta directamente desde la web sin NFC ni enlace etiquetado.',tipCardSave:'Toques en Guardar contacto. Mide la intención de abrir el contacto; no confirma que se haya guardado.',tipCardCalls:'Toques en Llamar. No confirma que la llamada se haya completado.',tipCardTexts:'Toques en Mensaje. No confirma que el SMS se haya enviado.',tipCardDirections:'Toques en Dirección para abrir el mapa o GPS.',tipCardWebsite:'Toques en Website para abrir mpdgi.org desde la tarjeta.',tipCardShares:'Toques en Compartir tarjeta. No confirma que el destinatario haya abierto el enlace.',tipCardLast:'Fecha y hora de la actividad más reciente registrada para esta tarjeta.',
     tipDevices:'Categoría del dispositivo reportada por el Hub: móvil, computadora, tableta u otro.',
     tipBrowsers:'Familia de navegador observada en las sesiones.',
     tipLanguages:'Idioma activo del Hub durante las sesiones observadas.',
@@ -58,12 +60,12 @@ const I18N={
   en:{
     authorized:'Authorized access only',loginHelp:'Sign in to view MPDGI private analytics.',email:'Email address',password:'Password',remember:'Remember me on this device',signIn:'Sign in',secureNote:'🔒 Private access for approved MPDGI administrators.',
     navDashboard:'Dashboard',navReports:'Reports',navSources:'Sources',navCampaigns:'Campaigns',navEngagement:'Engagement',navCards:'Digital Cards',navTechnology:'Technology',navSystem:'System',navMethodology:'Methodology',adminsOnly:'Authorized administrators only',
-    period:'Period',range7:'Last 7 days',range30:'Last 30 days',range90:'Last 90 days',rangeMonth:'This month',rangeYear:'This year',range365:'Last 12 months',rangeCustom:'Custom range',from:'From',to:'To',apply:'Apply',printPdf:'🖨 Print / PDF',logout:'Sign out',analyticsReport:'Analytics Report',
+    period:'Period',range7:'Last 7 days',range30:'Last 30 days',range90:'Last 90 days',rangeMonth:'This month',rangeYear:'This year',range365:'Last 12 months',rangeCustom:'Custom range',from:'From',to:'To',apply:'Apply',printPdf:'🖨 Print / PDF',refresh:'Refresh',logout:'Sign out',analyticsReport:'Analytics Report',
     summary:'Summary',loadingPeriod:'Loading period…',visits:'Visits (sessions)',uniqueVisitors:'Estimated unique visitors',pwaSessions:'PWA sessions',pageViews:'Page Views',currentPeriod:'Current period',lastUpdated:'Last updated',executiveSnapshot:'Executive Snapshot',executivePeriod:'Selected period',peakHour:'Peak activity hour',peakDay:'Peak activity day',sundayActivity:'Sunday sessions',wednesdayActivity:'Wednesday sessions',topSource:'Top source',topAction:'Top action',hourlyActivity:'Hourly activity',weekdayActivity:'Weekday activity',
     reportsTitle:'Reports',reportsIntro:'Visual and printable summary for the selected period.',dailyVisits:'Daily visits',newReturning:'New vs returning visitors',anonymousEstimate:'Anonymous estimate',reportNoteTitle:'About this report',reportNote:'The dashboard, CSV export and printed report use the same aggregated server data. Individual anonymous identifiers are not exported.',
     sourcesTitle:'Sources',sourcesIntro:'How visitors arrived and how each session started.',acquisitionSource:'Acquisition source',estimatedVisitors:'Estimated visitors',total:'Total',source:'Source',visitorsShort:'Visitors',sessionEntry:'Session entry',usageMode:'Usage mode',
     campaignsTitle:'Campaigns',campaignsIntro:'Create tagged URLs to identify visits arriving through Link, QR or NFC.',createCampaign:'Create campaign',noCost:'No additional services',campaignName:'Campaign name',campaignSource:'Access type',sharedLink:'Shared link',generatedUrl:'Generated URL',copyUrl:'Copy URL',openUrl:'Open URL',campaignResults:'Campaign results',firstTouch:'Attributed sessions and initial acquisition',generalShareLink:'General share link',generalShareHelp:'Use this link when sharing the Hub through WhatsApp, Messages, email or social media and you want Stats to classify it as Link.',copy:'Copy',
-    engagementTitle:'Engagement',engagementIntro:'What visitors do inside the Hub.',topActions:'Top actions',cardsTitle:'Digital Cards',cardsIntro:'Usage of MPDGI leaders’ NFC business cards.',cardsPerformance:'Performance by card',cardsMeasurementTitle:'What this section measures',cardsMeasurementNote:'Save contact, call and other actions count the tap inside the digital card; they do not confirm completion outside the browser.',cardsSessions:'Sessions',cardsVisitors:'Estimated visitors',cardsNfc:'NFC',cardsShared:'Shared link',cardsDirect:'Direct web',cardsSave:'Save contact (taps)',cardsCalls:'Call taps',cardsTexts:'Text taps',cardsDirections:'Directions taps',cardsWebsite:'Website taps',cardsShares:'Share taps',cardsLast:'Last activity',
+    engagementTitle:'Engagement',engagementIntro:'What visitors do inside the Hub.',topActions:'Top actions',cardsTitle:'Digital Cards',cardsIntro:'Usage of MPDGI leaders’ NFC business cards.',cardsPerformance:'Performance by card',cardsMeasurementTitle:'What this section measures',cardsMeasurementNote:'Save contact, call and other actions count the tap inside the digital card; they do not confirm completion outside the browser.',cardsSessions:'Sessions',cardsVisitors:'Estimated visitors',cardsNfc:'NFC',cardsQr:'QR',cardsShared:'Shared link',cardsDirect:'Direct web',cardsSave:'Save contact (taps)',cardsCalls:'Call taps',cardsTexts:'Text taps',cardsDirections:'Directions taps',cardsWebsite:'Website taps',cardsShares:'Share taps',cardsLast:'Last activity',
     technologyTitle:'Technology',technologyIntro:'Observed devices, browsers and Hub language.',devices:'Devices',browsers:'Browsers',languages:'Languages',
     systemTitle:'System status',systemIntro:'Status of the main MPDGI Stats components.',systemHealth:'System Health',database:'Database',lastEvent:'Last event',lastCheck:'Last check',dataQuality:'Data quality',eventsReceived:'Events received',eventsStored:'Events stored',duplicatesPrevented:'Duplicates prevented',rejectedEvents:'Rejected events',delayedEvents:'Delayed / recovered events',qualityNote:'Delayed events are records received more than two minutes after the client timestamp; they commonly indicate late delivery or offline-queue recovery.',authorizedFooter:'🔒 For authorized administrators only.',
     eventPipeline:'Event pipeline',degraded:'Degraded',noRecentActivity:'No recent activity',errorStatus:'Error',
@@ -94,7 +96,7 @@ const I18N={
     tipCampaignBuilder:'Creates tagged URLs so MPDGI Stats can distinguish shared links, QR and NFC.',
     tipCampaignResults:'Saved campaigns and period results: attributed sessions, estimated visitors and initial acquisition.',
     tipGeneralLink:'Ready-to-share URL. The src=link parameter classifies the entry as Link.',
-    tipActions:'Most-used Hub actions, such as Member Portal, Give, Bible, social media or GPS.',tipDigitalCards:'Aggregated NFC digital-card metrics: sessions, estimated visitors, entry source and primary actions.',tipCardSessions:'Sessions recorded for this digital card during the selected period.',tipCardVisitors:'Anonymous estimate of unique visitors who opened this digital card.',tipCardNfc:'Sessions that began by tapping an NFC card and entering with src=nfc.',tipCardShared:'Sessions that arrived through a shared link for this card.',tipCardDirect:'Sessions that opened this card directly on the web without NFC or a tagged shared link.',tipCardSave:'Taps on Save Contact. Measures intent to open the contact; it does not confirm the contact was saved.',tipCardCalls:'Taps on Call. It does not confirm that a call was completed.',tipCardTexts:'Taps on Text. It does not confirm that an SMS was sent.',tipCardDirections:'Taps on Directions to open maps or GPS.',tipCardWebsite:'Taps on Website to open mpdgi.org from the card.',tipCardShares:'Taps on Share Card. It does not confirm that a recipient opened the link.',tipCardLast:'Date and time of the most recent activity recorded for this card.',
+    tipActions:'Most-used Hub actions, such as Member Portal, Give, Bible, social media or GPS.',tipDigitalCards:'Aggregated NFC digital-card metrics: sessions, estimated visitors, entry source and primary actions.',tipCardSessions:'Sessions recorded for this digital card during the selected period.',tipCardVisitors:'Anonymous estimate of unique visitors who opened this digital card.',tipCardNfc:'Sessions that began by tapping an NFC card and entering with src=nfc.',tipCardQr:'Sessions started by scanning this card QR code; requires a QR-tagged entry',tipCardShared:'Sessions that arrived through a shared link for this card.',tipCardDirect:'Sessions that opened this card directly on the web without NFC or a tagged shared link.',tipCardSave:'Taps on Save Contact. Measures intent to open the contact; it does not confirm the contact was saved.',tipCardCalls:'Taps on Call. It does not confirm that a call was completed.',tipCardTexts:'Taps on Text. It does not confirm that an SMS was sent.',tipCardDirections:'Taps on Directions to open maps or GPS.',tipCardWebsite:'Taps on Website to open mpdgi.org from the card.',tipCardShares:'Taps on Share Card. It does not confirm that a recipient opened the link.',tipCardLast:'Date and time of the most recent activity recorded for this card.',
     tipDevices:'Device category reported by the Hub: mobile, desktop, tablet or other.',
     tipBrowsers:'Browser family observed during sessions.',
     tipLanguages:'Active Hub language during observed sessions.',
@@ -160,6 +162,7 @@ async function api(path,options={}){
 }
 
 function setView(authenticated){
+  if(!authenticated)dashboardLoadId++;
   $('login-view').hidden=authenticated;
   $('app-view').hidden=!authenticated;
 }
@@ -345,6 +348,7 @@ function renderDigitalCards(items){
     metrics.append(
       metric(t('cardsVisitors'),item.visitors,true,'tipCardVisitors'),
       metric(t('cardsNfc'),item.nfc_sessions,true,'tipCardNfc'),
+      metric(t('cardsQr'),item.qr_sessions,true,'tipCardQr'),
       metric(t('cardsShared'),item.link_sessions,false,'tipCardShared'),
       metric(t('cardsDirect'),item.web_sessions,false,'tipCardDirect'),
       metric(t('cardsSave'),item.save_contact,true,'tipCardSave'),
@@ -429,16 +433,22 @@ function dashboardQuery(){
 }
 
 async function loadDashboard(){
+  const loadId=++dashboardLoadId;
   try{
     const data=await api('/api/dashboard'+dashboardQuery());
+    if(loadId!==dashboardLoadId||$('app-view').hidden)return;
     renderDashboard(data);
   }catch(error){
+    if(loadId!==dashboardLoadId||$('app-view').hidden)return;
     if(error.status===401){setView(false);return;}
     console.error('[MPDGI Stats] dashboard load failed',error);
     $('health-overall').textContent=t('attentionRequired');
     $('health-overall').className='';
     setStatusLight('health-collector-light','bad');setStatusLight('health-db-light','bad');setStatusLight('health-pipeline-light','bad');setStatusLight('health-event-light','bad');
   }
+}
+function refreshVisibleDashboard(){
+  if(!document.hidden&&navigator.onLine&&!$('app-view').hidden)void loadDashboard();
 }
 
 async function checkSession(){
@@ -508,6 +518,13 @@ function setupLogin(){
 }
 
 function setupDashboard(){
+  $('refresh-button').addEventListener('click',async()=>{
+    const button=$('refresh-button');button.disabled=true;
+    try{await loadDashboard();}finally{button.disabled=false;}
+  });
+  setInterval(refreshVisibleDashboard,DASHBOARD_REFRESH_MS);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshVisibleDashboard();});
+  window.addEventListener('online',refreshVisibleDashboard);
   document.querySelectorAll('.lang-button').forEach(btn=>btn.addEventListener('click',()=>setLanguage(btn.dataset.lang)));
   document.querySelectorAll('.nav-item').forEach(item=>item.addEventListener('click',()=>showPanel(item.dataset.view)));
 
