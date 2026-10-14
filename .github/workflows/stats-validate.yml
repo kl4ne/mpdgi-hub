@@ -183,7 +183,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/mpdgi-stats-v1.0'
         shell: bash
         run: |
-          EXPECTED="$(node -p \"require('./package.json').version\")"
+          EXPECTED="$(node -p 'require("./package.json").version')"
           READY=0
           for i in {1..20}; do
             VERSION="$(curl -fsSL https://mpdgi-stats.pages.dev/js/stats-version.js 2>/dev/null || true)"
