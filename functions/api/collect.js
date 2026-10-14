@@ -59,13 +59,19 @@ export async function onRequest(context){
   const windowStarted=Math.floor(nowSeconds/600)*600;
   const rateKey=await sha256('collector-rate|'+ip+'|'+windowStarted+'|'+context.env.AUTH_PEPPER);
   const rate=await context.env.STATS_DB.prepare('SELECT event_count FROM collector_rate WHERE rate_key=?').bind(rateKey).first();
-  if(Number(rate?.event_count||0)>=200)return new Response(null,{status:204,headers:corsHeaders(origin)});
+  if(Number(rate?.event_count||0)>=200){
+    if(Math.random()<0.02)console.warn('[MPDGI Stats] collector rate budget exceeded');
+    return new Response(null,{status:204,headers:corsHeaders(origin)});
+  }
   // The conditional upsert is atomic across concurrent requests, unlike
   // a SELECT followed by an unconditional increment.
   const admitted=await context.env.STATS_DB.prepare(
     'INSERT INTO collector_rate(rate_key,window_started,event_count) VALUES(?,?,1) ON CONFLICT(rate_key) DO UPDATE SET event_count=event_count+1 WHERE collector_rate.event_count < 200'
   ).bind(rateKey,windowStarted).run();
-  if(Number(admitted?.meta?.changes||0)!==1)return new Response(null,{status:204,headers:corsHeaders(origin)});
+  if(Number(admitted?.meta?.changes||0)!==1){
+    if(Math.random()<0.02)console.warn('[MPDGI Stats] collector rate budget exceeded');
+    return new Response(null,{status:204,headers:corsHeaders(origin)});
+  }
   if(Math.random()<0.01)await context.env.STATS_DB.prepare('DELETE FROM collector_rate WHERE window_started<?').bind(windowStarted-7200).run();
 
   const raw=await context.request.text();

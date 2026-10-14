@@ -316,6 +316,16 @@ try{
     assert.match(await exported.text(),/Digital Card Sessions,roberto-macfie,2/);
   }
 
+  // Reusing an existing card session with a different anonymous visitor fails closed.
+  {
+    const forged={...cardPayload,
+      event_id:'a1111111-1111-4111-8111-999999999997',
+      visitor_id:'b2222222-2222-4222-8222-999999999998'};
+    const response=await postCollector('https://rscard.mpdgi.org',forged,'203.0.113.220');
+    assert.equal(response.status,409);
+    assert.equal((await response.json()).error,'session_visitor_mismatch');
+  }
+
   // S4/S5 real Pages+D1: concurrent unknown-account attempts must be
   // reserved atomically; at most eight get through per IP/email pair.
   {
@@ -378,6 +388,13 @@ try{
   const candidate={name:'Phase Four Review',slug:'phase-four-review',source:'qr'};
   assert.equal((await postCampaign(null,candidate)).status,401);
   assert.equal((await postCampaign(ownerCookie,candidate,'https://example.invalid')).status,403);
+  const rejectedLoginOrigin=await fetch(BASE+'/api/auth/login',{
+    method:'POST',headers:{Origin:'https://example.invalid','Content-Type':'application/json'},
+    body:JSON.stringify({email:'modern@example.test',password:MODERN_INPUT}),
+    signal:AbortSignal.timeout(10000)
+  });
+  assert.equal(rejectedLoginOrigin.status,403,'cross-origin login must fail');
+
 
   for(const invalidBody of [
     'null','[]','5',
@@ -399,6 +416,14 @@ try{
     const list=await fetch(BASE+'/api/campaigns',{headers:signedInHeaders});
     assert.equal(list.status,200);
     assert.ok((await list.json()).campaigns.some(c=>c.slug===candidate.slug));
+    // CSV export must neutralize spreadsheet formulas supplied as campaign names.
+    const formula={name:'=HYPERLINK("https://example.invalid","x")',
+      slug:'csv-formula-regression',source:'link'};
+    assert.equal((await postCampaign(ownerCookie,formula)).status,201);
+    const csv=await fetch(BASE+'/api/export',{headers:signedInHeaders});
+    assert.equal(csv.status,200);
+    assert.ok((await csv.text()).includes("'=HYPERLINK("),'unsafe CSV formula');
+
   }
 
   // S7: read-only viewer can read but cannot modify campaigns.
