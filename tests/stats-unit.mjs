@@ -91,12 +91,12 @@ assert.equal(blockedCollector.status,204,'rate-limited hostile traffic must not 
 const emptyCards=completeDigitalCards([]);
 assert.deepEqual(emptyCards.map(card=>card.card_id),['ruben-suarez','nancy-pagan','roberto-macfie']);
 for(const card of emptyCards){
-  for(const field of ['sessions','visitors','opens','nfc_sessions','save_contact','website'])
+  for(const field of ['sessions','visitors','opens','nfc_sessions','qr_sessions','save_contact','website'])
     assert.equal(card[field],0,'empty '+card.card_id+' must have zero '+field);
   assert.equal(card.last_activity_at,null);
 }
 const mixedCards=completeDigitalCards([
-  {card_id:'nancy-pagan',sessions:12,visitors:10,nfc_sessions:9,save_contact:5,last_activity_at:'2026-10-01T15:00:00Z'},
+  {card_id:'nancy-pagan',sessions:12,visitors:10,nfc_sessions:9,qr_sessions:3,save_contact:5,last_activity_at:'2026-10-01T15:00:00Z'},
   {card_id:'future-card',sessions:2,visitors:1}
 ]);
 assert.deepEqual(mixedCards.map(card=>card.card_id),[
@@ -105,6 +105,8 @@ assert.deepEqual(mixedCards.map(card=>card.card_id),[
 assert.equal(mixedCards[0].sessions,0);
 assert.equal(mixedCards[1].sessions,12);
 assert.equal(mixedCards[1].save_contact,5);
+assert.equal(mixedCards[1].qr_sessions,3);
+assert.equal(mixedCards[2].qr_sessions,0);
 assert.equal(mixedCards[2].sessions,0);
 assert.equal(mixedCards[3].sessions,2);
 assert.equal(completeDigitalCards(mixedCards).length,4,'fixed catalog does not duplicate existing cards');

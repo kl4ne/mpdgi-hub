@@ -246,6 +246,16 @@ try{
     assert.equal(accepted.status,204,'legitimate Hub events must continue working');
   }
 
+  // QR sessions are counted independently for the originating card.
+  {
+    const qrEvent={...cardPayload,
+      event_id:'a1111111-1111-4111-8111-111111111991',
+      visitor_id:'b2222222-2222-4222-8222-111111111992',
+      session_id:'c3333333-3333-4333-8333-111111111993',
+      acquisition_source:'qr',session_entry:'qr',app_version:'1.4.12'};
+    assert.equal((await postCollector('https://rscard.mpdgi.org',qrEvent,'203.0.113.224')).status,204);
+  }
+
   // RMCard v1.0.3 uses rmcard.pages.dev and business_card:roberto-macfie.
   // Confirm browser preflight CORS and precise target isolation.
   {
@@ -303,7 +313,9 @@ try{
     const ruben=data.digital_cards.find(card=>card.card_id==='ruben-suarez');
     const nancy=data.digital_cards.find(card=>card.card_id==='nancy-pagan');
     const roberto=data.digital_cards.find(card=>card.card_id==='roberto-macfie');
-    assert.ok(ruben.sessions>=1,'existing RSCard activity remains visible');
+    assert.ok(ruben.sessions>=2,'NFC and QR RSCard sessions remain visible');
+    assert.equal(ruben.qr_sessions,1,'real D1 counts QR by card session without double counting');
+    assert.equal(roberto.qr_sessions,0,'other cards do not inherit RSCard QR sessions');
     assert.equal(nancy.sessions,0,'NPCard must appear without recent activity');
     assert.equal(roberto.sessions,2,'RMCard and human WhatsApp sessions must be counted');
     assert.equal(roberto.opens,2,'RMCard and human WhatsApp opens must be counted');
@@ -313,7 +325,10 @@ try{
     // /api/export stays private; the public page never receives card history.
     // Fetch again with an authenticated session cookie (same token as login).
     assert.equal(exported.status,200);
-    assert.match(await exported.text(),/Digital Card Sessions,roberto-macfie,2/);
+    const csv=await exported.text();
+    assert.match(csv,/Digital Card Sessions,roberto-macfie,2/);
+    assert.match(csv,/Digital Card QR Sessions,ruben-suarez,1/);
+    assert.match(csv,/Digital Card QR Sessions,roberto-macfie,0/);
   }
 
   // Reusing an existing card session with a different anonymous visitor fails closed.

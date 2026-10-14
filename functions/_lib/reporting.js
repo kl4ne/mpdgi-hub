@@ -5,7 +5,7 @@ import {ensureCampaignSchema} from './schema.js';
 // Aggregates still come only from the queried events; no synthetic activity is stored.
 const DIGITAL_CARD_CATALOG=['ruben-suarez','nancy-pagan','roberto-macfie'];
 const CARD_METRICS=['sessions','visitors','opens','save_contact','calls','texts','directions',
-  'website','shares','flips','nfc_sessions','link_sessions','web_sessions'];
+  'website','shares','flips','nfc_sessions','qr_sessions','link_sessions','web_sessions'];
 export function completeDigitalCards(inputRows){
   const present=new Map();
   for(const row of Array.isArray(inputRows)?inputRows:[]){
@@ -136,6 +136,7 @@ export async function getDashboardData(env,urlString){
       SUM(CASE WHEN event_type='action' AND action_name='bc_share' THEN 1 ELSE 0 END) AS shares,
       SUM(CASE WHEN event_type='action' AND action_name='bc_flip' THEN 1 ELSE 0 END) AS flips,
       COUNT(DISTINCT CASE WHEN session_entry='nfc' THEN session_id END) AS nfc_sessions,
+      COUNT(DISTINCT CASE WHEN session_entry='qr' THEN session_id END) AS qr_sessions,
       COUNT(DISTINCT CASE WHEN session_entry='link' THEN session_id END) AS link_sessions,
       COUNT(DISTINCT CASE WHEN session_entry='web' THEN session_id END) AS web_sessions,
       MAX(server_ts) AS last_activity_at
@@ -267,6 +268,7 @@ export function dashboardCsv(data){
     lines.push(['Digital Card Sessions',label,item.sessions]);
     lines.push(['Digital Card Estimated Visitors',label,item.visitors]);
     lines.push(['Digital Card NFC Sessions',label,item.nfc_sessions]);
+    lines.push(['Digital Card QR Sessions',label,item.qr_sessions]);
     lines.push(['Digital Card Shared-link Sessions',label,item.link_sessions]);
     lines.push(['Digital Card Direct-web Sessions',label,item.web_sessions]);
     lines.push(['Digital Card Save Contact Taps',label,item.save_contact]);
