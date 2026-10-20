@@ -119,7 +119,7 @@ export async function getDashboardData(env,urlString){
         range.from,range.to,range.from,range.to,range.from,range.to,range.from,range.to
       ),
     db.prepare('SELECT MAX(server_ts) AS last_event_at FROM events'),
-    db.prepare("SELECT DISTINCT s.session_id,s.first_seen_at FROM sessions s JOIN events e ON e.session_id=s.session_id WHERE s.first_seen_day_et BETWEEN ? AND ? AND e.target NOT LIKE 'business_card:%'").bind(range.from,range.to),
+    db.prepare("SELECT e.session_id,MIN(e.server_ts) AS first_seen_at FROM events e WHERE e.server_day_et BETWEEN ? AND ? AND e.target NOT LIKE 'business_card:%' GROUP BY e.session_id").bind(range.from,range.to),
     db.prepare('SELECT COALESCE(SUM(received),0) AS received,COALESCE(SUM(accepted),0) AS accepted,COALESCE(SUM(duplicates),0) AS duplicates,COALESCE(SUM(rejected),0) AS rejected,COALESCE(SUM(delayed),0) AS delayed,MAX(last_received_at) AS last_received_at FROM collector_metrics WHERE day_et BETWEEN ? AND ?').bind(range.from,range.to),
     db.prepare(`SELECT COUNT(*) AS stored,COUNT(DISTINCT event_id) AS unique_event_ids,
       COALESCE(SUM(CASE WHEN client_ts<>'' AND julianday(server_ts)-julianday(client_ts)>0.0013888889 THEN 1 ELSE 0 END),0) AS delayed_events
@@ -142,13 +142,17 @@ export async function getDashboardData(env,urlString){
       MAX(server_ts) AS last_activity_at
       FROM events
       WHERE server_day_et BETWEEN ? AND ? AND target LIKE 'business_card:%'
-      GROUP BY target ORDER BY sessions DESC,visitors DESC LIMIT 100`).bind(range.from,range.to)
+      GROUP BY target ORDER BY sessions DESC,visitors DESC LIMIT 100`).bind(range.from,range.to),
+    // Independent of report filters: most recent two calendar days (America/New_York).
+    db.prepare('SELECT COALESCE(SUM(received),0) AS received,COALESCE(SUM(accepted),0) AS accepted,COALESCE(SUM(duplicates),0) AS duplicates,COALESCE(SUM(rejected),0) AS rejected,MAX(last_received_at) AS last_received_at FROM collector_metrics WHERE day_et BETWEEN ? AND ?')
+      .bind(shiftDay(easternDay(new Date()),-1),easternDay(new Date()))
   ];
   const result=await db.batch(statements);
   const current=one(result[0]),previous=one(result[1]),last=one(result[12]);
   const sessionTimes=rows(result[13]);
   const metricQuality=one(result[14]);
   const eventQuality=one(result[15]);
+  const recentQuality=one(result[17]);
   const summary={
     visits:Number(current.visits)||0,
     unique_visitors:Number(current.unique_visitors)||0,
@@ -198,18 +202,28 @@ export async function getDashboardData(env,urlString){
       last_received_at:metricQuality.last_received_at||last.last_event_at||null
     },
     health:(()=>{
-      const lastReceived=metricQuality.last_received_at||last.last_event_at||null;
+      const lastReceived=recentQuality.last_received_at||last.last_event_at||null;
       const parsedLast=lastReceived?Date.parse(lastReceived):NaN;
       const ageMs=Number.isFinite(parsedLast)?Math.max(0,Date.now()-parsedLast):null;
       const collectorStatus=ageMs===null||ageMs>48*60*60*1000?'no_recent_activity':'operational';
-      const received=Number(metricQuality.received)||0,stored=Number(eventQuality.stored)||0;
-      const pipelineStatus=received>0&&stored===0?'error':collectorStatus;
+      const received=Number(recentQuality.received)||0;
+      const accepted=Number(recentQuality.accepted)||0;
+      const duplicates=Number(recentQuality.duplicates)||0;
+      const rejected=Number(recentQuality.rejected)||0;
+      // A high rejection share requires investigation; duplicates do not.
+      const rejectionSpike=received>=20&&rejected/received>=0.25;
+      const noAcceptedEvents=received>=10&&accepted===0&&duplicates===0;
+      const pipelineStatus=collectorStatus==='operational'&&(rejectionSpike||noAcceptedEvents)?'degraded':collectorStatus;
       return {
         collector:collectorStatus,
         database:databaseLatencyMs>1200?'degraded':'operational',
         event_pipeline:pipelineStatus,
         database_latency_ms:databaseLatencyMs,
         last_received_at:lastReceived,
+         recent_received:received,
+         recent_accepted:accepted,
+         recent_rejected:rejected,
+         recent_rejection_pct:received?Number((100*rejected/received).toFixed(1)):0,
         last_event_at:last.last_event_at||null
       };
     })()
