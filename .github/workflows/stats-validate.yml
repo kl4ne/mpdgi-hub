@@ -112,7 +112,7 @@ jobs:
           if(!reporting.includes("target LIKE 'business_card:%'")||!reporting.includes('digital_cards:completeDigitalCards(rows(result[16]))')||!reporting.includes("'roberto-macfie'"))throw Error('Permanent three-card reporting missing');
           const hubIsolationFilters=(reporting.match(/NOT LIKE 'business_card:%'/g)||[]).length;
           if(hubIsolationFilters<11)throw Error('Hub/Digital Card reporting isolation missing');
-          if(!reporting.includes("SELECT DISTINCT s.session_id,s.first_seen_at")||!reporting.includes("e.target NOT LIKE 'business_card:%'"))throw Error('Activity insights must exclude Digital Card sessions');
+          if(!reporting.includes("MIN(e.server_ts) AS first_seen_at")||!reporting.includes("GROUP BY e.session_id")||!reporting.includes("e.target NOT LIKE 'business_card:%'"))throw Error('Activity insights must match period visit sessions and exclude Digital Cards');
           if(!statsJs.includes('renderDigitalCards')||!statsJs.includes("navCards:'Tarjetas Digitales'")||!statsJs.includes("navCards:'Digital Cards'"))throw Error('Digital card UI missing');
           if(!statsJs.includes("'nancy-pagan':'Pastora Nancy Pagán'"))throw Error('NPCard display mapping missing');
           if(!index.includes('data-view="methodology"')||!index.includes('data-view-panel="methodology"'))throw Error('Methodology view missing');
