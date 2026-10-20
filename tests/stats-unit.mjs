@@ -85,7 +85,9 @@ const blockedCollector=await collectHandler({
   }),
   env:{STATS_DB:cappedDb,AUTH_PEPPER:'test-only-secret'}
 });
-assert.equal(blockedCollector.status,204,'rate-limited hostile traffic must not reach D1 metric writes');
+assert.equal(blockedCollector.status,429,'rate-limited traffic must not receive a false 204 acknowledgment');
+assert.equal(blockedCollector.headers.get('Retry-After'),'600');
+assert.equal(blockedCollector.headers.get('Access-Control-Allow-Origin'),'https://hub.mpdgi.org');
 
 // Active cards must not disappear when they register zero visits in a range.
 const emptyCards=completeDigitalCards([]);
