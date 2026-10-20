@@ -71,7 +71,7 @@ export async function onRequest(context){
   ).bind(rateKey,windowStarted).run();
   if(Number(admitted?.meta?.changes||0)!==1){
     if(Math.random()<0.02)console.warn('[MPDGI Stats] collector rate budget exceeded');
-    return new Response(null,{status:204,headers:corsHeaders(origin)});
+    return new Response(null,{status:429,headers:{...corsHeaders(origin),'Retry-After':'600'}});
   }
   if(Math.random()<0.01)await context.env.STATS_DB.prepare('DELETE FROM collector_rate WHERE window_started<?').bind(windowStarted-7200).run();
 
