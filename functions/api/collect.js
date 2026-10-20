@@ -62,7 +62,7 @@ export async function onRequest(context){
   const rate=await context.env.STATS_DB.prepare('SELECT event_count FROM collector_rate WHERE rate_key=?').bind(rateKey).first();
   if(Number(rate?.event_count||0)>=200){
     if(Math.random()<0.02)console.warn('[MPDGI Stats] collector rate budget exceeded');
-    return new Response(null,{status:204,headers:corsHeaders(origin)});
+    return new Response(null,{status:429,headers:{...corsHeaders(origin),'Retry-After':'600'}});
   }
   // The conditional upsert is atomic across concurrent requests, unlike
   // a SELECT followed by an unconditional increment.
