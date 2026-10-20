@@ -82,6 +82,21 @@ function fillDaily(input,from,to){
   return out;
 }
 
+// Recent health diagnostics are distinct from user-selected historical reports.
+export function assessRecentCollector(recent,collectorStatus){
+  const received=Number(recent?.received)||0;
+  const accepted=Number(recent?.accepted)||0;
+  const duplicates=Number(recent?.duplicates)||0;
+  const rejected=Number(recent?.rejected)||0;
+  const rejectionSpike=received>=20&&rejected/received>=0.25;
+  const noAcceptedEvents=received>=10&&accepted===0&&duplicates===0;
+  return {
+    status:collectorStatus==='operational'&&(rejectionSpike||noAcceptedEvents)?'degraded':collectorStatus,
+    received,accepted,rejected,
+    rejection_pct:received?Number((100*rejected/received).toFixed(1)):0
+  };
+}
+
 export async function getDashboardData(env,urlString){
   if(!env.STATS_DB)throw Object.assign(new Error('database_not_configured'),{status:503});
   await ensureCampaignSchema(env);
@@ -206,24 +221,17 @@ export async function getDashboardData(env,urlString){
       const parsedLast=lastReceived?Date.parse(lastReceived):NaN;
       const ageMs=Number.isFinite(parsedLast)?Math.max(0,Date.now()-parsedLast):null;
       const collectorStatus=ageMs===null||ageMs>48*60*60*1000?'no_recent_activity':'operational';
-      const received=Number(recentQuality.received)||0;
-      const accepted=Number(recentQuality.accepted)||0;
-      const duplicates=Number(recentQuality.duplicates)||0;
-      const rejected=Number(recentQuality.rejected)||0;
-      // A high rejection share requires investigation; duplicates do not.
-      const rejectionSpike=received>=20&&rejected/received>=0.25;
-      const noAcceptedEvents=received>=10&&accepted===0&&duplicates===0;
-      const pipelineStatus=collectorStatus==='operational'&&(rejectionSpike||noAcceptedEvents)?'degraded':collectorStatus;
+      const recent=assessRecentCollector(recentQuality,collectorStatus);
       return {
         collector:collectorStatus,
         database:databaseLatencyMs>1200?'degraded':'operational',
-        event_pipeline:pipelineStatus,
+        event_pipeline:recent.status,
         database_latency_ms:databaseLatencyMs,
         last_received_at:lastReceived,
-         recent_received:received,
-         recent_accepted:accepted,
-         recent_rejected:rejected,
-         recent_rejection_pct:received?Number((100*rejected/received).toFixed(1)):0,
+         recent_received:recent.received,
+         recent_accepted:recent.accepted,
+         recent_rejected:recent.rejected,
+         recent_rejection_pct:recent.rejection_pct,
         last_event_at:last.last_event_at||null
       };
     })()
