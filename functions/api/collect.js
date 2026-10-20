@@ -53,6 +53,7 @@ export async function onRequest(context){
   // Budget ALL non-bot POST requests before any metric or event writes.
   // Once a source exceeds 200 requests per ten-minute bucket, do not write
   // collector_metrics (including rejected) or update the rate counter.
+  // Return 429 instead of 204: no event was stored, so clients must retry.
   const now=new Date(),serverTs=now.toISOString(),day=easternDay(now);
   const ip=context.request.headers.get('CF-Connecting-IP')||'unknown';
   const nowSeconds=Math.floor(now.getTime()/1000);
