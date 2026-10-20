@@ -252,7 +252,7 @@ try{
       event_id:'a1111111-1111-4111-8111-111111111991',
       visitor_id:'b2222222-2222-4222-8222-111111111992',
       session_id:'c3333333-3333-4333-8333-111111111993',
-      acquisition_source:'qr',session_entry:'qr',app_version:'1.4.12'};
+      acquisition_source:'qr',session_entry:'qr',app_version:'1.4.13'};
     assert.equal((await postCollector('https://rscard.mpdgi.org',qrEvent,'203.0.113.224')).status,204);
   }
 

@@ -12,7 +12,7 @@ test('installed shell works offline without caching private API responses',async
   await expect.poll(()=>page.evaluate(()=>Boolean(navigator.serviceWorker.controller)),{timeout:15000}).toBe(true);
   const cacheBefore=await page.evaluate(async()=>{
     const all=await caches.keys();
-    const current=all.find(name=>name==='mpdgi-stats-shell-1.4.12');
+    const current=all.find(name=>name==='mpdgi-stats-shell-1.4.13');
     if(!current)return [];
     const cache=await caches.open(current);
     return (await cache.keys()).map(request=>new URL(request.url).pathname);

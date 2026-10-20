@@ -53,6 +53,7 @@ export async function onRequest(context){
   // Budget ALL non-bot POST requests before any metric or event writes.
   // Once a source exceeds 200 requests per ten-minute bucket, do not write
   // collector_metrics (including rejected) or update the rate counter.
+  // Return 429 instead of 204: no event was stored, so clients must retry.
   const now=new Date(),serverTs=now.toISOString(),day=easternDay(now);
   const ip=context.request.headers.get('CF-Connecting-IP')||'unknown';
   const nowSeconds=Math.floor(now.getTime()/1000);
@@ -61,7 +62,7 @@ export async function onRequest(context){
   const rate=await context.env.STATS_DB.prepare('SELECT event_count FROM collector_rate WHERE rate_key=?').bind(rateKey).first();
   if(Number(rate?.event_count||0)>=200){
     if(Math.random()<0.02)console.warn('[MPDGI Stats] collector rate budget exceeded');
-    return new Response(null,{status:204,headers:corsHeaders(origin)});
+    return new Response(null,{status:429,headers:{...corsHeaders(origin),'Retry-After':'600'}});
   }
   // The conditional upsert is atomic across concurrent requests, unlike
   // a SELECT followed by an unconditional increment.
@@ -70,7 +71,7 @@ export async function onRequest(context){
   ).bind(rateKey,windowStarted).run();
   if(Number(admitted?.meta?.changes||0)!==1){
     if(Math.random()<0.02)console.warn('[MPDGI Stats] collector rate budget exceeded');
-    return new Response(null,{status:204,headers:corsHeaders(origin)});
+    return new Response(null,{status:429,headers:{...corsHeaders(origin),'Retry-After':'600'}});
   }
   if(Math.random()<0.01)await context.env.STATS_DB.prepare('DELETE FROM collector_rate WHERE window_started<?').bind(windowStarted-7200).run();
 
