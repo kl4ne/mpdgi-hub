@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {validateEvent,validateCollectorIdentity,isLikelyBot,easternDay} from '../functions/_lib/validation.js';
-import {resolveRange,completeDigitalCards} from '../functions/_lib/reporting.js';
+import {resolveRange,completeDigitalCards,assessRecentCollector} from '../functions/_lib/reporting.js';
 import {onRequest as collectHandler} from '../functions/api/collect.js';
 import {randomToken,sha256,passwordSalt,passwordVerifier,pbkdf2PasswordVerifier,parsePbkdf2Verifier,createTargetPasswordRecord,verifyPasswordRecord,maybeUpgradePasswordRecord,PBKDF2_ITERATIONS,LEGACY_PASSWORD_SCHEME,TARGET_PASSWORD_SCHEME,PASSWORD_SCHEME,constantTimeEqual} from '../functions/_lib/auth.js';
 
@@ -88,6 +88,15 @@ const blockedCollector=await collectHandler({
 assert.equal(blockedCollector.status,429,'rate-limited traffic must not receive a false 204 acknowledgment');
 assert.equal(blockedCollector.headers.get('Retry-After'),'600');
 assert.equal(blockedCollector.headers.get('Access-Control-Allow-Origin'),'https://hub.mpdgi.org');
+
+
+// v1.4.13: diagnose recent acceptance independently of historical report filters.
+assert.equal(assessRecentCollector({received:40,accepted:5,rejected:30,duplicates:5},'operational').status,'degraded');
+assert.equal(assessRecentCollector({received:18,accepted:0,rejected:18,duplicates:0},'operational').status,'degraded');
+assert.equal(assessRecentCollector({received:50,accepted:0,rejected:0,duplicates:50},'operational').status,'operational');
+assert.equal(assessRecentCollector({received:100,accepted:80,rejected:10,duplicates:10},'operational').status,'operational');
+assert.equal(assessRecentCollector({received:20,accepted:0,rejected:20},'no_recent_activity').status,'no_recent_activity');
+assert.equal(assessRecentCollector({received:20,accepted:10,rejected:5},'operational').rejection_pct,25);
 
 // Active cards must not disappear when they register zero visits in a range.
 const emptyCards=completeDigitalCards([]);
@@ -245,7 +254,7 @@ const reportingSource=readFileSync(new URL('../functions/_lib/reporting.js',impo
 const hubIsolationFilters=(reportingSource.match(/NOT LIKE 'business_card:%'/g)||[]).length;
 assert.ok(hubIsolationFilters>=11,'Hub reporting must exclude business-card events from Hub-centric metrics');
 assert.match(reportingSource,/target LIKE 'business_card:%'/,'Digital Cards reporting must keep its dedicated business-card query');
-assert.match(reportingSource,/SELECT DISTINCT s\.session_id,s\.first_seen_at[\s\S]*?e\.target NOT LIKE 'business_card:%'/,'Activity insights must exclude Digital Card sessions');
+assert.match(reportingSource,/SELECT e\.session_id,MIN\(e\.server_ts\) AS first_seen_at[\s\S]*?e\.target NOT LIKE 'business_card:%'[\s\S]*?GROUP BY e\.session_id/,'Activity must count the same Hub sessions as the report period');
 
 
 const collectorSource=readFileSync(new URL('../functions/api/collect.js',import.meta.url),'utf8');
